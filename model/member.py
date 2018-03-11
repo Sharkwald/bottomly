@@ -1,23 +1,17 @@
 from datetime import datetime, timedelta
 
+
 class Member(object):
-	"""Represents a member of a chat channel"""
+    """Represents a member of a chat channel"""
 
-	def get_karma():
-		"""a function doc string"""
-		cut_off = date.today() - timedelta(days=30);
-		return filter((lambda k: k.awarded < cut_off), __karmas)
+    karma_expiry_days = 30;
 
-	def __init__(self, karmas):
-		super(Member, self).__init__()
-		self.__karmas = karmas
-		
-class Karma(object):
-	"""docstring for Karma"""
-	def __init__(self, awarder, reason, awarded):
-		super(Karma, self).__init__()
-		self.awarder = awarder
-		self.reason = reason
-		self.awarded = awarded
+    def get_current_karma(self):
+        """a function doc string"""
+        cut_off = datetime.today() - timedelta(days = Member.karma_expiry_days);
+        recent_karma = filter((lambda k: k.awarded < cut_off), self.__karma_list)
+        return list(recent_karma).__len__()
 
-		
+    def __init__(self, karma_list):
+        super(Member, self).__init__()
+        self.__karma_list = karma_list
