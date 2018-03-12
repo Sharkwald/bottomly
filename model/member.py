@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta
 from model.karma import KarmaType
-from functools import reduce
 
 
 class Member(object):
