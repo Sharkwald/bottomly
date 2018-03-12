@@ -5,9 +5,9 @@ from model.member import Member
 
 
 def default_karma_list():
-    """Returns a list of 3 karma entries, 2 negative, 1 positive"""
+    """Returns a list of 4 karma entries, 2 negative, 2 positive"""
     return list([Karma(karma_type=KarmaType.NEGGYNEG), Karma(karma_type=KarmaType.NEGGYNEG),
-                 Karma(karma_type=KarmaType.POZZYPOZ)])
+                 Karma(karma_type=KarmaType.POZZYPOZ), Karma(karma_type=KarmaType.POZZYPOZ)])
 
 
 class TestMember(unittest.TestCase):
@@ -35,29 +35,29 @@ class TestMember(unittest.TestCase):
         net_karma = m.get_current_karma()
 
         # Assert
-        self.assertEqual(-1, net_karma)
+        self.assertEqual(0, net_karma)
 
     def test_add_new_karma(self):
         # Arrange
         m = Member(default_karma_list())
-
         k = Karma(karma_type=KarmaType.POZZYPOZ)
 
         # Act
         m.add_karma(k)
 
         # Assert
-        self.assertEqual(0, m.get_current_karma())
+        self.assertEqual(1, m.get_current_karma())
 
     def test_get_karma_reasons_all_default(self):
         # Arrange
         m = Member(default_karma_list())
 
         # Act
-        reasons = m.get_karma_reasons()
+        karma_reasons = m.get_karma_reasons()
 
         # Assert
-        self.assertEqual(0, len(reasons))
+        self.assertEqual(len(default_karma_list()), karma_reasons['reasonless'])
+        self.assertEqual(0, len(karma_reasons['reasoned']))
 
     def test_get_karma_reasons_one_non_default(self):
         # Arrange
@@ -67,10 +67,11 @@ class TestMember(unittest.TestCase):
         m = Member(karma_list)
 
         # Act
-        reasons = m.get_karma_reasons()
+        karma_reasons = m.get_karma_reasons()
 
         # Assert
-        self.assertEqual(list([karma_with_reason]), reasons)
+        self.assertEqual(len(default_karma_list()), karma_reasons['reasonless'])
+        self.assertEqual(list([karma_with_reason]), karma_reasons['reasoned'])
 
 if __name__ == '__main__':
     unittest.main()

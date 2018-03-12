@@ -22,7 +22,9 @@ class Member(object):
 
     def get_karma_reasons(self):
         recent_karma = self.__get_recent_karma()
-        return list(filter((lambda k: k.reason != Karma.default_reason), recent_karma))
+        karma_with_reasons = list(filter((lambda k: k.reason != Karma.default_reason), recent_karma))
+        karma_without_reasons = list(filter((lambda k: k.reason == Karma.default_reason), recent_karma))
+        return {'reasonless':len(karma_without_reasons), 'reasoned':karma_with_reasons}
 
     def __init__(self, karma_list):
         super(Member, self).__init__()
