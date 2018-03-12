@@ -1,0 +1,2 @@
+azure-cosmosdb-nspkg==2.0.2
+azure-cosmosdb-table==1.0.2
