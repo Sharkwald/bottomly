@@ -8,10 +8,11 @@ class KarmaType(Enum):
 
 
 class Karma(object):
-    """docstring for Karma"""
+    default_reason = "default reason"
+
     def __init__(self,
                  awarder="default awarder",
-                 reason="default reason",
+                 reason=default_reason,
                  awarded=datetime.today(),
                  karma_type=KarmaType.POZZYPOZ):
         super(Karma, self).__init__()
