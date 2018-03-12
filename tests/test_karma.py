@@ -1,6 +1,6 @@
 import unittest
 from datetime import datetime
-from model.karma import Karma
+from model.member import Karma
 
 
 class TestKarma(unittest.TestCase):
@@ -10,7 +10,7 @@ class TestKarma(unittest.TestCase):
         test_awarded = datetime.today()
         k = Karma(test_user, test_reason, test_awarded)
 
-        self.assertEqual(k.awarder, test_user)
+        self.assertEqual(k.awarded_by_username, test_user)
         self.assertEqual(k.awarded, test_awarded)
         self.assertEqual(k.reason, test_reason)
 

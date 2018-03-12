@@ -1,7 +1,7 @@
 import unittest
 from datetime import datetime, timedelta
-from model.karma import Karma, KarmaType
 from model.member import Member
+from model.karma import Karma, KarmaType
 
 
 def default_karma_list():
