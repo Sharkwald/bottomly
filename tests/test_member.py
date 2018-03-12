@@ -23,7 +23,8 @@ class TestMember(unittest.TestCase):
 
     def test_get_current_karma_with_net(self):
         # Arrange
-        karma_list = list([Karma(karma_type=KarmaType.NEGGYNEG)])
+        karma_list = list([Karma(karma_type=KarmaType.NEGGYNEG), Karma(karma_type=KarmaType.NEGGYNEG),
+                           Karma(karma_type=KarmaType.POZZYPOZ)])
         m = Member(karma_list)
 
         # Act
