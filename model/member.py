@@ -11,9 +11,10 @@ class Member(object):
     def get_current_karma(self):
         """a function doc string"""
         cut_off = datetime.today() - timedelta(days=Member.karma_expiry_days)
-        recent_karma = map((lambda k: k.karma_type), filter((lambda k: k.awarded < cut_off), self.__karma_list))
-        net_karma = reduce((lambda tally, next_karma: tally + 1 if next_karma == KarmaType.POZZYPOZ else tally - 1),
-                           recent_karma, 0)
+        recent_karma = list(map((lambda k: k.karma_type), filter((lambda k: k.awarded > cut_off), self.__karma_list)))
+        positive_karma = list(filter((lambda k: k == KarmaType.POZZYPOZ), recent_karma)).__len__()
+        negative_karma = list(filter((lambda k: k == KarmaType.NEGGYNEG), recent_karma)).__len__()
+        net_karma = positive_karma - negative_karma
         return net_karma
 
     def __init__(self, karma_list):
