@@ -3,17 +3,25 @@ from commands.google_search import GoogleSearchCommand
 
 
 class TestGoogleSearchCommand(unittest.TestCase):
-    def test_search_empty_input(self):
+    def test_empty_input(self):
         command = GoogleSearchCommand()
         result = command.execute('')
 
         self.assertIsNone(result)
 
-    def test_search_valid_input(self):
+    def test_garbage_input(self):
+        command = GoogleSearchCommand()
+        result = command.execute('asdhbhklasdvfbuioasvfbhuilasdvfbhjkl')
+
+        self.assertIsNone(result)
+
+    def test_valid_input(self):
         command = GoogleSearchCommand()
         result = command.execute("stackoverflow site:en.wikipedia.org")
 
         self.assertIsNotNone(result)
+        self.assertEqual('Stack overflow - Wikipedia', result['title'])
+        self.assertEqual('https://en.wikipedia.org/wiki/Stack_overflow', result['link'])
 
 if __name__ == '__main__':
     unittest.main()

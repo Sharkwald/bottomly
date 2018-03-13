@@ -11,8 +11,7 @@ class GoogleSearchCommand(object):
             return None
         service = build("customsearch", "v1", developerKey=self.api_key)
         results = service.cse().list(q=search_term, cx=self.cse_id, num=1).execute()
-        # Todo: Handle empty result set
-        if len(results['items']) == 0:
+        if results['queries']['request'][0]['totalResults'] == '0': # This seems garbage... better way?
             return None
         return results['items'][0]
 
