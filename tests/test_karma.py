@@ -1,6 +1,6 @@
 import unittest
 from datetime import datetime
-from model.member import Karma
+from model.karma import Karma
 
 
 class TestKarma(unittest.TestCase):
