@@ -1,9 +1,12 @@
 from datetime import datetime, timedelta
 from pymodm import MongoModel, fields
+from pymongo import WriteConcern
 from model.karma import Karma, KarmaType
+from config import Config
 
 
 class Member(MongoModel):
+    username = fields.CharField(primary_key=True)
     _karma_list = fields.EmbeddedDocumentListField(Karma)
     karma_expiry_days = 30
 
@@ -27,6 +30,6 @@ class Member(MongoModel):
         karma_without_reasons = list(filter((lambda k: k.reason == Karma.default_reason), recent_karma))
         return {'reasonless':len(karma_without_reasons), 'reasoned':karma_with_reasons}
 
-    def __init__(self, karma_list):
-       super(Member, self).__init__()
-       self._karma_list = karma_list
+    class Meta:
+        write_concern = WriteConcern(j=True)
+        connection_alias = Config.Connection

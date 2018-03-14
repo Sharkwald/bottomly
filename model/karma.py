@@ -14,13 +14,13 @@ class Karma(MongoModel):
     awarded = fields.DateTimeField()
     karma_type = fields.CharField()
 
-    def __init__(self,
-                 awarded_by_username="default awarder",
-                 reason=default_reason,
-                 awarded=datetime.today(),
-                 karma_type=KarmaType.POZZYPOZ):
-        super(Karma, self).__init__()
-        self.awarded_by_username = awarded_by_username
-        self.reason = reason
-        self.awarded = awarded
-        self.karma_type = karma_type
+    # def __init__(self,
+    #              awarded_by_username="default awarder",
+    #              reason=default_reason,
+    #              awarded=datetime.today(),
+    #              karma_type=KarmaType.POZZYPOZ):
+    #     super(Karma, self).__init__()
+    #     self.awarded_by_username = awarded_by_username
+    #     self.reason = reason
+    #     self.awarded = awarded
+    #     self.karma_type = karma_type
