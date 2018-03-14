@@ -4,7 +4,7 @@ from googleapiclient.discovery import build
 
 class GoogleSearchCommand(object):
     def execute(self, search_term):
-        if search_term == None or search_term == '':
+        if search_term is None or search_term == '':
             return None
         service = build("customsearch", "v1", developerKey=self.api_key)
         results = service.cse().list(q=search_term, cx=self.cse_id, num=1).execute()
