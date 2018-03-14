@@ -102,3 +102,7 @@ ENV/
 
 # pycharm
 .idea/
+
+# development environment configs
+devenv.sh
+devenv.bat
