@@ -86,15 +86,19 @@ class TestMember(unittest.TestCase):
         self.assertEqual(list([karma_with_reason]), karma_reasons['reasoned'])
 
     def test_persistence(self):
+        # Arrange
         Config().connect_to_db()
         m = Member(TestMember.test_username, default_karma_list())
 
+        # Act
         m.save()
 
+        # Assert
         retrieved_members = Member.objects.raw({'_id':TestMember.test_username})
         self.assertEqual(1, retrieved_members.count())
         self.assertEqual(m, retrieved_members[0])
 
+        # Tear down
         m.delete()
 
 
