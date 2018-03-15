@@ -102,7 +102,8 @@ def hears():
     This route listens for incoming events from Slack and uses the event
     handler helper function to route events to our Bot.
     """
-    slack_event = json.loads(request.data)
+    decoded_request = request.data.decode('utf-8')
+    slack_event = json.loads(decoded_request)
 
     # ============= Slack URL Verification ============ #
     # In order to verify the url of our endpoint, Slack will send a challenge
@@ -134,13 +135,6 @@ def hears():
     # send a quirky but helpful error response
     return make_response("[NO EVENT IN SLACK REQUEST] These are not the droids\
                          you're looking for.", 404, {"X-Slack-No-Retry": 1})
-
-@app.route("/googletest", methods=["GET"])
-def urban_test():
-    g = GoogleSearchCommand()
-    q = request.args.get('q')
-    lookup = g.execute(q)
-    return make_response(lookup['title'] + ': ' + lookup['link'])
 
 if __name__ == '__main__':
     app.run(debug=True)
