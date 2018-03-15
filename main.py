@@ -102,6 +102,7 @@ def hears():
     This route listens for incoming events from Slack and uses the event
     handler helper function to route events to our Bot.
     """
+    # Todo: Log the incoming request data somewhere...
     decoded_request = request.data.decode('utf-8')
     slack_event = json.loads(decoded_request)
 
