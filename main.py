@@ -47,13 +47,19 @@ def _event_handler(event_type, slack_event):
     # If the user has shared the onboarding message, the event type will be
     # message. We'll also need to check that this is a message that has been
     # shared by looking into the attachments for "is_shared".
-    elif event_type == "message" and slack_event["event"].get("attachments"):
-        user_id = slack_event["event"].get("user")
-        if slack_event["event"]["attachments"][0].get("is_share"):
-            # Update the onboarding message and check off "Share this Message"
-            pyBot.update_share(team_id, user_id)
-            return make_response("Welcome message updates with shared message",
-                                 200,)
+    # elif event_type == "message" and slack_event["event"].get("attachments"):
+    #     user_id = slack_event["event"].get("user")
+    #     if slack_event["event"]["attachments"][0].get("is_share"):
+    #         # Update the onboarding message and check off "Share this Message"
+    #         pyBot.update_share(team_id, user_id)
+    #         return make_response("Welcome message updates with shared message",
+    #                              200,)
+    elif event_type == "message":
+        message_text = slack_event["event"]["message"]
+        if message_text.startswith('_g'):
+            query_term = message_text.replace('_g ', '')[3:]
+            pyBot.google_search(query_term, slack_event["channel"])
+
 
     # ============= Event Type Not Found! ============= #
     # If the event_type does not have a handler
