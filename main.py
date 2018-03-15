@@ -4,6 +4,8 @@ A routing layer for the onboarding bot tutorial built using
 [Slack's Events API](https://api.slack.com/events-api) in Python
 """
 import json
+
+from commands.google_search import GoogleSearchCommand
 from slack_channel import bot
 from flask import Flask, request, make_response, render_template
 
@@ -37,7 +39,8 @@ def _event_handler(event_type, slack_event):
     if event_type == "team_join":
         user_id = slack_event["event"]["user"]["id"]
         # Send the onboarding message
-        pyBot.onboarding_message(team_id, user_id)
+        # pyBot.onboarding_message(team_id, user_id)
+        # TODO: Add the new user to our DB for karma tracking & stuff
         return make_response("Welcome Message Sent", 200,)
 
     # ============== Share Message Events ============= #
@@ -51,22 +54,6 @@ def _event_handler(event_type, slack_event):
             pyBot.update_share(team_id, user_id)
             return make_response("Welcome message updates with shared message",
                                  200,)
-
-    # ============= Reaction Added Events ============= #
-    # If the user has added an emoji reaction to the onboarding message
-    elif event_type == "reaction_added":
-        user_id = slack_event["event"]["user"]
-        # Update the onboarding message
-        pyBot.update_emoji(team_id, user_id)
-        return make_response("Welcome message updates with reactji", 200,)
-
-    # =============== Pin Added Events ================ #
-    # If the user has added an emoji reaction to the onboarding message
-    elif event_type == "pin_added":
-        user_id = slack_event["event"]["user"]
-        # Update the onboarding message
-        pyBot.update_pin(team_id, user_id)
-        return make_response("Welcome message updates with pin", 200,)
 
     # ============= Event Type Not Found! ============= #
     # If the event_type does not have a handler
@@ -142,6 +129,12 @@ def hears():
     return make_response("[NO EVENT IN SLACK REQUEST] These are not the droids\
                          you're looking for.", 404, {"X-Slack-No-Retry": 1})
 
+@app.route("/googletest", methods=["GET"])
+def urban_test():
+    g = GoogleSearchCommand()
+    q = request.args.get('q')
+    lookup = g.execute(q)
+    return make_response(lookup['title'] + ': ' + lookup['link'])
 
 if __name__ == '__main__':
     app.run(debug=True)
