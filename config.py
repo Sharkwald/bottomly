@@ -7,6 +7,7 @@ class ConfigKeys(Enum):
     google_api_key = "bottomly_google_api_key"
     google_cse_id = "bottomly_google_cse_id"
     mongo_conn_st = "bottomly_mongo_conn_str"
+    slack_bot_token = "bottomly_slack_bot_token"
 
 
 class Config(object):
@@ -16,7 +17,8 @@ class Config(object):
     _key_err_messages = {
         ConfigKeys.google_api_key: 'Google API key is not configured',
         ConfigKeys.google_cse_id: 'Google custom search engine ID is not configured',
-        ConfigKeys.mongo_conn_st: 'MongoDB connection string is not configured'
+        ConfigKeys.mongo_conn_st: 'MongoDB connection string is not configured',
+        ConfigKeys.slack_bot_token: 'Slack bot auth token is not configured'
     }
 
     # Functions
