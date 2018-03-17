@@ -9,10 +9,11 @@ from slack_channel.slack_event_handler import SlackEventHandler
 
 app = Flask(__name__)
 
+
 @app.route("/", methods=["GET", "POST"])
 def start_up():
-    print("Flask has been accessed.")
     return "Hello, I am bottomly."
+
 
 @app.before_first_request
 def activate_job():
@@ -22,8 +23,6 @@ def activate_job():
 
     thread = threading.Thread(target=spin_up_slack_socket)
     thread.start()
-
-
 
 
 def start_runner():
@@ -44,6 +43,7 @@ def start_runner():
     print('Started runner')
     thread = threading.Thread(target=start_loop)
     thread.start()
+
 
 if __name__ == '__main__':
     start_runner()
