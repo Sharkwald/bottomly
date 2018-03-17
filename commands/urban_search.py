@@ -20,7 +20,7 @@ class UrbanSearchCommand(object):
 
     def _get_random_result(self, results):
         list_total = len(results['list'])
-        random_index = random.randint(0, list_total)
+        random_index = random.randint(0, list_total-1)
         return results['list'][random_index]['definition']
 
     def __init__(self):
