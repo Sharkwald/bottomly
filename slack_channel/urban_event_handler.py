@@ -1,21 +1,20 @@
 # coding=utf-8
 from slacksocket import SlackSocket
 
-from commands.google_search import GoogleSearchCommand
+from commands.urban_search import UrbanSearchCommand
 from config import Config, ConfigKeys
 
-command_symbol = "g"
+command_symbol = "ud"
 
-class GoogleEventHandler(object):
+class UrbanEventHandler(object):
     def can_handle(self, slack_event):
         text = slack_event["text"]
         return text.startswith(self.command_trigger + " ")
 
     def handle(self, slack_event):
         q = slack_event["text"][3:]
-        c = GoogleSearchCommand()
-        result = c.execute(q)
-        response_message = result["title"] + " " + result["link"]
+        c = UrbanSearchCommand()
+        response_message = c.execute(q)
         if self.debug:
             response_message = "[DEBUG] " + response_message
         self._send_response(response_message, slack_event)

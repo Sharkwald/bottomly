@@ -1,7 +1,7 @@
 # coding=utf-8
 from slacksocket import SlackSocket
 from config import Config, ConfigKeys
-from slack_channel.google_event_handler import GoogleEventHandler
+from slack_channel import *
 
 config = Config()
 token = config.get_config_value(ConfigKeys.slack_bot_token)
@@ -19,9 +19,10 @@ def _is_subscribed_event(slack_event):
 
 class SlackEventHandler(object):
     def _init_handlers(self):
-        self.handlers = list(
-            [GoogleEventHandler(self.debug)]
-        )
+        self.handlers = list([
+            GoogleEventHandler(self.debug),
+            UrbanEventHandler(self.debug)
+        ])
 
     def handle_slack_context(self):
         if self.debug:
