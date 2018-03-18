@@ -44,6 +44,7 @@ class SlackEventHandler(object):
 
             except Exception as ex:
                 print("Error! " + str(ex))
+                # TODO: Log this I guess?
 
     def __init__(self, debug=False):
         self.debug = debug

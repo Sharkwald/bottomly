@@ -20,6 +20,7 @@ class GoogleEventHandler(object):
             response_message = "[DEBUG] " + response_message
         self._send_response(response_message, slack_event)
 
+    # TODO: Refactor these into a common base class
     def _send_response(self, response_message, slack_event):
         with SlackSocket(self.token) as s:
             msg = s.send_msg(response_message, slack_event["channel"])
