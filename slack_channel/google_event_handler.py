@@ -9,10 +9,10 @@ command_symbol = "g"
 class GoogleEventHandler(object):
     def can_handle(self, slack_event):
         text = slack_event["text"]
-        return text.startswith(self.command_trigger + " ")
+        return text.startswith(self.command_trigger)
 
     def handle(self, slack_event):
-        q = slack_event["text"][3:]
+        q = slack_event["text"][len(self.command_trigger):]
         c = GoogleSearchCommand()
         result = c.execute(q)
         response_message = result["title"] + " " + result["link"]
@@ -29,7 +29,7 @@ class GoogleEventHandler(object):
     def _get_config(self):
         config = Config()
         self.token = config.get_config_value(ConfigKeys.slack_bot_token)
-        self.command_trigger = config.get_prefix() + command_symbol
+        self.command_trigger = config.get_prefix() + command_symbol + " "
 
     def __init__(self, debug=False):
         self.debug = debug
