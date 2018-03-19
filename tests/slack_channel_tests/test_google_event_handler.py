@@ -33,7 +33,7 @@ class TestGoogleEventHandler(unittest.TestCase):
     def test_command_execute_is_called(self, execute_method, response_method, config_method, prefix_method):
         handler = GoogleEventHandler()
         handler.handle(valid_event)
-        execute_method.assert_called_with(valid_event["text"][3:])
+        execute_method.assert_called_once_with(valid_event["text"][3:])
 
     @patch.object(Config, "get_prefix", return_value=test_prefix)
     @patch.object(Config, "get_config_value")
@@ -42,7 +42,7 @@ class TestGoogleEventHandler(unittest.TestCase):
     def test_command_result_is_correctly_built(self, response_method, execute_method, config_method, prefix_method):
         handler = GoogleEventHandler()
         handler.handle(valid_event)
-        response_method.assert_called_with("response title response_link", valid_event)
+        response_method.assert_called_once_with("response title response_link", valid_event)
 
     if __name__ == '__main__':
         unittest.main()

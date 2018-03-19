@@ -18,9 +18,6 @@ class WikipediaEventHandler(AbstractEventHandler):
         if self.debug:
             response_message = "[DEBUG] " + response_message
         self._send_response(response_message, slack_event)
-        if self.debug:
-            response_message = "[DEBUG] " + response_message
-        self._send_response(response_message, slack_event)
 
     def _get_command_symbol(self):
         return command_symbol
