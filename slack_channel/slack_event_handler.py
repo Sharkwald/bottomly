@@ -29,24 +29,28 @@ class SlackEventHandler(object):
 
     def handle_slack_context(self):
         if self.debug:
-            logging.info("opening web socket to slack...")
+            logging.info("Opening web socket to slack...")
 
-        with SlackSocket(token) as s:
-            for e in s.events():
-                try:
-                    if self.debug:
-                        logging.debug(e.json)
+        try:
+            with SlackSocket(token) as s:
+                for e in s.events():
+                    try:
+                        if self.debug:
+                            logging.debug(e.json)
 
-                    slack_event = e.event
-                    if not _is_subscribed_event(slack_event):
-                        continue
-                    for handler in self.handlers:
-                        if handler.can_handle(slack_event):
-                            handler.handle(slack_event)
+                        slack_event = e.event
+                        if not _is_subscribed_event(slack_event):
                             continue
+                        for handler in self.handlers:
+                            if handler.can_handle(slack_event):
+                                handler.handle(slack_event)
+                                continue
 
-                except Exception as ex:
-                    logging.warning("Error in main loop: " + str(ex.with_traceback()))
+                    except Exception as ex:
+                        logging.exception("Error in main loop.", ex)
+        except Exception as ex:
+            logging.exception("Error establishing connection to slack.", ex)
+
 
     def __init__(self, debug=False):
         self.debug = debug
