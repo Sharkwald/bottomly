@@ -22,7 +22,8 @@ class SlackEventHandler(object):
     def _init_handlers(self):
         self.handlers = list([
             GoogleEventHandler(self.debug),
-            UrbanEventHandler(self.debug)
+            UrbanEventHandler(self.debug),
+            WikipediaEventHandler(self.debug)
         ])
 
     def handle_slack_context(self):
