@@ -1,5 +1,5 @@
 # coding=utf-8
-from commands.urban_search import UrbanSearchCommand
+from commands import UrbanSearchCommand
 from slack_channel.abstract_event_handler import AbstractEventHandler
 
 

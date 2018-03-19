@@ -6,6 +6,7 @@ from slack_channel import *
 config = Config()
 token = config.get_config_value(ConfigKeys.slack_bot_token)
 
+
 def _is_subscribed_event(slack_event):
     try:
         subscribed = True

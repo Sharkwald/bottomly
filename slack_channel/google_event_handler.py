@@ -1,5 +1,5 @@
 # coding=utf-8
-from commands.google_search import GoogleSearchCommand
+from commands import GoogleSearchCommand
 from slack_channel.abstract_event_handler import AbstractEventHandler
 
 command_symbol = "g"
