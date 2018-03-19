@@ -12,14 +12,16 @@ urban_response = "Doubtless some pile of filth"
 
 class TestUrbanEventHandler(unittest.TestCase):
 
+    @patch.object(Config, "get_config_value")
     @patch.object(Config, "get_prefix", return_value=test_prefix)
-    def test_handles_correct_event(self, prefix_method):
+    def test_handles_correct_event(self, prefix_method, config_method):
         handler = UrbanEventHandler()
         can_handle = handler.can_handle(valid_event)
         self.assertTrue(can_handle)
 
+    @patch.object(Config, "get_config_value")
     @patch.object(Config, "get_prefix", return_value=test_prefix)
-    def test_does_not_handle_different_event(self, prefix_method):
+    def test_does_not_handle_different_event(self, prefix_method, config_method):
         handler = UrbanEventHandler()
         can_handle = handler.can_handle(invalid_event)
         self.assertFalse(can_handle)
