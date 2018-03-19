@@ -1,6 +1,8 @@
 # coding=utf-8
-import threading
+import datetime
+import logging
 import requests
+import threading
 import time
 
 from flask import Flask
@@ -17,6 +19,7 @@ def start_up():
 
 @app.before_first_request
 def activate_job():
+    logging.basicConfig(filename="bottomly_" + str(datetime.date.today()) + ".log", level=logging.INFO)
     def spin_up_slack_socket():
         handler = SlackEventHandler(app.debug)
         handler.handle_slack_context()
@@ -29,15 +32,15 @@ def start_runner():
     def start_loop():
         not_started = True
         while not_started:
-            print('In start loop')
+            logging.info('In start loop')
             try:
-                r = requests.get("http://localhost:5000")
+                r = requests.get("http://localhost/")
                 if r.status_code == 200:
-                    print('Server started, quiting start_loop')
+                    logging.info('Server started, quiting start_loop')
                     not_started = False
                 print(r.status_code)
             except:
-                print('Server not yet started')
+                logging.info('Server not yet started')
             time.sleep(2)
 
     print('Started runner')

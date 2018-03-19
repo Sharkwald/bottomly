@@ -1,4 +1,5 @@
 # coding=utf-8
+import logging
 from slacksocket import SlackSocket
 from config import Config, ConfigKeys
 from slack_channel import *
@@ -14,8 +15,8 @@ def _is_subscribed_event(slack_event):
         subscribed = subscribed and "text" in slack_event
         return subscribed
     except Exception as ex:
-        print("Error determining if event is subscribed: " + str(ex))
-        print("Message: " + slack_event)
+        logging.warning("Error determining if event is subscribed: " + str(ex))
+        logging.warning("Message: " + slack_event)
 
 
 class SlackEventHandler(object):
@@ -28,13 +29,13 @@ class SlackEventHandler(object):
 
     def handle_slack_context(self):
         if self.debug:
-            print("opening web socket to slack...")
+            logging.info("opening web socket to slack...")
 
         with SlackSocket(token) as s:
             try:
                 for e in s.events():
                     if self.debug:
-                        print(e.json)
+                        logging.debug(e.json)
 
                     slack_event = e.event
                     if not _is_subscribed_event(slack_event):
@@ -45,8 +46,7 @@ class SlackEventHandler(object):
                             continue
 
             except Exception as ex:
-                print("Error! " + str(ex))
-                # TODO: Log this I guess?
+                logging.warning("Error! " + str(ex))
 
     def __init__(self, debug=False):
         self.debug = debug
