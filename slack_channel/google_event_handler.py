@@ -14,7 +14,10 @@ class GoogleEventHandler(AbstractEventHandler):
         q = slack_event["text"][len(self.command_trigger):]
         c = GoogleSearchCommand()
         result = c.execute(q)
-        response_message = result["title"] + " " + result["link"]
+        if result is None:
+            response_message = "No results found for \"" + q +  "\""
+        else:
+            response_message = result["title"] + " " + result["link"]
         if self.debug:
             response_message = "[DEBUG] " + response_message
         self._send_response(response_message, slack_event)

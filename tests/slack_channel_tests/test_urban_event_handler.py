@@ -44,5 +44,15 @@ class TestUrbanEventHandler(unittest.TestCase):
         handler.handle(valid_event)
         response_method.assert_called_once_with(urban_response, valid_event)
 
+    @patch.object(Config, "get_prefix", return_value=test_prefix)
+    @patch.object(Config, "get_config_value")
+    @patch.object(UrbanSearchCommand, "execute", return_value=None)
+    @patch.object(UrbanEventHandler, "_send_response")
+    def test_no_result_message_correctly_sent(self, response_method, execute_method, config_method, prefix_method):
+        handler = UrbanEventHandler()
+        handler.handle(valid_event)
+        empty_results_message = "Left as an exercise for the reader."
+        response_method.assert_called_once_with(empty_results_message, valid_event)
+
     if __name__ == '__main__':
         unittest.main()
