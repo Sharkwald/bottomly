@@ -8,7 +8,7 @@ from slack_channel import WikipediaEventHandler
 test_prefix = "_"
 valid_event = {"text": test_prefix + "wik a valid Wikipedia command"}
 invalid_event = {"text": "this is missing a valid command prefix"}
-wikipedia_response = {"title": "response title", "link": "response_link"}
+wikipedia_response = {"text": "response title", "link": "response_link"}
 
 class TestWikipediaEventHandler(unittest.TestCase):
 
