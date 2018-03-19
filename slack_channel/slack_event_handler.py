@@ -46,7 +46,7 @@ class SlackEventHandler(object):
                             continue
 
                 except Exception as ex:
-                    logging.warning("Error! " + str(ex))
+                    logging.warning("Error in main loop: " + str(ex.with_traceback()))
 
     def __init__(self, debug=False):
         self.debug = debug
