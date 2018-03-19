@@ -32,8 +32,8 @@ class SlackEventHandler(object):
             logging.info("opening web socket to slack...")
 
         with SlackSocket(token) as s:
-            try:
-                for e in s.events():
+            for e in s.events():
+                try:
                     if self.debug:
                         logging.debug(e.json)
 
@@ -45,8 +45,8 @@ class SlackEventHandler(object):
                             handler.handle(slack_event)
                             continue
 
-            except Exception as ex:
-                logging.warning("Error! " + str(ex))
+                except Exception as ex:
+                    logging.warning("Error! " + str(ex))
 
     def __init__(self, debug=False):
         self.debug = debug
