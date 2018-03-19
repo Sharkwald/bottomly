@@ -15,11 +15,11 @@ class WikipediaEventHandler(AbstractEventHandler):
         c = WikipediaSearchCommand()
         result = c.execute(q)
         if result is None:
-            response_message = f'No results found for "{q}"'
+            response_message = "No results found for \"" + q +  "\""
         else:
-            response_message = "{text} {link}".format(**result)
+            response_message = result["text"] + " " + result["link"]
         if self.debug:
-            response_message = f"[DEBUG] {response_message}"
+            response_message = "[DEBUG] " + response_message
         self._send_response(response_message, slack_event)
 
     def _get_command_symbol(self):
