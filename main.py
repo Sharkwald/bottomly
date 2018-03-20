@@ -6,7 +6,9 @@ import threading
 import time
 
 from flask import Flask
+from slacker import Slacker
 
+from config import Config, ConfigKeys
 from slack_channel.slack_event_handler import SlackEventHandler
 
 app = Flask(__name__)
@@ -34,7 +36,7 @@ def start_runner():
         while not_started:
             logging.info('In start loop')
             try:
-                r = requests.get("http://localhost/")
+                r = requests.get("http://localhost:5000/")
                 if r.status_code == 200:
                     logging.info('Server started, quiting start_loop')
                     not_started = False
@@ -49,5 +51,12 @@ def start_runner():
 
 
 if __name__ == '__main__':
-    start_runner()
+    #start_runner()
+    slack = Slacker(Config().get_config_value(ConfigKeys.slack_bot_token))
+    response = slack.users.list()
+    users = response.body['members']
+    for user in users:
+        if not user['deleted']:
+            print(user['id'], user['name'], user['is_admin'], user[
+                'is_owner'])
     app.run(debug=True)
