@@ -61,7 +61,7 @@ class TestGoogleEventHandler(unittest.TestCase):
     def test_get_usage(self, response_method, config_method, prefix_method):
         handler = GoogleEventHandler()
         handler.handle(help_event)
-        expected_help = test_prefix + "g <query>"
+        expected_help = "Usage: `" + test_prefix + "g <query>" + "`"
         response_method.assert_called_once_with(expected_help, help_event)
 
     if __name__ == '__main__':

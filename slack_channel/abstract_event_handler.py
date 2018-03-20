@@ -25,7 +25,7 @@ class AbstractEventHandler(ABC):
 
     def handle(self, slack_event):
         if slack_event["text"] == self.command_trigger + help_token:
-            usage = self.get_usage()
+            usage = "Usage: `" + self.get_usage() + "`"
             self._send_response(usage, slack_event)
         else:
             self._invoke_handler_logic(slack_event)
