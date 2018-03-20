@@ -11,7 +11,7 @@ class UrbanEventHandler(AbstractEventHandler):
         text = slack_event["text"]
         return text.startswith(self.command_trigger)
 
-    def handle(self, slack_event):
+    def _invoke_handler_logic(self, slack_event):
         q = slack_event["text"][len(self.command_trigger):]
         c = UrbanSearchCommand()
         response_message = c.execute(q)
@@ -24,3 +24,6 @@ class UrbanEventHandler(AbstractEventHandler):
 
     def _get_command_symbol(self):
         return command_symbol
+
+    def get_usage(self):
+        return self.command_trigger + "<query>"

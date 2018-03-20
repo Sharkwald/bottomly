@@ -8,6 +8,7 @@ from slack_channel import UrbanEventHandler
 test_prefix = "_"
 valid_event = {"text": test_prefix + "ud a valid Urban command"}
 invalid_event = {"text": "this is missing a valid command prefix"}
+help_event = {"text": test_prefix + "ud -?"}
 urban_response = "Doubtless some pile of filth"
 
 class TestUrbanEventHandler(unittest.TestCase):
@@ -53,6 +54,15 @@ class TestUrbanEventHandler(unittest.TestCase):
         handler.handle(valid_event)
         empty_results_message = "Left as an exercise for the reader."
         response_method.assert_called_once_with(empty_results_message, valid_event)
+
+    @patch.object(Config, "get_prefix", return_value=test_prefix)
+    @patch.object(Config, "get_config_value")
+    @patch.object(UrbanEventHandler, "_send_response")
+    def test_get_usage(self, response_method, config_method, prefix_method):
+        handler = UrbanEventHandler()
+        handler.handle(help_event)
+        expected_help = test_prefix + "ud <query>"
+        response_method.assert_called_once_with(expected_help, help_event)
 
     if __name__ == '__main__':
         unittest.main()

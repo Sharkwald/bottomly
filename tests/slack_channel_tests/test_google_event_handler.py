@@ -8,6 +8,7 @@ from slack_channel import GoogleEventHandler
 test_prefix = "_"
 valid_event = {"text": test_prefix + "g a valid google command"}
 invalid_event = {"text": "this is missing a valid command prefix"}
+help_event = {"text": test_prefix + "g -?"}
 google_response = {"title": "response title", "link": "response_link"}
 
 class TestGoogleEventHandler(unittest.TestCase):
@@ -53,6 +54,15 @@ class TestGoogleEventHandler(unittest.TestCase):
         handler.handle(valid_event)
         empty_results_message = "No results found for \""+ valid_event["text"][3:]+"\""
         response_method.assert_called_once_with(empty_results_message, valid_event)
+
+    @patch.object(Config, "get_prefix", return_value=test_prefix)
+    @patch.object(Config, "get_config_value")
+    @patch.object(GoogleEventHandler, "_send_response")
+    def test_get_usage(self, response_method, config_method, prefix_method):
+        handler = GoogleEventHandler()
+        handler.handle(help_event)
+        expected_help = test_prefix + "g <query>"
+        response_method.assert_called_once_with(expected_help, help_event)
 
     if __name__ == '__main__':
         unittest.main()

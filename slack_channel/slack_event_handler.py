@@ -43,7 +43,7 @@ class SlackEventHandler(object):
                             continue
                         for handler in self.handlers:
                             if handler.can_handle(slack_event):
-                                handler.handle(slack_event)
+                                handler.invoke_handler_logic(slack_event)
                                 continue
 
                     except Exception as ex:
