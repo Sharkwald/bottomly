@@ -1,7 +1,11 @@
+from commands.abstract_command import AbstractCommand
 from model.member import Member
 
 
-class AddMemberCommand(object):
+class AddMemberCommand(AbstractCommand):
+
+    def get_purpose(self):
+        return "Adds a new chat member to the persistent storage."
 
     def execute(self):
         # Check if username is unique, otherwise barf

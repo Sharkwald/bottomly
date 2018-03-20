@@ -6,10 +6,8 @@ import threading
 import time
 
 from flask import Flask
-from slacker import Slacker
 
-from commands.add_member import AddMemberCommand
-from config import Config, ConfigKeys
+from slack_channel.initial_memberlist_populator import InitialMemberlistPopulator
 from slack_channel.slack_event_handler import SlackEventHandler
 
 app = Flask(__name__)
@@ -32,18 +30,7 @@ def activate_job():
 
 @app.route("/init_members", methods=["GET"])
 def init_members():
-    Config().connect_to_db()
-    slack = Slacker(Config().get_config_value(ConfigKeys.slack_bot_token))
-    response = slack.users.list()
-    users = response.body['members']
-    data = ""
-    for user in users:
-        if not user['deleted']:
-            username = user['name']
-            c = AddMemberCommand(username)
-            c.execute()
-            data += "Added " + username
-    return data
+    InitialMemberlistPopulator().populate()
 
 def start_runner():
     def start_loop():
