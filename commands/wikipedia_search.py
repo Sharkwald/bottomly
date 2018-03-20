@@ -1,8 +1,13 @@
 import requests
 import json
 
+from commands.abstract_command import AbstractCommand
 
-class WikipediaSearchCommand(object):
+
+class WikipediaSearchCommand(AbstractCommand):
+    def get_purpose(self):
+        return "Performs a wikipedia search and returns the top hit."
+
     def execute(self, search_term):
         if search_term is None or search_term == '':
             return None

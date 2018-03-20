@@ -1,8 +1,13 @@
+from commands.abstract_command import AbstractCommand
 from config import ConfigKeys, Config
 from googleapiclient.discovery import build
 
 
-class GoogleSearchCommand(object):
+class GoogleSearchCommand(AbstractCommand):
+
+    def get_purpose(self):
+        return "Performs a google search and returns the top hit."
+
     def execute(self, search_term):
         if search_term is None or search_term == '':
             return None

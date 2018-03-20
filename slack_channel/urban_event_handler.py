@@ -7,6 +7,13 @@ command_symbol = "ud"
 empty_result_message = "Left as an exercise for the reader."
 
 class UrbanEventHandler(AbstractEventHandler):
+    @property
+    def command(self):
+        return UrbanSearchCommand()
+
+    def get_usage(self):
+        return self.command_trigger + "<query>"
+
     def can_handle(self, slack_event):
         text = slack_event["text"]
         return text.startswith(self.command_trigger)
@@ -24,6 +31,3 @@ class UrbanEventHandler(AbstractEventHandler):
 
     def _get_command_symbol(self):
         return command_symbol
-
-    def get_usage(self):
-        return self.command_trigger + "<query>"

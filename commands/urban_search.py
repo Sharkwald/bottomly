@@ -1,8 +1,13 @@
 import requests
 import random
 
+from commands.abstract_command import AbstractCommand
 
-class UrbanSearchCommand(object):
+
+class UrbanSearchCommand(AbstractCommand):
+    def get_purpose(self):
+        return "Tells you what something _really_ means."
+
     def execute(self, search_term):
         if search_term is None or search_term == '':
             return None

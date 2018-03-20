@@ -1,4 +1,5 @@
 import logging
+import os
 from abc import ABC, abstractmethod
 from slacksocket import SlackSocket
 from config import Config, ConfigKeys
@@ -6,6 +7,11 @@ from config import Config, ConfigKeys
 help_token = "-?"
 
 class AbstractEventHandler(ABC):
+
+    @property
+    @abstractmethod
+    def command(self):
+        pass
 
     @abstractmethod
     def can_handle(self, slack):
@@ -25,8 +31,9 @@ class AbstractEventHandler(ABC):
 
     def handle(self, slack_event):
         if slack_event["text"] == self.command_trigger + help_token:
+            purpose = self.command.get_purpose() + os.linesep
             usage = "Usage: `" + self.get_usage() + "`"
-            self._send_response(usage, slack_event)
+            self._send_response(purpose + usage, slack_event)
         else:
             self._invoke_handler_logic(slack_event)
 

@@ -57,11 +57,13 @@ class TestGoogleEventHandler(unittest.TestCase):
 
     @patch.object(Config, "get_prefix", return_value=test_prefix)
     @patch.object(Config, "get_config_value")
+    @patch.object(GoogleSearchCommand, "get_purpose", return_value="Googles")
     @patch.object(GoogleEventHandler, "_send_response")
-    def test_get_usage(self, response_method, config_method, prefix_method):
+    def test_get_usage(self, response_method, purpose_method, config_method, prefix_method):
         handler = GoogleEventHandler()
         handler.handle(help_event)
-        expected_help = "Usage: `" + test_prefix + "g <query>" + "`"
+        expected_help = "Googles\r\nUsage: `" + test_prefix + "g <query>" + "`"
+        purpose_method.assert_called_once()
         response_method.assert_called_once_with(expected_help, help_event)
 
     if __name__ == '__main__':

@@ -57,11 +57,13 @@ class TestUrbanEventHandler(unittest.TestCase):
 
     @patch.object(Config, "get_prefix", return_value=test_prefix)
     @patch.object(Config, "get_config_value")
+    @patch.object(UrbanSearchCommand, "get_purpose", return_value="Urbans")
     @patch.object(UrbanEventHandler, "_send_response")
-    def test_get_usage(self, response_method, config_method, prefix_method):
+    def test_get_usage(self, response_method, purpose_method, config_method, prefix_method):
         handler = UrbanEventHandler()
         handler.handle(help_event)
-        expected_help = "Usage: `" + test_prefix + "ud <query>" + "`"
+        expected_help = "Urbans\r\nUsage: `" + test_prefix + "ud <query>" + "`"
+        purpose_method.assert_called_once()
         response_method.assert_called_once_with(expected_help, help_event)
 
     if __name__ == '__main__':

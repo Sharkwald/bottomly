@@ -6,6 +6,14 @@ from slack_channel.abstract_event_handler import AbstractEventHandler
 command_symbol = "wik"
 
 class WikipediaEventHandler(AbstractEventHandler):
+
+    @property
+    def command(self):
+        return WikipediaSearchCommand()
+
+    def get_usage(self):
+        return self.command_trigger + "<query>"
+
     def can_handle(self, slack_event):
         text = slack_event["text"]
         return text.startswith(self.command_trigger)
@@ -24,6 +32,3 @@ class WikipediaEventHandler(AbstractEventHandler):
 
     def _get_command_symbol(self):
         return command_symbol
-
-    def get_usage(self):
-        return self.command_trigger + "<query>"

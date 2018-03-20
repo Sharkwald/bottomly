@@ -57,11 +57,13 @@ class TestWikipediaEventHandler(unittest.TestCase):
 
     @patch.object(Config, "get_prefix", return_value=test_prefix)
     @patch.object(Config, "get_config_value")
+    @patch.object(WikipediaSearchCommand, "get_purpose", return_value="Wikipedias")
     @patch.object(WikipediaEventHandler, "_send_response")
-    def test_get_usage(self, response_method, config_method, prefix_method):
+    def test_get_usage(self, response_method, purpose_method, config_method, prefix_method):
         handler = WikipediaEventHandler()
         handler.handle(help_event)
-        expected_help = "Usage: `" + test_prefix + "wik <query>" + "`"
+        expected_help = "Wikipedias\r\nUsage: `" + test_prefix + "wik <query>" + "`"
+        purpose_method.assert_called_once()
         response_method.assert_called_once_with(expected_help, help_event)
 
     if __name__ == '__main__':

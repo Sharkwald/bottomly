@@ -6,13 +6,21 @@ command_symbol = "g"
 
 
 class GoogleEventHandler(AbstractEventHandler):
+
+    @property
+    def command(self):
+        return GoogleSearchCommand()
+
+    def get_usage(self):
+        return self.command_trigger + "<query>"
+
     def can_handle(self, slack_event):
         text = slack_event["text"]
         return text.startswith(self.command_trigger)
 
     def _invoke_handler_logic(self, slack_event):
         q = slack_event["text"][len(self.command_trigger):]
-        c = GoogleSearchCommand()
+        c = self.command
         result = c.execute(q)
         if result is None:
             response_message = "No results found for \"" + q +  "\""
@@ -24,6 +32,3 @@ class GoogleEventHandler(AbstractEventHandler):
 
     def _get_command_symbol(self):
         return command_symbol
-
-    def get_usage(self):
-        return self.command_trigger + "<query>"
