@@ -1,6 +1,9 @@
 # coding=utf-8
 import unittest
 from unittest.mock import patch
+
+import os
+
 from commands import WikipediaSearchCommand
 from config import Config
 from slack_channel import WikipediaEventHandler
@@ -62,7 +65,7 @@ class TestWikipediaEventHandler(unittest.TestCase):
     def test_get_usage(self, response_method, purpose_method, config_method, prefix_method):
         handler = WikipediaEventHandler()
         handler.handle(help_event)
-        expected_help = "Wikipedias\r\nUsage: `" + test_prefix + "wik <query>" + "`"
+        expected_help = "Wikipedias"+ os.linesep +"Usage: `" + test_prefix + "wik <query>" + "`"
         purpose_method.assert_called_once()
         response_method.assert_called_once_with(expected_help, help_event)
 
