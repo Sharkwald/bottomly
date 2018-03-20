@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from model.member import Member
 from model.karma import Karma, KarmaType
 from config import Config
+from unittest.mock import patch
 
 def create_karma(awarded_by_username="default awarder",
                  reason=Karma.default_reason,
@@ -30,65 +31,58 @@ class TestMember(unittest.TestCase):
         award_ages_ago = datetime.today() - timedelta(days=31)
         new_karma = create_karma(awarded=newly_awarded)
         old_karma = create_karma(awarded=award_ages_ago)
-        karma_list = list([new_karma, old_karma])
-        m = Member(TestMember.test_username, karma_list)
+        with patch.object(Karma.objects, "raw", return_value=list([new_karma, old_karma])):
+            m = Member(TestMember.test_username)
 
-        # Act
-        current_karma = m.get_current_karma()
+            # Act
+            current_karma = m.get_current_karma()
 
-        # Assert
-        self.assertEqual(1, current_karma)
+            # Assert
+            self.assertEqual(1, current_karma)
 
     def test_get_current_karma_with_net(self):
         # Arrange
-        m = Member(TestMember.test_username, default_karma_list())
+        with patch.object(Karma.objects, "raw", return_value=default_karma_list()):
+            m = Member(TestMember.test_username)
 
-        # Act
-        net_karma = m.get_current_karma()
+            # Act
+            net_karma = m.get_current_karma()
 
-        # Assert
-        self.assertEqual(0, net_karma)
-
-    def test_add_new_karma(self):
-        # Arrange
-        m = Member(TestMember.test_username, default_karma_list())
-        k = create_karma(karma_type=KarmaType.POZZYPOZ)
-
-        # Act
-        m.add_karma(k)
-
-        # Assert
-        self.assertEqual(1, m.get_current_karma())
+            # Assert
+            self.assertEqual(0, net_karma)
 
     def test_get_karma_reasons_all_default(self):
         # Arrange
-        m = Member(TestMember.test_username, default_karma_list())
+        with patch.object(Karma.objects, "raw", return_value=default_karma_list()):
+            m = Member(TestMember.test_username)
 
-        # Act
-        karma_reasons = m.get_karma_reasons()
+            # Act
+            karma_reasons = m.get_karma_reasons()
 
-        # Assert
-        self.assertEqual(len(default_karma_list()), karma_reasons['reasonless'])
-        self.assertEqual(0, len(karma_reasons['reasoned']))
+            # Assert
+            self.assertEqual(len(default_karma_list()), karma_reasons['reasonless'])
+            self.assertEqual(0, len(karma_reasons['reasoned']))
 
     def test_get_karma_reasons_one_non_default(self):
         # Arrange
         karma_list = default_karma_list()
         karma_with_reason = create_karma(reason="This is a silly reason")
         karma_list.append(karma_with_reason)
-        m = Member(TestMember.test_username, karma_list)
+        with patch.object(Karma.objects, "raw", return_value=karma_list):
+            m = Member(TestMember.test_username)
 
-        # Act
-        karma_reasons = m.get_karma_reasons()
 
-        # Assert
-        self.assertEqual(len(default_karma_list()), karma_reasons['reasonless'])
-        self.assertEqual(list([karma_with_reason]), karma_reasons['reasoned'])
+            # Act
+            karma_reasons = m.get_karma_reasons()
+
+            # Assert
+            self.assertEqual(len(default_karma_list()), karma_reasons['reasonless'])
+            self.assertEqual(list([karma_with_reason]), karma_reasons['reasoned'])
 
     def test_persistence(self):
         # Arrange
         Config().connect_to_db()
-        m = Member(TestMember.test_username, default_karma_list())
+        m = Member(TestMember.test_username)
 
         # Act
         m.save()

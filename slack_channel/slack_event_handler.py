@@ -1,4 +1,5 @@
 # coding=utf-8
+import datetime
 import logging
 from slacksocket import SlackSocket
 from config import Config, ConfigKeys
@@ -53,6 +54,7 @@ class SlackEventHandler(object):
 
 
     def __init__(self, debug=False):
+        logging.basicConfig(filename="btmly_slack_connection_" + str(datetime.date.today()) + ".log", level=logging.INFO)
         self.debug = debug
         self._init_handlers()
         super(SlackEventHandler, self).__init__()

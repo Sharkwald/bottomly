@@ -8,6 +8,7 @@ import time
 from flask import Flask
 from slacker import Slacker
 
+from commands.add_member import AddMemberCommand
 from config import Config, ConfigKeys
 from slack_channel.slack_event_handler import SlackEventHandler
 
@@ -21,7 +22,7 @@ def start_up():
 
 @app.before_first_request
 def activate_job():
-    logging.basicConfig(filename="bottomly_" + str(datetime.date.today()) + ".log", level=logging.INFO)
+    logging.basicConfig(filename="bottomly_background_job_" + str(datetime.date.today()) + ".log", level=logging.INFO)
     def spin_up_slack_socket():
         handler = SlackEventHandler(app.debug)
         handler.handle_slack_context()
@@ -29,6 +30,20 @@ def activate_job():
     thread = threading.Thread(target=spin_up_slack_socket)
     thread.start()
 
+@app.route("/init_members", methods=["GET"])
+def init_members():
+    Config().connect_to_db()
+    slack = Slacker(Config().get_config_value(ConfigKeys.slack_bot_token))
+    response = slack.users.list()
+    users = response.body['members']
+    data = ""
+    for user in users:
+        if not user['deleted']:
+            username = user['name']
+            c = AddMemberCommand(username)
+            c.execute()
+            data += "Added " + username
+    return data
 
 def start_runner():
     def start_loop():
@@ -51,12 +66,5 @@ def start_runner():
 
 
 if __name__ == '__main__':
-    #start_runner()
-    slack = Slacker(Config().get_config_value(ConfigKeys.slack_bot_token))
-    response = slack.users.list()
-    users = response.body['members']
-    for user in users:
-        if not user['deleted']:
-            print(user['id'], user['name'], user['is_admin'], user[
-                'is_owner'])
+    start_runner()
     app.run(debug=True)

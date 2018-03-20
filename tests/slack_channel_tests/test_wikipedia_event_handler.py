@@ -14,24 +14,21 @@ invalid_event = {"text": "this is missing a valid command prefix"}
 help_event = {"text": test_prefix + "wik -?"}
 wikipedia_response = {"text": "response title", "link": "response_link"}
 
+
+@patch.object(Config, "get_config_value")
+@patch.object(Config, "get_prefix", return_value=test_prefix)
 class TestWikipediaEventHandler(unittest.TestCase):
 
-    @patch.object(Config, "get_config_value")
-    @patch.object(Config, "get_prefix", return_value=test_prefix)
     def test_handles_correct_event(self, prefix_method, config_method):
         handler = WikipediaEventHandler()
         can_handle = handler.can_handle(valid_event)
         self.assertTrue(can_handle)
 
-    @patch.object(Config, "get_config_value")
-    @patch.object(Config, "get_prefix", return_value=test_prefix)
     def test_does_not_handle_different_event(self, prefix_method, config_method):
         handler = WikipediaEventHandler()
         can_handle = handler.can_handle(invalid_event)
         self.assertFalse(can_handle)
 
-    @patch.object(Config, "get_prefix", return_value=test_prefix)
-    @patch.object(Config, "get_config_value")
     @patch.object(WikipediaEventHandler, "_send_response")
     @patch.object(WikipediaSearchCommand, "execute", return_value = wikipedia_response)
     def test_command_execute_is_called(self, execute_method, response_method, config_method, prefix_method):
@@ -39,8 +36,6 @@ class TestWikipediaEventHandler(unittest.TestCase):
         handler.handle(valid_event)
         execute_method.assert_called_once_with(valid_event["text"][5:])
 
-    @patch.object(Config, "get_prefix", return_value=test_prefix)
-    @patch.object(Config, "get_config_value")
     @patch.object(WikipediaSearchCommand, "execute", return_value=wikipedia_response)
     @patch.object(WikipediaEventHandler, "_send_response")
     def test_command_result_is_correctly_built(self, response_method, execute_method, config_method, prefix_method):
@@ -48,8 +43,6 @@ class TestWikipediaEventHandler(unittest.TestCase):
         handler.handle(valid_event)
         response_method.assert_called_once_with("response title response_link", valid_event)
 
-    @patch.object(Config, "get_prefix", return_value=test_prefix)
-    @patch.object(Config, "get_config_value")
     @patch.object(WikipediaSearchCommand, "execute", return_value=None)
     @patch.object(WikipediaEventHandler, "_send_response")
     def test_no_result_message_correctly_sent(self, response_method, execute_method, config_method, prefix_method):
@@ -58,8 +51,6 @@ class TestWikipediaEventHandler(unittest.TestCase):
         empty_results_message = "No results found for \"" + valid_event["text"][5:] + "\""
         response_method.assert_called_once_with(empty_results_message, valid_event)
 
-    @patch.object(Config, "get_prefix", return_value=test_prefix)
-    @patch.object(Config, "get_config_value")
     @patch.object(WikipediaSearchCommand, "get_purpose", return_value="Wikipedias")
     @patch.object(WikipediaEventHandler, "_send_response")
     def test_get_usage(self, response_method, purpose_method, config_method, prefix_method):

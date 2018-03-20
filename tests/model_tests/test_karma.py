@@ -1,19 +1,34 @@
 import unittest
 from datetime import datetime
-from model.karma import Karma
+
+from config import Config
+from model.karma import Karma, KarmaType
 
 
 class TestKarma(unittest.TestCase):
-    def test_instantiate_karma(self):
-        test_user = "testUser"
+    def test_persistence(self):
+        # Arrange
+        Config().connect_to_db()
+        awarded_to = "testUser1"
+        awarded_by = "testUser2"
         test_reason = "testReason"
         test_awarded = datetime.today()
-        k = Karma(test_user, test_reason, test_awarded)
+        test_type = KarmaType.POZZYPOZ
+        k = Karma(awarded_to_username=awarded_to,
+                  reason=test_reason,
+                  awarded_by_username=awarded_by,
+                  awarded=test_awarded,
+                  karma_type=test_type)
 
-        self.assertEqual(k.awarded_by_username, test_user)
-        self.assertEqual(k.awarded, test_awarded)
-        self.assertEqual(k.reason, test_reason)
+        # Act
+        k.save()
 
+        # Assert
+        loaded_karma = Karma.objects.all()[0]
+        self.assertEqual(k, loaded_karma)
+
+        # Tear down
+        k.delete()
 
 if __name__ == '__main__':
     unittest.main()
