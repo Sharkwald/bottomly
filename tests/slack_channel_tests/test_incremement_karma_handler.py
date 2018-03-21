@@ -51,7 +51,8 @@ class TestIncrementKarmaHandler(unittest.TestCase):
         # Act & Assert
         self._check_parsing(command_message, expected)
 
-    def test_reasoned_command_user_recipient_no_for(self):
+    @patch.object(IncrementKarmaEventHandler, "_username_is_known", return_value=True)
+    def test_reasoned_command_user_recipient_no_for(self, known_user_method):
         # Arrange
         command_message = "++username is sexy"
         expected = {"recipient": "username", "reason": "is sexy", "karma_type": KarmaType.POZZYPOZ}
