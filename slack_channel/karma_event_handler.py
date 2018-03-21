@@ -61,7 +61,7 @@ class AbstractKarmaEventHandler(AbstractEventHandler):
 
     def _username_is_known(self, username):
         try:
-            Member.objects.raw({'_id': username})
+            Member.objects.get({'_id': username})
             return True
         except errors.DoesNotExist:
             return False
