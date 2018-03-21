@@ -77,7 +77,7 @@ class AbstractKarmaEventHandler(AbstractEventHandler):
         except Exception as ex:
             logging.exception(ex)
 
-    def __init__(self, debug):
+    def __init__(self, debug=False):
         self.config = Config()
         self.config.connect_to_db()
         super(AbstractKarmaEventHandler, self).__init__(debug)
@@ -88,7 +88,7 @@ class IncrementKarmaEventHandler(AbstractKarmaEventHandler):
     def _get_command_symbol(self):
         return "++"
 
-    def __init__(self, debug):
+    def __init__(self, debug=False):
         super(IncrementKarmaEventHandler, self).__init__(debug)
 
 
@@ -97,6 +97,6 @@ class DecrementKarmaEventHandler(AbstractKarmaEventHandler):
     def _get_command_symbol(self):
         return "--"
 
-    def __init__(self, debug):
+    def __init__(self, debug=False):
         self.debug = debug
         super(DecrementKarmaEventHandler, self).__init__(debug)
