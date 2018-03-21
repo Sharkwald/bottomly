@@ -1,3 +1,4 @@
+import os
 from slacker import Slacker
 
 from commands.add_member import AddMemberCommand

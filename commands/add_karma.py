@@ -18,6 +18,7 @@ class AddKarmaCommand(AbstractCommand):
                   awarded=datetime.now(),
                   karma_type=karma_type)
         k.save()
+        return k
 
     def __init__(self):
         super(AddKarmaCommand, self)

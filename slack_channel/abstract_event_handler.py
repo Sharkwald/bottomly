@@ -14,7 +14,7 @@ class AbstractEventHandler(ABC):
         pass
 
     @abstractmethod
-    def can_handle(self, slack):
+    def can_handle(self, slack_event):
         pass
 
     @abstractmethod
