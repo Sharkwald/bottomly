@@ -9,7 +9,7 @@ from commands import AddKarmaCommand
 from model.karma import KarmaType
 from slack_channel import DecrementKarmaEventHandler
 
-valid_event = {"text": "--username for being awful", "user": "meanuser"}
+valid_event = {"text": "-- username for being awful", "user": "meanuser"}
 invalid_event = {"text": "this is missing a valid command prefix"}
 help_event = {"text": "-- -?"}
 
@@ -43,7 +43,7 @@ class TestDecrementKarmaEventHandler(unittest.TestCase):
     def test_get_usage(self, response_method, purpose_method):
         handler = DecrementKarmaEventHandler()
         handler.handle(help_event)
-        expected_help = "Karmas" + os.linesep + "Usage: `--recipient [[for <if recipient is not a known user>] reason]`"
+        expected_help = "Karmas" + os.linesep + "Usage: `-- recipient [[for <if recipient is not a known user>] reason]`"
         purpose_method.assert_called_once()
         response_method.assert_called_once_with(expected_help, help_event)
 

@@ -17,7 +17,11 @@ class AbstractKarmaEventHandler(AbstractEventHandler):
         return AddKarmaCommand()
 
     def get_usage(self):
-        return self._get_command_symbol() + "recipient [[for <if recipient is not a known user>] reason]"
+        return self._get_command_symbol() + " recipient [[for <if recipient is not a known user>] reason]"
+
+    @property
+    def _help_message(self):
+        return self._get_command_symbol() + " -?"
 
     def can_handle(self, slack_event):
         text = slack_event["text"]
@@ -39,7 +43,7 @@ class AbstractKarmaEventHandler(AbstractEventHandler):
     def _parse_command_text(self, command_text):
         karma_type_arg = command_text[:2]
         karma_type = KarmaType.POZZYPOZ if karma_type_arg == "++" else KarmaType.NEGGYNEG
-        command_text = command_text[2:]
+        command_text = command_text[3:]
 
         if command_text.find(" for ") != -1:
             command_split = command_text.split(" for ")
@@ -70,17 +74,18 @@ class AbstractKarmaEventHandler(AbstractEventHandler):
     def _send_response(self, response_message, slack_event):
         """We want to indicate that we've added the karma, but not send a message, so instead doing the usual response,
         we'll add a reaction to the original message"""
-        try :
-            slack = Slacker(Config().get_config_value(ConfigKeys.slack_bot_token))
-            slack.reactions.add(name="robot_face",
-                                channel=slack_event["channel"],
-                                timestamp=slack_event["ts"])
-        except Exception as ex:
-            logging.exception(ex)
-
-    @property
-    def _help_message(self):
-        return self._get_command_symbol() + " -?"
+        if response_message != "":
+            super()._send_response(response_message, slack_event)
+        else:
+            try :
+                slack = Slacker(Config().get_config_value(ConfigKeys.slack_bot_token))
+                channels = slack.channels.list().body["channels"]
+                my_channel = list(filter((lambda c: c["name"]==slack_event["channel"]), channels))[0]
+                slack.reactions.add(name="robot_face",
+                                    channel=my_channel["id"],
+                                    timestamp=slack_event["ts"])
+            except Exception as ex:
+                logging.exception(ex)
 
     def __init__(self, debug=False):
         self.config = Config()

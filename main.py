@@ -30,7 +30,7 @@ def activate_job():
 
 @app.route("/init_members", methods=["GET"])
 def init_members():
-    InitialMemberlistPopulator().populate()
+    return InitialMemberlistPopulator().populate()
 
 def start_runner():
     def start_loop():

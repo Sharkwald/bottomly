@@ -14,7 +14,7 @@ class Karma(MongoModel):
     awarded_to_username = fields.CharField()
     default_reason = "default reason"
     awarded_by_username = fields.CharField()
-    reason = fields.CharField()
+    reason = fields.CharField(blank=True)
     awarded = fields.DateTimeField()
     karma_type = fields.CharField()
 
