@@ -15,12 +15,12 @@ class TestAddKarma(unittest.TestCase):
         awarded_to = "testUser1"
         awarded_by = "testUser2"
         test_reason = "testReason"
-        test_type = str(KarmaType.POZZYPOZ)
+        test_type = KarmaType.POZZYPOZ
         k = Karma(awarded_to_username=awarded_to,
                   reason=test_reason,
                   awarded_by_username=awarded_by,
                   awarded=datetime.now(),
-                  karma_type=test_type)
+                  karma_type=str(test_type))
 
         # Act
         c = AddKarmaCommand()

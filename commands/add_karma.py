@@ -16,7 +16,7 @@ class AddKarmaCommand(AbstractCommand):
                   reason=reason,
                   awarded_by_username=awarded_by,
                   awarded=datetime.now(),
-                  karma_type=karma_type)
+                  karma_type=str(karma_type))
         k.save()
         return k
 

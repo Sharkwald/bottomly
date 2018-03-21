@@ -25,7 +25,9 @@ class SlackEventHandler(object):
         self.handlers = list([
             GoogleEventHandler(self.debug),
             UrbanEventHandler(self.debug),
-            WikipediaEventHandler(self.debug)
+            WikipediaEventHandler(self.debug),
+            IncrementKarmaEventHandler(self.debug),
+            DecrementKarmaEventHandler(self.debug)
         ])
 
     def handle_slack_context(self):
