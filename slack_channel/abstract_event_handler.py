@@ -29,8 +29,12 @@ class AbstractEventHandler(ABC):
     def get_usage(self):
         pass
 
+    @property
+    def _help_message(self):
+        return self.command_trigger + help_token
+
     def handle(self, slack_event):
-        if slack_event["text"] == self.command_trigger + help_token:
+        if slack_event["text"] == self._help_message:
             purpose = self.command.get_purpose() + os.linesep
             usage = "Usage: `" + self.get_usage() + "`"
             message = purpose + usage

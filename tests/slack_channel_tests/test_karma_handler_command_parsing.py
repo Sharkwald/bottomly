@@ -1,4 +1,4 @@
-
+# coding=utf-8
 import unittest
 from unittest.mock import patch
 
@@ -6,7 +6,7 @@ from model.karma import KarmaType
 from slack_channel import IncrementKarmaEventHandler
 
 
-class TestIncrementKarmaHandler(unittest.TestCase):
+class TestKarmaHandlerCommandParsing(unittest.TestCase):
 
     handler = IncrementKarmaEventHandler()
 

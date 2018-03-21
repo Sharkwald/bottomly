@@ -17,7 +17,7 @@ class AbstractKarmaEventHandler(AbstractEventHandler):
         return AddKarmaCommand()
 
     def get_usage(self):
-        return self.command_trigger + "recipient [[for <if recipient is not a known user>] reason]"
+        return self._get_command_symbol() + "recipient [[for <if recipient is not a known user>] reason]"
 
     def can_handle(self, slack_event):
         text = slack_event["text"]
@@ -32,6 +32,7 @@ class AbstractKarmaEventHandler(AbstractEventHandler):
                       awarded_by=slack_event["user"],
                       reason=args["reason"],
                       karma_type=args["karma_type"])
+            self._send_response("", slack_event)
         except Exception as ex:
             logging.exception(ex)
 
@@ -76,6 +77,10 @@ class AbstractKarmaEventHandler(AbstractEventHandler):
                                 timestamp=slack_event["ts"])
         except Exception as ex:
             logging.exception(ex)
+
+    @property
+    def _help_message(self):
+        return self._get_command_symbol() + " -?"
 
     def __init__(self, debug=False):
         self.config = Config()
