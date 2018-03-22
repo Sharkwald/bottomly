@@ -25,6 +25,15 @@ class TestKarmaHandlerCommandParsing(unittest.TestCase):
         # Act & Assert
         self._check_parsing(command_message, expected)
 
+    @patch.object(IncrementKarmaEventHandler, "_username_is_known", return_value=True)
+    def test_reasonless_command_one_word_slack_user_recipient(self, known_user_method):
+        # Arrange
+        command_message = "++ @recipient"
+        expected = {"recipient": "recipient", "reason":"", "karma_type": KarmaType.POZZYPOZ}
+
+        # Act & Assert
+        self._check_parsing(command_message, expected)
+
     @patch.object(IncrementKarmaEventHandler, "_username_is_known", return_value=False)
     def test_reasonless_command_multi_word_recipient(self, known_user_method):
         # Arrange

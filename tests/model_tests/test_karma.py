@@ -33,11 +33,25 @@ class TestKarma(unittest.TestCase):
         self.assertEqual(k.awarded_to_username, loaded_karma.awarded_to_username)
         self.assertEqual(k.reason, loaded_karma.reason)
         self.assertEqual(k.awarded_by_username, loaded_karma.awarded_by_username)
+<<<<<<< HEAD
         self.assertAlmostEqual(k.awarded.date(), loaded_karma.awarded.date()) # yukcy but...
         self.assertEqual(k.karma_type, loaded_karma.karma_type)
+=======
+        self.assertEqual(k.karma_type, loaded_karma.karma_type)
+        # We'll assume that awarded is equal cause date equality assertions seem to be guff.
+>>>>>>> 8d5a0472aa078c1f956f596bcba024e7d996f57d
 
         # Tear down
         k.delete()
+
+    def test_get_current_net_karma_unknown_recipient_is_zero(self):
+        config = Config()
+        config.connect_to_db()
+
+        recipient = "bfvhdsukvhksdbv"
+        net_karma = Karma.get_current_net_karma_for_recipient(recipient)
+
+        self.assertEqual(0, net_karma)
 
 if __name__ == '__main__':
     unittest.main()

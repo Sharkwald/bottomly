@@ -1,6 +1,8 @@
 # coding=utf-8
 import datetime
 import logging
+
+from slacker import Slacker
 from slacksocket import SlackSocket
 from config import Config, ConfigKeys
 from slack_channel import *
@@ -34,6 +36,8 @@ class SlackEventHandler(object):
         if self.debug:
             logging.info("Opening web socket to slack...")
 
+        self._cache_channel_list()
+
         try:
             with SlackSocket(token) as s:
                 for e in s.events():
@@ -45,6 +49,8 @@ class SlackEventHandler(object):
                         if not _is_subscribed_event(slack_event):
                             continue
                         for handler in self.handlers:
+                            channel = list(filter((lambda c: c["name"] == slack_event["channel"]), self._channel_list))[0]
+                            slack_event["channel_id"] = channel["id"]
                             if handler.can_handle(slack_event):
                                 handler.handle(slack_event)
                                 continue
@@ -54,6 +60,10 @@ class SlackEventHandler(object):
         except Exception as ex:
             logging.exception("Error establishing connection to slack.", ex)
 
+
+    def _cache_channel_list(self):
+        slack = Slacker(token)
+        self._channel_list = slack.channels.list().body["channels"]
 
     def __init__(self, debug=False):
         logging.basicConfig(filename="btmly_slack_connection_" + str(datetime.date.today()) + ".log", level=logging.INFO)

@@ -1,10 +1,9 @@
 import logging
 
 from pymodm import errors
-from slacker import Slacker
 
 from commands import AddKarmaCommand
-from config import Config, ConfigKeys
+from config import Config
 from model.karma import KarmaType
 from model.member import Member
 from slack_channel.abstract_event_handler import AbstractEventHandler
@@ -59,6 +58,10 @@ class AbstractKarmaEventHandler(AbstractEventHandler):
 
     def _parse_recipient(self, command_split):
         possible_username = command_split[0]
+
+        if possible_username.startswith("@"):
+            possible_username = possible_username[1:]
+
         username_is_known = self._username_is_known(possible_username)
         if username_is_known:
             return possible_username
@@ -70,22 +73,6 @@ class AbstractKarmaEventHandler(AbstractEventHandler):
             return True
         except errors.DoesNotExist:
             return False
-
-    def _send_response(self, response_message, slack_event):
-        """We want to indicate that we've added the karma, but not send a message, so instead doing the usual response,
-        we'll add a reaction to the original message"""
-        if response_message != "":
-            super()._send_response(response_message, slack_event)
-        else:
-            try :
-                slack = Slacker(Config().get_config_value(ConfigKeys.slack_bot_token))
-                channels = slack.channels.list().body["channels"]
-                my_channel = list(filter((lambda c: c["name"]==slack_event["channel"]), channels))[0]
-                slack.reactions.add(name="robot_face",
-                                    channel=my_channel["id"],
-                                    timestamp=slack_event["ts"])
-            except Exception as ex:
-                logging.exception(ex)
 
     def __init__(self, debug=False):
         self.config = Config()

@@ -1,6 +1,8 @@
 import logging
 import os
 from abc import ABC, abstractmethod
+
+from slacker import Slacker
 from slacksocket import SlackSocket
 from config import Config, ConfigKeys
 
@@ -46,9 +48,24 @@ class AbstractEventHandler(ABC):
 
 
     def _send_response(self, response_message, slack_event):
+        if response_message == "":
+            self._send_message_response(response_message, slack_event)
+        else:
+            self._send_reaction_response(slack_event)
+
+    def _send_message_response(self, response_message, slack_event):
         with SlackSocket(self.token) as s:
             msg = s.send_msg(response_message, slack_event["channel"])
             logging.info(msg.sent)
+
+    def _send_reaction_response(self, slack_event):
+        try :
+            slack = Slacker(self.token)
+            slack.reactions.add(name="robot_face",
+                                channel=slack_event["channel_id"],
+                                timestamp=slack_event["ts"])
+        except Exception as ex:
+            logging.exception(ex)
 
     def _get_config(self):
         config = Config()
