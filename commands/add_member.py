@@ -14,9 +14,10 @@ class AddMemberCommand(AbstractCommand):
             return
 
         # instantiate & save new member
-        m = Member(self.username)
+        m = Member(username=self.username, slack_id=self.slack_id)
         m.save()
 
-    def __init__(self, username):
+    def __init__(self, username, slack_id):
         super(AddMemberCommand, self)
         self.username = username
+        self.slack_id = slack_id

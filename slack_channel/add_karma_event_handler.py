@@ -47,32 +47,50 @@ class AbstractKarmaEventHandler(AbstractEventHandler):
         if command_text.find(" for ") != -1:
             command_split = command_text.split(" for ")
             recipient = self._parse_recipient(command_split[0].split(" "))
-            reason = command_text[len(recipient + " for "):]
+            reason = self._parse_reason(command_text, command_split, recipient)
 
         else:
             command_split = command_text.split(" ")
             recipient = self._parse_recipient(command_split)
-            reason = command_text[len(recipient + " "):]
+            reason = self._parse_reason(command_text, command_split, recipient)
 
         return {"recipient": recipient, "reason": reason, "karma_type": karma_type}
 
     def _parse_recipient(self, command_split):
         possible_username = command_split[0]
+        decided_username = " ".join(command_split)
 
-        if possible_username.startswith("@"):
-            possible_username = possible_username[1:]
-
-        username_is_known = self._username_is_known(possible_username)
-        if username_is_known:
-            return possible_username
-        return " ".join(command_split)
+        if possible_username.startswith("<@"):
+            member = self._get_username_by_slack_id(possible_username)
+            decided_username = member.username
+        else:
+            username_is_known = self._username_is_known(possible_username)
+            if username_is_known:
+                decided_username = possible_username
+        return decided_username
 
     def _username_is_known(self, username):
-        try:
-            Member.objects.get({'_id': username})
+        m = Member.get_member_by_username(username)
+        if m is not None:
             return True
-        except errors.DoesNotExist:
+        else:
             return False
+
+    def _get_username_by_slack_id(self, slack_id):
+        slack_id = slack_id[2:len(slack_id)-1] # trim off the formatting...
+        m = Member.get_member_by_slack_id(slack_id)
+        if m is not None:
+            return m
+        raise Exception("User not found")
+
+    def _parse_reason(self, command_text, command_split, recipient):
+        recipient_length = len(recipient) + 1  # +1 to account for space
+        if command_split[0].startswith("<@"):
+            recipient_length += 3
+        if command_text.find(" for ") != -1:
+            recipient_length += 4
+        reason = command_text[recipient_length:]
+        return reason
 
     def __init__(self, debug=False):
         self.config = Config()

@@ -19,7 +19,8 @@ class InitialMemberlistPopulator(object):
         for user in users:
             if not user['deleted']:
                 username = user['name']
-                c = AddMemberCommand(username)
+                slack_id = user['id']
+                c = AddMemberCommand(username, slack_id)
                 c.execute()
                 data += "Added " + username + os.linesep
         return data

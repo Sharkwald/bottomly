@@ -3,6 +3,7 @@ import unittest
 from unittest.mock import patch
 
 from model.karma import KarmaType
+from model.member import Member
 from slack_channel import IncrementKarmaEventHandler
 
 
@@ -25,14 +26,15 @@ class TestKarmaHandlerCommandParsing(unittest.TestCase):
         # Act & Assert
         self._check_parsing(command_message, expected)
 
-    @patch.object(IncrementKarmaEventHandler, "_username_is_known", return_value=True)
-    def test_reasonless_command_one_word_slack_user_recipient(self, known_user_method):
+    def test_reasonless_command_one_word_slack_user_recipient(self):
+        m = Member(username="recipient", slack_id="slack_id")
+        with patch.object(Member, "get_member_by_slack_id", return_value=m):
         # Arrange
-        command_message = "++ @recipient"
-        expected = {"recipient": "recipient", "reason":"", "karma_type": KarmaType.POZZYPOZ}
+            command_message = "++ <@slack_id>"
+            expected = {"recipient": "recipient", "reason":"", "karma_type": KarmaType.POZZYPOZ}
 
-        # Act & Assert
-        self._check_parsing(command_message, expected)
+            # Act & Assert
+            self._check_parsing(command_message, expected)
 
     @patch.object(IncrementKarmaEventHandler, "_username_is_known", return_value=False)
     def test_reasonless_command_multi_word_recipient(self, known_user_method):
@@ -76,6 +78,16 @@ class TestKarmaHandlerCommandParsing(unittest.TestCase):
 
         # Act & Assert
         self._check_parsing(command_message, expected)
+
+    def test_reasoned_command_slack_id_recipient_with_for(self):
+        # Arrange
+        m = Member(username="username", slack_id="slack_id")
+        with patch.object(Member, "get_member_by_slack_id", return_value=m):
+            command_message = "++ <@slack_id> for being sexy"
+            expected = {"recipient": "username", "reason": "being sexy", "karma_type": KarmaType.POZZYPOZ}
+
+            # Act & Assert
+            self._check_parsing(command_message, expected)
 
     def test_reasoned_command_user_recipient_with_multiple_fors(self):
         command_message = "++ username for being sexy and for being nice"

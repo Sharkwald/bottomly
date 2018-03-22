@@ -48,7 +48,7 @@ class AbstractEventHandler(ABC):
 
 
     def _send_response(self, response_message, slack_event):
-        if response_message == "":
+        if response_message != "":
             self._send_message_response(response_message, slack_event)
         else:
             self._send_reaction_response(slack_event)
