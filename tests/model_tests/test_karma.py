@@ -39,5 +39,14 @@ class TestKarma(unittest.TestCase):
         # Tear down
         k.delete()
 
+    def test_get_current_net_karma_unknown_recipient_is_zero(self):
+        config = Config()
+        config.connect_to_db()
+
+        recipient = "bfvhdsukvhksdbv"
+        net_karma = Karma.get_current_net_karma_for_recipient(recipient)
+
+        self.assertEqual(0, net_karma)
+
 if __name__ == '__main__':
     unittest.main()

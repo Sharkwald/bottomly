@@ -58,6 +58,10 @@ class AbstractKarmaEventHandler(AbstractEventHandler):
 
     def _parse_recipient(self, command_split):
         possible_username = command_split[0]
+
+        if possible_username.startswith("@"):
+            possible_username = possible_username[1:]
+
         username_is_known = self._username_is_known(possible_username)
         if username_is_known:
             return possible_username
