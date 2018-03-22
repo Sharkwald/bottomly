@@ -1,10 +1,9 @@
 import logging
 
 from pymodm import errors
-from slacker import Slacker
 
 from commands import AddKarmaCommand
-from config import Config, ConfigKeys
+from config import Config
 from model.karma import KarmaType
 from model.member import Member
 from slack_channel.abstract_event_handler import AbstractEventHandler
