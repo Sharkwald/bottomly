@@ -61,7 +61,7 @@ class AbstractKarmaEventHandler(AbstractEventHandler):
         decided_username = " ".join(command_split)
 
         if possible_username.startswith("<@"):
-            member = self._get_username_by_slack_id(possible_username)
+            member = self._get_member_by_slack_id(possible_username)
             decided_username = member.username
         else:
             username_is_known = self._username_is_known(possible_username)
@@ -76,7 +76,7 @@ class AbstractKarmaEventHandler(AbstractEventHandler):
         else:
             return False
 
-    def _get_username_by_slack_id(self, slack_id):
+    def _get_member_by_slack_id(self, slack_id):
         slack_id = slack_id[2:len(slack_id)-1] # trim off the formatting...
         m = Member.get_member_by_slack_id(slack_id)
         if m is not None:
