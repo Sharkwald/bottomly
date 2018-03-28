@@ -1,12 +1,11 @@
 import logging
 
-from pymodm import errors
-
 from commands import AddKarmaCommand
 from config import Config
 from model.karma import KarmaType
 from model.member import Member
 from slack_channel.abstract_event_handler import AbstractEventHandler
+from slack_channel.slack_parser import SlackParser
 
 
 class AbstractKarmaEventHandler(AbstractEventHandler):
@@ -40,6 +39,7 @@ class AbstractKarmaEventHandler(AbstractEventHandler):
             logging.exception(ex)
 
     def _parse_command_text(self, command_text):
+        command_text = SlackParser.replace_slack_id_tokens_with_usernames(command_text)
         karma_type_arg = command_text[:2]
         karma_type = KarmaType.POZZYPOZ if karma_type_arg == "++" else KarmaType.NEGGYNEG
         command_text = command_text[3:]
@@ -47,12 +47,11 @@ class AbstractKarmaEventHandler(AbstractEventHandler):
         if command_text.find(" for ") != -1:
             command_split = command_text.split(" for ")
             recipient = self._parse_recipient(command_split[0].split(" "))
-            reason = self._parse_reason(command_text, command_split, recipient)
-
         else:
             command_split = command_text.split(" ")
             recipient = self._parse_recipient(command_split)
-            reason = self._parse_reason(command_text, command_split, recipient)
+
+        reason = self._parse_reason(command_text, recipient)
 
         return {"recipient": recipient, "reason": reason, "karma_type": karma_type}
 
@@ -60,13 +59,10 @@ class AbstractKarmaEventHandler(AbstractEventHandler):
         possible_username = command_split[0]
         decided_username = " ".join(command_split)
 
-        if possible_username.startswith("<@"):
-            member = self._get_member_by_slack_id(possible_username)
-            decided_username = member.username
-        else:
-            username_is_known = self._username_is_known(possible_username)
-            if username_is_known:
-                decided_username = possible_username
+        username_is_known = self._username_is_known(possible_username)
+        if username_is_known:
+            decided_username = possible_username
+
         return decided_username
 
     def _username_is_known(self, username):
@@ -76,17 +72,8 @@ class AbstractKarmaEventHandler(AbstractEventHandler):
         else:
             return False
 
-    def _get_member_by_slack_id(self, slack_id):
-        slack_id = slack_id[2:len(slack_id)-1] # trim off the formatting...
-        m = Member.get_member_by_slack_id(slack_id)
-        if m is not None:
-            return m
-        raise Exception("User not found")
-
-    def _parse_reason(self, command_text, command_split, recipient):
+    def _parse_reason(self, command_text, recipient):
         recipient_length = len(recipient) + 1  # +1 to account for space
-        if command_split[0].startswith("<@"):
-            recipient_length += 3
         if command_text.find(" for ") != -1:
             recipient_length += 4
         reason = command_text[recipient_length:]

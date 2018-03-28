@@ -1,6 +1,6 @@
 from commands import GetCurrentNetKarmaCommand
-from model.member import Member
 from slack_channel.abstract_event_handler import AbstractEventHandler
+from slack_channel.slack_parser import SlackParser
 
 
 class GetCurrentNetKarmaEventHandler(AbstractEventHandler):
@@ -19,9 +19,8 @@ class GetCurrentNetKarmaEventHandler(AbstractEventHandler):
         return text.startswith(self.command_trigger[:1])
 
     def _invoke_handler_logic(self, slack_event):
-        recipient = slack_event["text"][len(self.command_trigger):]
-        if recipient.startswith("<@"):
-            recipient = self._get_username_by_slack_id(recipient)
+        message = SlackParser.replace_slack_id_tokens_with_usernames(slack_event["text"])
+        recipient = message[len(self.command_trigger):].split(' ')[0]
 
         if (recipient == ""):
             recipient = slack_event["user"]
@@ -31,12 +30,3 @@ class GetCurrentNetKarmaEventHandler(AbstractEventHandler):
 
         response_message = recipient + ": " + str(result)
         self._send_response(response_message, slack_event)
-
-    def _get_username_by_slack_id(self, recipient):
-        recipient_split = recipient.split(" ")
-        slack_id = recipient[0]
-        slack_id = slack_id[2:len(slack_id) - 1] # Remove formatting..
-        m = Member.get_member_by_slack_id(slack_id)
-        if m is not None:
-            return m.username
-        raise Exception("User not found")

@@ -1,8 +1,27 @@
 import unittest
-from datetime import datetime
+from unittest.mock import patch
+from datetime import datetime, timedelta
 
 from config import Config
 from model.karma import Karma, KarmaType
+
+test_recipient = "default awarder"
+
+def create_karma(awarded_by_username=test_recipient,
+                 reason=Karma.default_reason,
+                 awarded=datetime.today(),
+                 karma_type=KarmaType.POZZYPOZ):
+    k = Karma()
+    k.awarded_by_username = awarded_by_username
+    k.reason = reason
+    k.awarded = awarded
+    k.karma_type = karma_type
+    return k
+
+def default_karma_list():
+    """Returns a list of 4 karma entries, 2 negative, 2 positive"""
+    return list([create_karma(karma_type=KarmaType.NEGGYNEG), create_karma(karma_type=KarmaType.NEGGYNEG),
+                 create_karma(karma_type=KarmaType.POZZYPOZ), create_karma(karma_type=KarmaType.POZZYPOZ)])
 
 
 class TestKarma(unittest.TestCase):
@@ -47,6 +66,54 @@ class TestKarma(unittest.TestCase):
         net_karma = Karma.get_current_net_karma_for_recipient(recipient)
 
         self.assertEqual(0, net_karma)
+
+    def test_get_current_karma_with_expired(self):
+        # Arrange
+        newly_awarded = datetime.today()
+        award_ages_ago = datetime.today() - timedelta(days=31)
+        new_karma = create_karma(awarded=newly_awarded)
+        old_karma = create_karma(awarded=award_ages_ago)
+
+        with patch.object(Karma.objects, "raw", return_value=list([new_karma, old_karma])):
+            # Act
+            current_karma = Karma.get_current_net_karma_for_recipient(test_recipient)
+
+            # Assert
+            self.assertEqual(1, current_karma)
+
+    def test_get_current_karma_with_net(self):
+        # Arrange
+        with patch.object(Karma.objects, "raw", return_value=default_karma_list()):
+
+            # Act
+            net_karma = Karma.get_current_net_karma_for_recipient(test_recipient)
+
+            # Assert
+            self.assertEqual(0, net_karma)
+
+    def test_get_karma_reasons_all_default(self):
+        # Arrange
+        with patch.object(Karma.objects, "raw", return_value=default_karma_list()):
+            # Act
+            karma_reasons = Karma.get_current_karma_reasons_for_recipient(test_recipient)
+
+            # Assert
+            self.assertEqual(len(default_karma_list()), karma_reasons['reasonless'])
+            self.assertEqual(0, len(karma_reasons['reasoned']))
+
+    def test_get_karma_reasons_one_non_default(self):
+        # Arrange
+        karma_list = default_karma_list()
+        karma_with_reason = create_karma(reason="This is a silly reason")
+        karma_list.append(karma_with_reason)
+
+        with patch.object(Karma.objects, "raw", return_value=karma_list):
+            # Act
+            karma_reasons = Karma.get_current_karma_reasons_for_recipient(test_recipient)
+
+            # Assert
+            self.assertEqual(len(default_karma_list()), karma_reasons['reasonless'])
+            self.assertEqual(list([karma_with_reason]), karma_reasons['reasoned'])
 
 if __name__ == '__main__':
     unittest.main()
