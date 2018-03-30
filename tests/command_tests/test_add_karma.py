@@ -37,3 +37,5 @@ class TestAddKarma(unittest.TestCase):
         # Tear down
         saved_karma.delete()
 
+if __name__ == '__main__':
+    unittest.main()
