@@ -23,5 +23,6 @@ class TestGoogleSearchCommand(unittest.TestCase):
         self.assertEqual('Stack overflow - Wikipedia', result['title'])
         self.assertEqual('https://en.wikipedia.org/wiki/Stack_overflow', result['link'])
 
+
 if __name__ == '__main__':
     unittest.main()
