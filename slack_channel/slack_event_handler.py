@@ -30,7 +30,8 @@ class SlackEventHandler(object):
             WikipediaEventHandler(self.debug),
             IncrementKarmaEventHandler(self.debug),
             DecrementKarmaEventHandler(self.debug),
-            GetCurrentNetKarmaEventHandler(self.debug)
+            GetCurrentNetKarmaEventHandler(self.debug),
+            GetCurrentKarmaReasonsEventHandler(self.debug)
         ])
 
     def handle_slack_context(self):

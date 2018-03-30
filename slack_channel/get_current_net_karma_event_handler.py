@@ -16,7 +16,7 @@ class GetCurrentNetKarmaEventHandler(AbstractEventHandler):
 
     def can_handle(self, slack_event):
         text = slack_event["text"]
-        return text.startswith(self.command_trigger[:1])
+        return text.startswith(self.command_trigger[:1]) # Trim the space off in case of no recipient
 
     def _invoke_handler_logic(self, slack_event):
         message = SlackParser.replace_slack_id_tokens_with_usernames(slack_event["text"])
