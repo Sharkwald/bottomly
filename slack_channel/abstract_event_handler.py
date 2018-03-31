@@ -54,9 +54,12 @@ class AbstractEventHandler(ABC):
             self._send_reaction_response(slack_event)
 
     def _send_message_response(self, response_message, slack_event):
-        with SlackSocket(self.token) as s:
-            msg = s.send_msg(response_message, slack_event["channel"])
-            logging.info(msg.sent)
+        try :
+            with SlackSocket(self.token) as s:
+                msg = s.send_msg(response_message, slack_event["channel"])
+                logging.info(msg.sent)
+        except Exception:
+            logging.exception("Error sending message response to: " + str(slack_event))
 
     def _send_reaction_response(self, slack_event):
         try :
@@ -64,8 +67,22 @@ class AbstractEventHandler(ABC):
             slack.reactions.add(name="robot_face",
                                 channel=slack_event["channel_id"],
                                 timestamp=slack_event["ts"])
-        except Exception as ex:
-            logging.exception(ex)
+        except Exception:
+            logging.exception("Error sending reaction to: " + str(slack_event))
+
+    def _send_dm_response(self, response_message, slack_event):
+        try:
+            slack = Slacker(self.token)
+            im = slack.im.open(slack_event["user_id"]).body
+            if im["ok"]:
+                channel_id = im["channel"]["id"]
+                slack.chat.post_message(channel_id, text=response_message)
+
+            else:
+                raise Exception("Failed to open a DM to send response.")
+
+        except Exception:
+            logging.exception("Error sending DM response to: " + str(slack_event))
 
     def _get_config(self):
         config = Config()

@@ -5,6 +5,7 @@ import logging
 from slacker import Slacker
 from slacksocket import SlackSocket
 from config import Config, ConfigKeys
+from model.member import Member
 from slack_channel import *
 
 config = Config()
@@ -52,15 +53,17 @@ class SlackEventHandler(object):
                             continue
                         for handler in self.handlers:
                             channel = list(filter((lambda c: c["name"] == slack_event["channel"]), self._channel_list))[0]
+                            member = Member.get_member_by_username(slack_event["user"])
                             slack_event["channel_id"] = channel["id"]
+                            slack_event["user_id"] = member.slack_id
                             if handler.can_handle(slack_event):
                                 handler.handle(slack_event)
-                                continue
+                                break
 
-                    except Exception as ex:
-                        logging.exception("Error in main loop.", ex)
-        except Exception as ex:
-            logging.exception("Error establishing connection to slack.", ex)
+                    except Exception:
+                        logging.exception("Error in main loop.")
+        except Exception:
+            logging.exception("Error establishing connection to slack.")
 
 
     def _cache_channel_list(self):

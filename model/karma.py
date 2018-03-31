@@ -36,7 +36,7 @@ class Karma(MongoModel):
         return {'reasonless': len(karma_without_reasons), 'reasoned': karma_with_reasons}
 
     awarded_to_username = fields.CharField()
-    default_reason = "default reason"
+    default_reason = ""
     awarded_by_username = fields.CharField()
     reason = fields.CharField(blank=True)
     awarded = fields.DateTimeField()

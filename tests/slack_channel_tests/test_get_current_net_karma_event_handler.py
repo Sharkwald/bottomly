@@ -14,7 +14,7 @@ valid_event_plain_recipient = {"text": test_prefix + "karma recipient", "user": 
 valid_event_slack_id_recipient = {"text": test_prefix + "karma <@slack_id>", "user": "username"}
 valid_event_slack_id_recipient_trailing_stuff = {"text": test_prefix + "karma <@slack_id> some extra guff", "user": "username"}
 valid_event_no_recipient = {"text": test_prefix + "karma", "user": "username"}
-invalid_event = {"text": "this is missing a valid command prefix"}
+invalid_event = {'text': '_g test',}
 fake_member = Member(username="member_name", slack_id="slack_id")
 help_event = {"text": test_prefix + "karma -?"}
 
