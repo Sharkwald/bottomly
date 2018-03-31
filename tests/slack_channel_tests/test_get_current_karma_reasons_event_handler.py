@@ -18,13 +18,14 @@ valid_event_no_recipient = {"text": test_prefix + "reasons", "user": "username"}
 invalid_event = {'text': '_g test'}
 fake_member = Member(username="member_name", slack_id="slack_id")
 help_event = {"text": test_prefix + "reasons -?"}
-command_result = {"reasonless": 10, "reasoned": list([Karma(reason="reason1", karma_type=KarmaType.POZZYPOZ),
-                                                      Karma(reason="reason2", karma_type=KarmaType.POZZYPOZ),
-                                                      Karma(reason="reason3", karma_type=KarmaType.NEGGYNEG)])}
-expected_response = "Recent Karma given with no reason: 10" + os.linesep + \
-                    '++ for "reason1"' + os.linesep + \
-                    '++ for "reason2"' + os.linesep + \
-                    '-- for "reason3"'
+command_result = {"reasonless": 10, "reasoned": list([Karma(reason="reason1", karma_type=KarmaType.POZZYPOZ, awarded_by_username="user1"),
+                                                      Karma(reason="reason2", karma_type=KarmaType.POZZYPOZ, awarded_by_username="user2"),
+                                                      Karma(reason="reason3", karma_type=KarmaType.NEGGYNEG, awarded_by_username="user3")])}
+expected_response = "Recent Karma for recipient:" + os.linesep + \
+                    "Recently awarded with no reason: 10." + os.linesep + \
+                    '++ from user1 for "reason1"' + os.linesep + \
+                    '++ from user2 for "reason2"' + os.linesep + \
+                    '-- from user3 for "reason3"'
 
 
 @patch.object(Config, "connect_to_db")
@@ -52,7 +53,7 @@ class TestGetCurrentKarmaReasonsEventHandler(unittest.TestCase):
         can_handle = handler.can_handle(invalid_event)
         self.assertFalse(can_handle)
 
-    @patch.object(GetCurrentKarmaReasonsEventHandler, "_send_response")
+    @patch.object(GetCurrentKarmaReasonsEventHandler, "_send_dm_response")
     @patch.object(GetCurrentKarmaReasonsCommand, "execute", return_value=command_result)
     def test_command_execute_is_called_with_plain_recipient(self, execute_method, response_method, config_method,
                                                             prefix_method, db_method):
@@ -60,7 +61,7 @@ class TestGetCurrentKarmaReasonsEventHandler(unittest.TestCase):
         handler.handle(valid_event_plain_recipient)
         execute_method.assert_called_once_with("recipient")
 
-    @patch.object(GetCurrentKarmaReasonsEventHandler, "_send_response")
+    @patch.object(GetCurrentKarmaReasonsEventHandler, "_send_dm_response")
     @patch.object(GetCurrentKarmaReasonsCommand, "execute", return_value=command_result)
     def test_command_execute_is_called_with_slack_id_recipient(self, execute_method, response_method, config_method,
                                                             prefix_method, db_method):
@@ -69,7 +70,7 @@ class TestGetCurrentKarmaReasonsEventHandler(unittest.TestCase):
             handler.handle(valid_event_slack_id_recipient)
             execute_method.assert_called_once_with(fake_member.username)\
 
-    @patch.object(GetCurrentKarmaReasonsEventHandler, "_send_response")
+    @patch.object(GetCurrentKarmaReasonsEventHandler, "_send_dm_response")
     @patch.object(GetCurrentKarmaReasonsCommand, "execute", return_value=command_result)
     def test_command_execute_is_called_with_slack_id_and_guff_recipient(self, execute_method, response_method,
                                                                        config_method, prefix_method, db_method):
@@ -78,7 +79,7 @@ class TestGetCurrentKarmaReasonsEventHandler(unittest.TestCase):
             handler.handle(valid_event_slack_id_recipient_trailing_stuff)
             execute_method.assert_called_once_with(fake_member.username)
 
-    @patch.object(GetCurrentKarmaReasonsEventHandler, "_send_response")
+    @patch.object(GetCurrentKarmaReasonsEventHandler, "_send_dm_response")
     @patch.object(GetCurrentKarmaReasonsCommand, "execute", return_value=command_result)
     def test_command_execute_is_called_no_recipient(self, execute_method, response_method, config_method,
                                                     prefix_method, db_method):

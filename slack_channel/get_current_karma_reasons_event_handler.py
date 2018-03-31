@@ -35,17 +35,25 @@ class GetCurrentKarmaReasonsEventHandler(AbstractEventHandler):
         c = self.command
         result = c.execute(recipient)
 
-        response = self._build_response(result)
+        response = self._build_response(result, recipient)
         self._send_dm_response(response, slack_event)
 
 
-    def _build_response(self, result):
+    def _build_response(self, result, recipient):
         karma_keys = {str(KarmaType.POZZYPOZ): "++", str(KarmaType.NEGGYNEG): "--"}
-        response = "Recent Karma given with no reason: " + str(result["reasonless"])
+        response = "Recent Karma for " + recipient + ":"
+        response += os.linesep
+        response += "Recently awarded with no reason: " + str(result["reasonless"]) + "."
         karma_with_reasons = result["reasoned"]
+        if len(karma_with_reasons) == 0:
+            response += os.linesep
+            response += "None awarded with a reason given."
+            return response
+
         for k in karma_with_reasons:
             response += os.linesep
             response += karma_keys[k.karma_type] + " "
+            response += "from " + k.awarded_by_username + " "
             response += 'for "' + k.reason + '"'
 
         return response

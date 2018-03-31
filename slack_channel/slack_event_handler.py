@@ -22,7 +22,7 @@ def _is_subscribed_event(slack_event):
     except Exception as ex:
         logging.warning("Error determining if event is subscribed: " + str(ex))
         logging.warning("Message: " + slack_event)
-
+    return False
 
 class SlackEventHandler(object):
     def _init_command_handlers(self):
