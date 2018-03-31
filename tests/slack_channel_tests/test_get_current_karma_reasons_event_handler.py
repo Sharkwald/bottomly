@@ -87,7 +87,7 @@ class TestGetCurrentKarmaReasonsEventHandler(unittest.TestCase):
         execute_method.assert_called_once_with(valid_event_no_recipient["user"])
 
     @patch.object(GetCurrentKarmaReasonsCommand, "execute", return_value=command_result)
-    @patch.object(GetCurrentKarmaReasonsEventHandler, "_send_response")
+    @patch.object(GetCurrentKarmaReasonsEventHandler, "_send_dm_response")
     def test_command_result_is_correctly_built(self, response_method, execute_method,
                                                config_method, prefix_method, db_method):
         handler = GetCurrentKarmaReasonsEventHandler()
