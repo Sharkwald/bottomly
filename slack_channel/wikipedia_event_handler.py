@@ -26,8 +26,6 @@ class WikipediaEventHandler(AbstractEventHandler):
             response_message = "No results found for \"" + q +  "\""
         else:
             response_message = result["text"] + " " + result["link"]
-        if self.debug:
-            response_message = "[DEBUG] " + response_message
         self._send_message_response(response_message, slack_event)
 
     def _get_command_symbol(self):

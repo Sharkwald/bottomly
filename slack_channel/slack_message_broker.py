@@ -19,6 +19,8 @@ class SlackMessageBroker(object):
             logging.exception("Error sending reaction to: " + str(slack_event_to_react_to))
 
     def send_message(self, message_text, channel):
+        if self.debug:
+            message_text = "[DEBUG] " + message_text
         try :
             with SlackSocket(self.token) as s:
                 msg = s.send_msg(message_text, channel)
@@ -27,6 +29,8 @@ class SlackMessageBroker(object):
             logging.exception("Error sending message response to: " + channel)
 
     def send_dm(self, message_text, user_slack_id):
+        if self.debug:
+            message_text = "[DEBUG] " + message_text
         try:
             slack = Slacker(self.token)
             im = slack.im.open(user_slack_id).body
@@ -40,6 +44,7 @@ class SlackMessageBroker(object):
         except Exception:
             logging.exception("Error sending DM response to: " + str(user_slack_id))
 
-    def __init__(self):
+    def __init__(self, debug=False):
+        self.debug = debug
         config = Config()
         self.token = config.get_config_value(ConfigKeys.slack_bot_token)

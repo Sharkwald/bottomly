@@ -41,8 +41,6 @@ class AbstractEventHandler(ABC):
             purpose = self.command.get_purpose() + os.linesep
             usage = "Usage: `" + self.get_usage() + "`"
             message = purpose + usage
-            if self.debug:
-                message = "[DEBUG] " + message
             self._send_message_response(message, slack_event)
         else:
             self._invoke_handler_logic(slack_event)
@@ -63,6 +61,6 @@ class AbstractEventHandler(ABC):
         self.command_trigger = config.get_prefix() + self._get_command_symbol() + " "
 
     def __init__(self, debug=False):
-        self._slack_message_broker = SlackMessageBroker()
+        self._slack_message_broker = SlackMessageBroker(debug)
         self.debug = debug
         self._get_config()

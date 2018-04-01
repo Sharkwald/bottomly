@@ -25,8 +25,6 @@ class UrbanEventHandler(AbstractEventHandler):
         if response_message is None:
             self._send_message_response(empty_result_message, slack_event)
         else :
-            if self.debug:
-                response_message = "[DEBUG] " + response_message
             self._send_message_response(response_message, slack_event)
 
     def _get_command_symbol(self):
