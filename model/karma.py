@@ -42,6 +42,16 @@ class Karma(MongoModel):
     awarded = fields.DateTimeField()
     karma_type = fields.CharField()
 
+    def validate(self) -> bool:
+        valid = True
+        if self.karma_type == str(KarmaType.POZZYPOZ):
+            valid = self.awarded_by_username != self.awarded_to_username  # can't give yourself positive karma
+        return valid
+
+    def validate_and_save(self):
+        if self.validate():
+            self.save()
+
     class Meta:
         write_concern = WriteConcern(j=True)
         connection_alias = Config.Connection

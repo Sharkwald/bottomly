@@ -115,5 +115,66 @@ class TestKarma(unittest.TestCase):
             self.assertEqual(len(default_karma_list()), karma_reasons['reasonless'])
             self.assertEqual(list([karma_with_reason]), karma_reasons['reasoned'])
 
+    def test_positive_karma_cannot_be_self_awarded(self):
+        awarded_to = "testUser1"
+        awarded_by = "testUser1"
+        test_reason = "testReason"
+        test_awarded = datetime.today()
+        test_type = str(KarmaType.POZZYPOZ)
+        k = Karma(awarded_to_username=awarded_to,
+                  reason=test_reason,
+                  awarded_by_username=awarded_by,
+                  awarded=test_awarded,
+                  karma_type=test_type)
+        valid = k.validate()
+
+        self.assertFalse(valid)
+
+    def test_positive_karma_can_be_awarded_by_others(self):
+        awarded_to = "testUser1"
+        awarded_by = "testUser2"
+        test_reason = "testReason"
+        test_awarded = datetime.today()
+        test_type = str(KarmaType.POZZYPOZ)
+        k = Karma(awarded_to_username=awarded_to,
+                  reason=test_reason,
+                  awarded_by_username=awarded_by,
+                  awarded=test_awarded,
+                  karma_type=test_type)
+        valid = k.validate()
+
+        self.assertTrue(valid)
+
+    def test_negative_karma_can_be_self_awarded(self):
+        awarded_to = "testUser1"
+        awarded_by = "testUser1"
+        test_reason = "testReason"
+        test_awarded = datetime.today()
+        test_type = str(KarmaType.NEGGYNEG)
+        k = Karma(awarded_to_username=awarded_to,
+                  reason=test_reason,
+                  awarded_by_username=awarded_by,
+                  awarded=test_awarded,
+                  karma_type=test_type)
+        valid = k.validate()
+
+        self.assertTrue(valid)
+
+    def test_negative_karma_can_be_awarded_by_others(self):
+        awarded_to = "testUser1"
+        awarded_by = "testUser2"
+        test_reason = "testReason"
+        test_awarded = datetime.today()
+        test_type = str(KarmaType.NEGGYNEG)
+        k = Karma(awarded_to_username=awarded_to,
+                  reason=test_reason,
+                  awarded_by_username=awarded_by,
+                  awarded=test_awarded,
+                  karma_type=test_type)
+        valid = k.validate()
+
+        self.assertTrue(valid)
+
+
 if __name__ == '__main__':
     unittest.main()
