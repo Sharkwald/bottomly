@@ -31,4 +31,4 @@ class GetCurrentNetKarmaEventHandler(AbstractEventHandler):
         result = c.execute(recipient)
 
         response_message = recipient + ": " + str(result)
-        self._send_response(response_message, slack_event)
+        self._send_message_response(response_message, slack_event)

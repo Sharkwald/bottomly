@@ -44,7 +44,7 @@ class TestGetCurrentNetKarmaEventHandler(unittest.TestCase):
         can_handle = handler.can_handle(invalid_event)
         self.assertFalse(can_handle)
 
-    @patch.object(GetCurrentNetKarmaEventHandler, "_send_response")
+    @patch.object(GetCurrentNetKarmaEventHandler, "_send_message_response")
     @patch.object(GetCurrentNetKarmaCommand, "execute", return_value = 0)
     def test_command_execute_is_called_with_plain_recipient(self, execute_method, response_method, config_method,
                                                             prefix_method, db_method):
@@ -52,7 +52,7 @@ class TestGetCurrentNetKarmaEventHandler(unittest.TestCase):
         handler.handle(valid_event_plain_recipient)
         execute_method.assert_called_once_with("recipient")
 
-    @patch.object(GetCurrentNetKarmaEventHandler, "_send_response")
+    @patch.object(GetCurrentNetKarmaEventHandler, "_send_message_response")
     @patch.object(GetCurrentNetKarmaCommand, "execute", return_value=0)
     def test_command_execute_is_called_with_slack_id_recipient(self, execute_method, response_method, config_method,
                                                             prefix_method, db_method):
@@ -61,7 +61,7 @@ class TestGetCurrentNetKarmaEventHandler(unittest.TestCase):
             handler.handle(valid_event_slack_id_recipient)
             execute_method.assert_called_once_with(fake_member.username)\
 
-    @patch.object(GetCurrentNetKarmaEventHandler, "_send_response")
+    @patch.object(GetCurrentNetKarmaEventHandler, "_send_message_response")
     @patch.object(GetCurrentNetKarmaCommand, "execute", return_value=0)
     def test_command_execute_is_called_with_slack_id_andguff_recipient(self, execute_method, response_method,
                                                                        config_method, prefix_method, db_method):
@@ -70,7 +70,7 @@ class TestGetCurrentNetKarmaEventHandler(unittest.TestCase):
             handler.handle(valid_event_slack_id_recipient_trailing_stuff)
             execute_method.assert_called_once_with(fake_member.username)
 
-    @patch.object(GetCurrentNetKarmaEventHandler, "_send_response")
+    @patch.object(GetCurrentNetKarmaEventHandler, "_send_message_response")
     @patch.object(GetCurrentNetKarmaCommand, "execute", return_value=0)
     def test_command_execute_is_called_no_recipient(self, execute_method, response_method, config_method,
                                                     prefix_method, db_method):
@@ -79,7 +79,7 @@ class TestGetCurrentNetKarmaEventHandler(unittest.TestCase):
         execute_method.assert_called_once_with(valid_event_no_recipient["user"])
 
     @patch.object(GetCurrentNetKarmaCommand, "execute", return_value=0)
-    @patch.object(GetCurrentNetKarmaEventHandler, "_send_response")
+    @patch.object(GetCurrentNetKarmaEventHandler, "_send_message_response")
     def test_command_result_is_correctly_built_with_plain_recipient(self, response_method, execute_method,
                                                                     config_method, prefix_method, db_method):
         handler = GetCurrentNetKarmaEventHandler()
@@ -87,7 +87,7 @@ class TestGetCurrentNetKarmaEventHandler(unittest.TestCase):
         response_method.assert_called_once_with("recipient: 0", valid_event_plain_recipient)
 
     @patch.object(GetCurrentNetKarmaCommand, "execute", return_value=0)
-    @patch.object(GetCurrentNetKarmaEventHandler, "_send_response")
+    @patch.object(GetCurrentNetKarmaEventHandler, "_send_message_response")
     def test_command_result_is_correctly_built_with_slack_id_recipient(self, response_method, execute_method,
                                                                     config_method, prefix_method, db_method):
         with patch.object(Member, "get_member_by_slack_id", return_value=fake_member):
@@ -96,7 +96,7 @@ class TestGetCurrentNetKarmaEventHandler(unittest.TestCase):
             response_method.assert_called_once_with(fake_member.username + ": 0", valid_event_slack_id_recipient)
 
     @patch.object(GetCurrentNetKarmaCommand, "execute", return_value=0)
-    @patch.object(GetCurrentNetKarmaEventHandler, "_send_response")
+    @patch.object(GetCurrentNetKarmaEventHandler, "_send_message_response")
     def test_command_result_is_correctly_built_with_slack_id_recipient_trailing_stuff(self, response_method,
                                                                                       execute_method, config_method,
                                                                                       prefix_method, db_method):
@@ -107,7 +107,7 @@ class TestGetCurrentNetKarmaEventHandler(unittest.TestCase):
                                                     valid_event_slack_id_recipient_trailing_stuff)
 
     @patch.object(GetCurrentNetKarmaCommand, "get_purpose", return_value="GetCurrentNetKarma")
-    @patch.object(GetCurrentNetKarmaEventHandler, "_send_response")
+    @patch.object(GetCurrentNetKarmaEventHandler, "_send_message_response")
     def test_get_usage(self, response_method, purpose_method, config_method, prefix_method, db_method):
         handler = GetCurrentNetKarmaEventHandler()
         handler.handle(help_event)

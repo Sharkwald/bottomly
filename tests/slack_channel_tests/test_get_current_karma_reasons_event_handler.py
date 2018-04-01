@@ -96,7 +96,7 @@ class TestGetCurrentKarmaReasonsEventHandler(unittest.TestCase):
         response_method.assert_called_once_with(expected_response, valid_event_plain_recipient)
 
     @patch.object(GetCurrentKarmaReasonsCommand, "get_purpose", return_value="GetCurrentKarmaReasons")
-    @patch.object(GetCurrentKarmaReasonsEventHandler, "_send_response")
+    @patch.object(GetCurrentKarmaReasonsEventHandler, "_send_message_response")
     def test_get_usage(self, response_method, purpose_method, config_method, prefix_method, db_method):
         handler = GetCurrentKarmaReasonsEventHandler()
         handler.handle(help_event)

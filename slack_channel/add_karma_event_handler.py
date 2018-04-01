@@ -34,7 +34,7 @@ class AbstractKarmaEventHandler(AbstractEventHandler):
                       awarded_by=slack_event["user"],
                       reason=args["reason"],
                       karma_type=args["karma_type"])
-            self._send_response("", slack_event)
+            self._send_reaction_response(slack_event)
         except Exception as ex:
             logging.exception(ex)
 

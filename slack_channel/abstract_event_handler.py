@@ -42,16 +42,10 @@ class AbstractEventHandler(ABC):
             message = purpose + usage
             if self.debug:
                 message = "[DEBUG] " + message
-            self._send_response(message, slack_event)
+            self._send_message_response(message, slack_event)
         else:
             self._invoke_handler_logic(slack_event)
 
-
-    def _send_response(self, response_message, slack_event):
-        if response_message != "":
-            self._send_message_response(response_message, slack_event)
-        else:
-            self._send_reaction_response(slack_event)
 
     def _send_message_response(self, response_message, slack_event):
         try :

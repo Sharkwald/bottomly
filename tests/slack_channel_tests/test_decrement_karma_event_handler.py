@@ -25,7 +25,7 @@ class TestDecrementKarmaEventHandler(unittest.TestCase):
         can_handle = handler.can_handle(invalid_event)
         self.assertFalse(can_handle)
 
-    @patch.object(DecrementKarmaEventHandler, "_send_response")
+    @patch.object(DecrementKarmaEventHandler, "_send_reaction_response")
     @patch.object(AddKarmaCommand, "execute")
     def test_command_executes_and_response_sent(self, execute_method, response_method):
         handler = DecrementKarmaEventHandler()
@@ -36,10 +36,10 @@ class TestDecrementKarmaEventHandler(unittest.TestCase):
             reason="being awful",
             karma_type=KarmaType.NEGGYNEG
         )
-        response_method.assert_called_once_with("", valid_event)
+        response_method.assert_called_once_with(valid_event)
 
     @patch.object(AddKarmaCommand, "get_purpose", return_value="Karmas")
-    @patch.object(DecrementKarmaEventHandler, "_send_response")
+    @patch.object(DecrementKarmaEventHandler, "_send_message_response")
     def test_get_usage(self, response_method, purpose_method):
         handler = DecrementKarmaEventHandler()
         handler.handle(help_event)

@@ -29,7 +29,7 @@ class TestGoogleEventHandler(unittest.TestCase):
         can_handle = handler.can_handle(invalid_event)
         self.assertFalse(can_handle)
 
-    @patch.object(GoogleEventHandler, "_send_response")
+    @patch.object(GoogleEventHandler, "_send_message_response")
     @patch.object(GoogleSearchCommand, "execute", return_value = google_response)
     def test_command_execute_is_called(self, execute_method, response_method, config_method, prefix_method):
         handler = GoogleEventHandler()
@@ -37,14 +37,14 @@ class TestGoogleEventHandler(unittest.TestCase):
         execute_method.assert_called_once_with(valid_event["text"][3:])
 
     @patch.object(GoogleSearchCommand, "execute", return_value=google_response)
-    @patch.object(GoogleEventHandler, "_send_response")
+    @patch.object(GoogleEventHandler, "_send_message_response")
     def test_command_result_is_correctly_built(self, response_method, execute_method, config_method, prefix_method):
         handler = GoogleEventHandler()
         handler.handle(valid_event)
         response_method.assert_called_once_with("response title response_link", valid_event)
 
     @patch.object(GoogleSearchCommand, "execute", return_value=None)
-    @patch.object(GoogleEventHandler, "_send_response")
+    @patch.object(GoogleEventHandler, "_send_message_response")
     def test_no_result_message_correctly_sent(self, response_method, execute_method, config_method, prefix_method):
         handler = GoogleEventHandler()
         handler.handle(valid_event)
@@ -52,7 +52,7 @@ class TestGoogleEventHandler(unittest.TestCase):
         response_method.assert_called_once_with(empty_results_message, valid_event)
 
     @patch.object(GoogleSearchCommand, "get_purpose", return_value="Googles")
-    @patch.object(GoogleEventHandler, "_send_response")
+    @patch.object(GoogleEventHandler, "_send_message_response")
     def test_get_usage(self, response_method, purpose_method, config_method, prefix_method):
         handler = GoogleEventHandler()
         handler.handle(help_event)
