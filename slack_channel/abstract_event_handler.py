@@ -2,21 +2,22 @@ import logging
 import os
 from abc import ABC, abstractmethod
 
-from slacker import Slacker
-from slacksocket import SlackSocket
+from commands.abstract_command import AbstractCommand
 from config import Config, ConfigKeys
+from slack_channel.slack_message_broker import SlackMessageBroker
 
 help_token = "-?"
+
 
 class AbstractEventHandler(ABC):
 
     @property
     @abstractmethod
-    def command(self):
+    def command(self) -> AbstractCommand:
         pass
 
     @abstractmethod
-    def can_handle(self, slack_event):
+    def can_handle(self, slack_event) -> bool:
         pass
 
     @abstractmethod
@@ -24,11 +25,11 @@ class AbstractEventHandler(ABC):
         pass
 
     @abstractmethod
-    def _get_command_symbol(self):
+    def _get_command_symbol(self) -> str:
         pass
 
     @abstractmethod
-    def get_usage(self):
+    def get_usage(self) -> str:
         pass
 
     @property
@@ -48,35 +49,13 @@ class AbstractEventHandler(ABC):
 
 
     def _send_message_response(self, response_message, slack_event):
-        try :
-            with SlackSocket(self.token) as s:
-                msg = s.send_msg(response_message, slack_event["channel"])
-                logging.info(msg.sent)
-        except Exception:
-            logging.exception("Error sending message response to: " + str(slack_event))
+        self._slack_message_broker.send_message(response_message, slack_event["channel"])
 
     def _send_reaction_response(self, slack_event):
-        try :
-            slack = Slacker(self.token)
-            slack.reactions.add(name="robot_face",
-                                channel=slack_event["channel_id"],
-                                timestamp=slack_event["ts"])
-        except Exception:
-            logging.exception("Error sending reaction to: " + str(slack_event))
+        self._slack_message_broker.send_reaction(slack_event)
 
     def _send_dm_response(self, response_message, slack_event):
-        try:
-            slack = Slacker(self.token)
-            im = slack.im.open(slack_event["user_id"]).body
-            if im["ok"]:
-                channel_id = im["channel"]["id"]
-                slack.chat.post_message(channel_id, text=response_message)
-
-            else:
-                raise Exception("Failed to open a DM to send response.")
-
-        except Exception:
-            logging.exception("Error sending DM response to: " + str(slack_event))
+        self._slack_message_broker.send_dm(response_message, slack_event["user_id"])
 
     def _get_config(self):
         config = Config()
@@ -84,5 +63,6 @@ class AbstractEventHandler(ABC):
         self.command_trigger = config.get_prefix() + self._get_command_symbol() + " "
 
     def __init__(self, debug=False):
+        self._slack_message_broker = SlackMessageBroker()
         self.debug = debug
         self._get_config()
