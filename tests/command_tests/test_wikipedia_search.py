@@ -21,6 +21,13 @@ class TestWikipediaSearchCommand(unittest.TestCase):
 
         self.assertIsNotNone(result)
 
+    def test_possible_matches_search(self):
+        command = WikipediaSearchCommand()
+        result = command.execute("nuggets")
+
+        self.assertIsNotNone(result)
+        self.assertFalse(" may refer to " in result['text'])
+
 
 if __name__ == '__main__':
     unittest.main()

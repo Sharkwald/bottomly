@@ -23,11 +23,9 @@ class UrbanEventHandler(AbstractEventHandler):
         c = UrbanSearchCommand()
         response_message = c.execute(q)
         if response_message is None:
-            self._send_response(empty_result_message, slack_event)
+            self._send_message_response(empty_result_message, slack_event)
         else :
-            if self.debug:
-                response_message = "[DEBUG] " + response_message
-            self._send_response(response_message, slack_event)
+            self._send_message_response(response_message, slack_event)
 
     def _get_command_symbol(self):
         return command_symbol
