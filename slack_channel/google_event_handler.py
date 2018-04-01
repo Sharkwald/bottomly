@@ -6,10 +6,13 @@ command_symbol = "g"
 
 
 class GoogleEventHandler(AbstractEventHandler):
-
     @property
     def command(self):
         return GoogleSearchCommand()
+
+    @property
+    def name(self):
+        return "Google"
 
     def get_usage(self):
         return self.command_trigger + "<query>"

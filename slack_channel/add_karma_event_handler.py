@@ -87,6 +87,10 @@ class AbstractKarmaEventHandler(AbstractEventHandler):
 
 class IncrementKarmaEventHandler(AbstractKarmaEventHandler):
 
+    @property
+    def name(self):
+        return "Pozzy-poz"
+
     def _get_command_symbol(self):
         return "++"
 
@@ -95,6 +99,10 @@ class IncrementKarmaEventHandler(AbstractKarmaEventHandler):
 
 
 class DecrementKarmaEventHandler(AbstractKarmaEventHandler):
+
+    @property
+    def name(self):
+        return "Neggy-neg"
 
     def _get_command_symbol(self):
         return "--"

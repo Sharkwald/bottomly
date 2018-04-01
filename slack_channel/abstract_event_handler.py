@@ -16,6 +16,11 @@ class AbstractEventHandler(ABC):
     def command(self) -> AbstractCommand:
         pass
 
+    @property
+    @abstractmethod
+    def name(self) -> str:
+        pass
+
     @abstractmethod
     def can_handle(self, slack_event) -> bool:
         pass
@@ -37,14 +42,21 @@ class AbstractEventHandler(ABC):
         return self.command_trigger + help_token
 
     def handle(self, slack_event):
-        if slack_event["text"] == self._help_message:
-            purpose = self.command.get_purpose() + os.linesep
-            usage = "Usage: `" + self.get_usage() + "`"
-            message = purpose + usage
-            self._send_message_response(message, slack_event)
+        if self._is_help_event(slack_event):
+            self._handle_help_event(slack_event)
         else:
             self._invoke_handler_logic(slack_event)
 
+    def _is_help_event(self, slack_event):
+        is_help_event = slack_event["text"] == self._help_message
+        return is_help_event
+
+    def _handle_help_event(self, slack_event):
+        name = self.name + os.linesep
+        purpose = self.command.get_purpose() + os.linesep
+        usage = "Usage: `" + self.get_usage() + "`"
+        message = name + purpose + usage
+        self._send_message_response(message, slack_event)
 
     def _send_message_response(self, response_message, slack_event):
         self._slack_message_broker.send_message(response_message, slack_event["channel"])

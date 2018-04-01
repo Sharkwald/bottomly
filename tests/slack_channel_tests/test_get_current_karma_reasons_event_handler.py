@@ -100,7 +100,8 @@ class TestGetCurrentKarmaReasonsEventHandler(unittest.TestCase):
     def test_get_usage(self, response_method, purpose_method, config_method, prefix_method, db_method):
         handler = GetCurrentKarmaReasonsEventHandler()
         handler.handle(help_event)
-        expected_help = "GetCurrentKarmaReasons"+ os.linesep +"Usage: `" + \
+        expected_help = "Karma Reasons" + os.linesep + \
+                        "GetCurrentKarmaReasons"+ os.linesep +"Usage: `" + \
                         test_prefix + "reasons [recipient <if blank, will default to you>]`"
         response_method.assert_called_once_with(expected_help, help_event)
 
