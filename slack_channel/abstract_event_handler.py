@@ -52,11 +52,16 @@ class AbstractEventHandler(ABC):
         return is_help_event
 
     def _handle_help_event(self, slack_event):
-        name = self.name + os.linesep
-        purpose = self.command.get_purpose() + os.linesep
-        usage = "Usage: `" + self.get_usage() + "`"
-        message = name + purpose + usage
+        message = self.build_help_message()
         self._send_message_response(message, slack_event)
+
+    def build_help_message(self) -> str:
+        name = self.name + os.linesep
+        purpose = ""
+        if self.command is not None:
+            purpose = self.command.get_purpose() + os.linesep
+        usage = "Usage: `" + self.get_usage() + "`"
+        return name + purpose + usage
 
     def _send_message_response(self, response_message, slack_event):
         self._slack_message_broker.send_message(response_message, slack_event["channel"])

@@ -19,6 +19,8 @@ class SlackMessageBroker(object):
             logging.exception("Error sending reaction to: " + str(slack_event_to_react_to))
 
     def send_message(self, message_text, channel):
+        if message_text is None or message_text == "":
+            return
         if self.debug:
             message_text = "[DEBUG] " + message_text
         try :
@@ -29,6 +31,8 @@ class SlackMessageBroker(object):
             logging.exception("Error sending message response to: " + channel)
 
     def send_dm(self, message_text, user_slack_id):
+        if message_text is None or message_text == "":
+            return
         if self.debug:
             message_text = "[DEBUG] " + message_text
         try:
