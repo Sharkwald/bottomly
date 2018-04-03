@@ -51,7 +51,7 @@ class TestHelpEventHandler(unittest.TestCase):
 
         event = valid_events[0]
 
-        with patch.object(HelpEventHandler, "_send_message_response") as response_method:
+        with patch.object(HelpEventHandler, "_send_dm_response") as response_method:
             handler = HelpEventHandler(command_handlers=mock_handlers)
             handler.handle(event)
 
