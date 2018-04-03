@@ -24,9 +24,10 @@ def _is_subscribed_event(slack_event):
         logging.warning("Message: " + slack_event)
     return False
 
+
 class SlackEventHandler(object):
     def _init_command_handlers(self):
-        self.command_handlers = list([
+        self._command_handlers = list([
             GoogleEventHandler(self.debug),
             UrbanEventHandler(self.debug),
             WikipediaEventHandler(self.debug),
@@ -60,6 +61,16 @@ class SlackEventHandler(object):
 
                 self._insert_channel_id(slack_event)
                 self._insert_user_id(slack_event)
+
+                handled = False
+
+                help_handler = HelpEventHandler(self.debug, self._command_handlers)
+                if help_handler.can_handle(slack_event):
+                    handled = help_handler.handle(slack_event)
+
+                if handled:
+                    continue
+
                 handled = self._execute_command_handlers(slack_event)
 
                 if handled:
@@ -72,7 +83,7 @@ class SlackEventHandler(object):
 
     def _execute_command_handlers(self, slack_event):
         handled = False
-        for handler in self.command_handlers:
+        for handler in self._command_handlers:
             if handler.can_handle(slack_event):
                 handler.handle(slack_event)
                 handled = True

@@ -11,6 +11,10 @@ class UrbanEventHandler(AbstractEventHandler):
     def command(self):
         return UrbanSearchCommand()
 
+    @property
+    def name(self):
+        return "Urban Dictionary"
+
     def get_usage(self):
         return self.command_trigger + "<query>"
 

@@ -111,8 +111,9 @@ class TestGetCurrentNetKarmaEventHandler(unittest.TestCase):
     def test_get_usage(self, response_method, purpose_method, config_method, prefix_method, db_method):
         handler = GetCurrentNetKarmaEventHandler()
         handler.handle(help_event)
-        expected_help = "GetCurrentNetKarma"+ os.linesep +"Usage: `" + \
-                        test_prefix + "karma [recipient <if blank, will default to you>]`"
+        expected_help = "Get Current Karma" + os.linesep + \
+                        "GetCurrentNetKarma"+ os.linesep +\
+                        "Usage: `" + test_prefix + "karma [recipient <if blank, will default to you>]`"
         response_method.assert_called_once_with(expected_help, help_event)
 
     if __name__ == '__main__':

@@ -15,6 +15,10 @@ class GetCurrentKarmaReasonsEventHandler(AbstractEventHandler):
     def command(self):
         return GetCurrentKarmaReasonsCommand()
 
+    @property
+    def name(self):
+        return "Karma Reasons"
+
     def _get_command_symbol(self):
         return command_symbol
 

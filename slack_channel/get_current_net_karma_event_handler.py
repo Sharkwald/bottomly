@@ -10,6 +10,10 @@ class GetCurrentNetKarmaEventHandler(AbstractEventHandler):
     def command(self):
         return GetCurrentNetKarmaCommand()
 
+    @property
+    def name(self):
+        return "Get Current Karma"
+
     def _get_command_symbol(self):
         return command_symbol
 
