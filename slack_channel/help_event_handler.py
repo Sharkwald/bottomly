@@ -31,7 +31,7 @@ class HelpEventHandler(AbstractEventHandler):
         for handler in self._command_handlers:
             help_text += handler.build_help_message() + os.linesep
         help_text = help_text.strip()
-        self._send_message_response(help_text, slack_event)
+        self._send_dm_response(help_text, slack_event)
 
     def _get_command_symbol(self) -> str:
         return command_symbols[0]
