@@ -6,3 +6,4 @@ from .add_karma_event_handler import IncrementKarmaEventHandler, DecrementKarmaE
 from .get_current_net_karma_event_handler import GetCurrentNetKarmaEventHandler
 from .get_current_karma_reasons_event_handler import GetCurrentKarmaReasonsEventHandler
 from .help_event_handler import HelpEventHandler
+from .giphy_event_handler import GiphyEventHandler
