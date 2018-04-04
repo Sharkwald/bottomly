@@ -5,9 +5,10 @@ from slack_channel.abstract_event_handler import AbstractEventHandler
 
 command_symbol = "gif"
 
+
 class GiphyEventHandler(AbstractEventHandler):
     @property
-    def command(self):
+    def command(self) -> GiphyTranslateCommand:
         return GiphyTranslateCommand()
 
     @property
@@ -23,10 +24,9 @@ class GiphyEventHandler(AbstractEventHandler):
 
     def _invoke_handler_logic(self, slack_event):
         q = slack_event["text"][len(self.command_trigger):]
-        c = GiphyTranslateCommand()
-        result = c.execute(q)
+        result = self.command.execute(q)
         if result is None:
-            response_message = "No gifs found for \"" + q +  "\""
+            response_message = "No gifs found for \"" + q + "\""
         else:
             response_message = result
         self._send_message_response(response_message, slack_event)

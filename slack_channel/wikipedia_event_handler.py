@@ -5,9 +5,10 @@ from slack_channel.abstract_event_handler import AbstractEventHandler
 
 command_symbol = "wik"
 
+
 class WikipediaEventHandler(AbstractEventHandler):
     @property
-    def command(self):
+    def command(self) -> WikipediaSearchCommand:
         return WikipediaSearchCommand()
 
     @property
@@ -23,10 +24,9 @@ class WikipediaEventHandler(AbstractEventHandler):
 
     def _invoke_handler_logic(self, slack_event):
         q = slack_event["text"][len(self.command_trigger):]
-        c = WikipediaSearchCommand()
-        result = c.execute(q)
+        result = self.command.execute(q)
         if result is None:
-            response_message = "No results found for \"" + q +  "\""
+            response_message = "No results found for \"" + q + "\""
         else:
             response_message = result["text"] + " " + result["link"]
         self._send_message_response(response_message, slack_event)

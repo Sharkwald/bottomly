@@ -6,9 +6,10 @@ from slack_channel.abstract_event_handler import AbstractEventHandler
 command_symbol = "ud"
 empty_result_message = "Left as an exercise for the reader."
 
+
 class UrbanEventHandler(AbstractEventHandler):
     @property
-    def command(self):
+    def command(self) -> UrbanSearchCommand:
         return UrbanSearchCommand()
 
     @property
@@ -24,11 +25,10 @@ class UrbanEventHandler(AbstractEventHandler):
 
     def _invoke_handler_logic(self, slack_event):
         q = slack_event["text"][len(self.command_trigger):]
-        c = UrbanSearchCommand()
-        response_message = c.execute(q)
+        response_message = self.command.execute(q)
         if response_message is None:
             self._send_message_response(empty_result_message, slack_event)
-        else :
+        else:
             self._send_message_response(response_message, slack_event)
 
     def _get_command_symbol(self):

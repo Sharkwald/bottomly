@@ -1,4 +1,5 @@
 import logging
+from abc import abstractmethod
 
 from commands import AddKarmaCommand
 from config import Config
@@ -11,7 +12,16 @@ from slack_channel.slack_parser import SlackParser
 class AbstractKarmaEventHandler(AbstractEventHandler):
 
     @property
-    def command(self):
+    @abstractmethod
+    def name(self) -> str:
+        pass
+
+    @abstractmethod
+    def _get_command_symbol(self) -> str:
+        pass
+
+    @property
+    def command(self) -> AddKarmaCommand:
         return AddKarmaCommand()
 
     def get_usage(self):
@@ -29,11 +39,10 @@ class AbstractKarmaEventHandler(AbstractEventHandler):
         try:
             command_text = slack_event['text']
             args = self._parse_command_text(command_text)
-            c = self.command
-            c.execute(awarded_to=args["recipient"],
-                      awarded_by=slack_event["user"],
-                      reason=args["reason"],
-                      karma_type=args["karma_type"])
+            self.command.execute(awarded_to=args["recipient"],
+                                 awarded_by=slack_event["user"],
+                                 reason=args["reason"],
+                                 karma_type=args["karma_type"])
             self._send_reaction_response(slack_event)
         except Exception as ex:
             logging.exception(ex)
@@ -65,14 +74,16 @@ class AbstractKarmaEventHandler(AbstractEventHandler):
 
         return decided_username
 
-    def _username_is_known(self, username):
+    @staticmethod
+    def _username_is_known(username):
         m = Member.get_member_by_username(username)
         if m is not None:
             return True
         else:
             return False
 
-    def _parse_reason(self, command_text, recipient):
+    @staticmethod
+    def _parse_reason(command_text, recipient):
         recipient_length = len(recipient) + 1  # +1 to account for space
         if command_text.find(" for ") != -1:
             recipient_length += 4

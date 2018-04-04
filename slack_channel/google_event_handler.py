@@ -7,7 +7,7 @@ command_symbol = "g"
 
 class GoogleEventHandler(AbstractEventHandler):
     @property
-    def command(self):
+    def command(self) -> GoogleSearchCommand:
         return GoogleSearchCommand()
 
     @property
@@ -23,10 +23,9 @@ class GoogleEventHandler(AbstractEventHandler):
 
     def _invoke_handler_logic(self, slack_event):
         q = slack_event["text"][len(self.command_trigger):]
-        c = self.command
-        result = c.execute(q)
+        result = self.command.execute(q)
         if result is None:
-            response_message = "No results found for \"" + q +  "\""
+            response_message = "No results found for \"" + q + "\""
         else:
             response_message = result["title"] + " " + result["link"]
         self._send_message_response(response_message, slack_event)

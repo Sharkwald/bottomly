@@ -5,9 +5,10 @@ from slack_channel.slack_parser import SlackParser
 
 command_symbol = "karma"
 
+
 class GetCurrentNetKarmaEventHandler(AbstractEventHandler):
     @property
-    def command(self):
+    def command(self) -> GetCurrentNetKarmaCommand:
         return GetCurrentNetKarmaCommand()
 
     @property
@@ -22,17 +23,16 @@ class GetCurrentNetKarmaEventHandler(AbstractEventHandler):
 
     def can_handle(self, slack_event):
         text = slack_event["text"]
-        return text.startswith(self.command_trigger[:-1]) # Trim the space off in case of no recipient
+        return text.startswith(self.command_trigger[:-1])  # Trim the space off in case of no recipient
 
     def _invoke_handler_logic(self, slack_event):
         message = SlackParser.replace_slack_id_tokens_with_usernames(slack_event["text"])
         recipient = message[len(self.command_trigger):].split(' ')[0]
 
-        if (recipient == ""):
+        if recipient == "":
             recipient = slack_event["user"]
 
-        c = self.command
-        result = c.execute(recipient)
+        result = self.command.execute(recipient)
 
         response_message = recipient + ": " + str(result)
         self._send_message_response(response_message, slack_event)
