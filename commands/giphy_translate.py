@@ -23,7 +23,7 @@ class GiphyTranslateCommand(AbstractCommand):
         if _result_set_is_empty(results):
             return None
 
-        gif_url = results["data"]["url"]
+        gif_url = results["data"]["embed_url"]
 
         return gif_url
 

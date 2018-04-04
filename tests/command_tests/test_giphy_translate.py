@@ -17,7 +17,7 @@ class TestGiphyTranslateCommand(unittest.TestCase):
 
     def test_valid_input(self):
         command = GiphyTranslateCommand()
-        result = command.execute("pupper")
+        result = command.execute("puppers and kittehs")
 
         self.assertIsNotNone(result)
 
