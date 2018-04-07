@@ -27,8 +27,10 @@ class InitialMemberlistPopulator(object):
                     c.execute()
                     data += "Added " + username + os.linesep
             return data
-        except Exception:
-            logging.exception("Error running initial populate")
+        except Exception as ex:
+            message = "Error running initial populate"
+            logging.exception(message)
+            return message + ": " + ex
 
     def __init__(self):
         super(InitialMemberlistPopulator, self)
