@@ -1,5 +1,6 @@
 # coding=utf-8
 import logging
+import logging.config
 import os
 from slacker import Slacker
 
@@ -8,6 +9,9 @@ from config import Config, ConfigKeys
 
 
 token = Config().get_config_value(ConfigKeys.slack_bot_token)
+
+logging.config.fileConfig('logging.conf')
+logger = logging.getLogger('bottomly')
 
 
 class InitialMemberlistPopulator(object):
@@ -29,7 +33,7 @@ class InitialMemberlistPopulator(object):
             return data
         except Exception as ex:
             message = "Error running initial populate"
-            logging.exception(message)
+            logger.exception(message)
             return message + ": " + ex
 
     def __init__(self):
