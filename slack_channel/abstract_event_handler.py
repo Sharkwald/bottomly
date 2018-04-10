@@ -1,4 +1,5 @@
 import logging
+import logging.config
 import os
 from abc import ABC, abstractmethod
 
@@ -8,6 +9,8 @@ from slack_channel.slack_message_broker import SlackMessageBroker
 
 help_token = "-?"
 
+logging.config.fileConfig('logging.conf')
+logger = logging.getLogger('bottomly')
 
 class AbstractEventHandler(ABC):
 
@@ -42,10 +45,13 @@ class AbstractEventHandler(ABC):
         return self.command_trigger + help_token
 
     def handle(self, slack_event):
-        if self._is_help_event(slack_event):
-            self._handle_help_event(slack_event)
-        else:
-            self._invoke_handler_logic(slack_event)
+        try:
+            if self._is_help_event(slack_event):
+                self._handle_help_event(slack_event)
+            else:
+                self._invoke_handler_logic(slack_event)
+        except Exception:
+            logger.exception("Error thrown handling event: " + slack_event)
 
     def _is_help_event(self, slack_event):
         is_help_event = slack_event["text"] == self._help_message

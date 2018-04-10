@@ -1,6 +1,7 @@
 # coding=utf-8
 import datetime
 import logging
+import logging.config
 
 from slacker import Slacker
 from slacksocket import SlackSocket
@@ -11,6 +12,8 @@ from slack_channel import *
 config = Config()
 token = config.get_config_value(ConfigKeys.slack_bot_token)
 
+logging.config.fileConfig('logging.conf')
+logger = logging.getLogger('bottomly')
 
 def _is_subscribed_event(slack_event):
     try:
@@ -20,8 +23,8 @@ def _is_subscribed_event(slack_event):
         subscribed = subscribed and "bot_id" not in slack_event
         return subscribed
     except Exception as ex:
-        logging.warning("Error determining if event is subscribed: " + str(ex))
-        logging.warning("Message: " + slack_event)
+        logger.warning("Error determining if event is subscribed: " + str(ex))
+        logger.warning("Message: " + slack_event)
     return False
 
 
@@ -40,7 +43,7 @@ class SlackEventHandler(object):
 
     def handle_slack_context(self):
         if self.debug:
-            logging.info("Opening web socket to slack...")
+            logger.info("Opening web socket to slack...")
 
         self._cache_channel_list()
 
@@ -48,7 +51,7 @@ class SlackEventHandler(object):
             with SlackSocket(token) as s:
                 self._process_slack_events(s)
         except Exception:
-            logging.exception("Error establishing connection to slack.")
+            logger.exception("Error establishing connection to slack.")
 
     def _process_slack_events(self, slack):
         for e in slack.events():
@@ -80,7 +83,7 @@ class SlackEventHandler(object):
                 # TODO: Dynamic response handler
 
             except Exception:
-                logging.exception("Error processing slack event")
+                logger.exception("Error processing slack event")
 
     def _execute_command_handlers(self, slack_event):
         handled = False
@@ -98,22 +101,20 @@ class SlackEventHandler(object):
                 channel = list(filter((lambda c: c["name"] == slack_event["channel"]), self._channel_list))[0]
                 slack_event["channel_id"] = channel["id"]
         except Exception:
-            logging.exception("Error loading channel id from event: " + str(slack_event))
+            logger.exception("Error loading channel id from event: " + str(slack_event))
 
     def _insert_user_id(self, slack_event):
         try:
             member = Member.get_member_by_username(slack_event["user"])
             slack_event["user_id"] = member.slack_id
         except Exception:
-            logging.exception("Error loading user id from event: " + str(slack_event))
+            logger.exception("Error loading user id from event: " + str(slack_event))
 
     def _cache_channel_list(self):
         slack = Slacker(token)
         self._channel_list = slack.channels.list().body["channels"]
 
     def __init__(self, debug=False):
-        logging.basicConfig(filename="btmly_slack_connection_" + str(datetime.date.today()) + ".log",
-                            level=logging.INFO)
         self.debug = debug
         self._init_command_handlers()
         super(SlackEventHandler, self).__init__()

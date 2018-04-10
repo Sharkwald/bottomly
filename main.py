@@ -20,7 +20,10 @@ def start_up():
 
 @app.before_first_request
 def activate_job():
-    logging.basicConfig(filename="bottomly_background_job_" + str(datetime.date.today()) + ".log", level=logging.INFO)
+    logging.basicConfig(filename="bottomly_" + str(datetime.date.today()) + ".log",
+                        level=logging.INFO,
+                        format="[%(asctime)s] %(levelname)s:%(message)s",
+                        datefmt='%m/%d/%Y %H:%M:%S')
     def spin_up_slack_socket():
         handler = SlackEventHandler(app.debug)
         handler.handle_slack_context()
