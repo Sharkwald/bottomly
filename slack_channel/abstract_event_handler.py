@@ -1,6 +1,7 @@
 import logging
 import logging.config
 import os
+from os import path
 from abc import ABC, abstractmethod
 
 from commands.abstract_command import AbstractCommand
@@ -9,7 +10,8 @@ from slack_channel.slack_message_broker import SlackMessageBroker
 
 help_token = "-?"
 
-logging.config.fileConfig('logging.conf')
+log_file_path = path.join(path.dirname(path.abspath(__file__)), '../logging.conf')
+logging.config.fileConfig(log_file_path)
 logger = logging.getLogger('bottomly')
 
 class AbstractEventHandler(ABC):

@@ -1,3 +1,4 @@
+import re
 from datetime import datetime, timedelta
 from pymodm import MongoModel, fields
 from enum import Enum
@@ -15,13 +16,15 @@ class KarmaType(Enum):
 class Karma(MongoModel):
 
     @staticmethod
-    def get_recent_karma_for_recipient(recipient):
+    def get_recent_karma_for_recipient(recipient: str):
+        recipient = recipient.lower()
         cut_off = datetime.today() - timedelta(days=karma_expiry_days)
-        all_time_karma = list(Karma.objects.raw({'awarded_to_username': recipient}))
+        query_set = Karma.objects.raw({'awarded_to_username': re.compile(recipient, re.IGNORECASE)})
+        all_time_karma = list(query_set)
         return list(filter((lambda k: k.awarded > cut_off), all_time_karma))
 
     @staticmethod
-    def get_current_net_karma_for_recipient(recipient):
+    def get_current_net_karma_for_recipient(recipient: str):
         recent_karma = list(map((lambda k: k.karma_type), Karma.get_recent_karma_for_recipient(recipient)))
         positive_karma = len(list(filter((lambda k: k == str(KarmaType.POZZYPOZ)), recent_karma)))
         negative_karma = len(list(filter((lambda k: k == str(KarmaType.NEGGYNEG)), recent_karma)))
@@ -29,7 +32,7 @@ class Karma(MongoModel):
         return net_karma
 
     @staticmethod
-    def get_current_karma_reasons_for_recipient(recipient):
+    def get_current_karma_reasons_for_recipient(recipient: str):
         recent_karma = Karma.get_recent_karma_for_recipient(recipient)
         karma_with_reasons = list(filter((lambda k: k.reason != Karma.default_reason), recent_karma))
         karma_without_reasons = list(filter((lambda k: k.reason == Karma.default_reason), recent_karma))
