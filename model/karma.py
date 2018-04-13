@@ -20,20 +20,20 @@ class Karma(MongoModel):
         projection = {"$project": {"_id": "$awarded_to_username",
                                    "karma_value": {
                                        "$cond": [{"$eq": ["$karma_type", str(KarmaType.POZZYPOZ)]}, 1, -1]}}}
-        grouping = {"$group": {"_id": "$_id", "total": {"$sum": "$karma_value"}}}
-        sort = {"$sort": {"total": -1}}
+        grouping = {"$group": {"_id": "$_id", "net_karma": {"$sum": "$karma_value"}}}
+        sort = {"$sort": {"net_karma": -1}}
         query_set = Karma.objects.aggregate(filter, projection, grouping, sort)
-        result = map((lambda r: {"username": r["_id"], "net_karma": r["total"]}), list(query_set))
+        result = map((lambda r: {"username": r["_id"], "net_karma": r["net_karma"]}), list(query_set))
         return list(result)
 
     @staticmethod
-    def get_leader_board():
+    def get_leader_board() -> list:
         cut_off = datetime.today() - timedelta(days=karma_expiry_days)
         filter = {"$match": {'awarded': {'$gt': cut_off}}}
         return Karma.get_current_net_karma(filter)
 
     @staticmethod
-    def get_recent_karma_for_recipient(recipient: str):
+    def get_recent_karma_for_recipient(recipient: str) -> list:
         recipient = recipient.lower()
         cut_off = datetime.today() - timedelta(days=karma_expiry_days)
         query_set = Karma.objects.raw({'awarded_to_username': re.compile(recipient, re.IGNORECASE),
@@ -41,19 +41,19 @@ class Karma(MongoModel):
         return list(query_set)
 
     @staticmethod
-    def get_current_net_karma_for_recipient(recipient: str):
+    def get_current_net_karma_for_recipient(recipient: str) -> int:
         cut_off = datetime.today() - timedelta(days=karma_expiry_days)
         filter = {"$match": {'awarded_to_username':re.compile(recipient, re.IGNORECASE),
                              'awarded': {'$gt': cut_off}}}
-        current_net_karma =  Karma.get_current_net_karma(filter)
-        if len(current_net_karma) == 0:
+        net_karma_results =  Karma.get_current_net_karma(filter)
+        if len(net_karma_results) == 0:
             return 0
-        recipient_net_karma = current_net_karma[0]
+        recipient_net_karma = net_karma_results[0]
         return recipient_net_karma["net_karma"]
 
 
     @staticmethod
-    def get_current_karma_reasons_for_recipient(recipient: str):
+    def get_current_karma_reasons_for_recipient(recipient: str) -> dict:
         recent_karma = Karma.get_recent_karma_for_recipient(recipient)
         karma_with_reasons = list(filter((lambda k: k.reason != Karma.default_reason), recent_karma))
         karma_without_reasons = list(filter((lambda k: k.reason == Karma.default_reason), recent_karma))
