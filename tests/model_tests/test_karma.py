@@ -68,7 +68,7 @@ class TestKarma(unittest.TestCase):
 
         self.assertEqual(0, net_karma)
 
-    def test_get_all_recent_karma(self):
+    def test_get_leader_board(self):
         # Arrange
         newly_awarded = datetime.today()
         recently_awarded = datetime.today() - timedelta(days=5)
@@ -80,11 +80,13 @@ class TestKarma(unittest.TestCase):
         recent_karma.save()
         old_karma.save()
 
+        expected = [{"_id": "some other dude", "total": 1},{"_id": test_recipient, "total": 1}]
+
         # Act
-        current_karma = Karma.get_all_recent_karma()
+        leader_board = Karma.get_leader_board()
 
         # Assert
-        self.assertEqual(current_karma, list([new_karma, recent_karma]))
+        self.assertEqual(expected, leader_board)
 
     def test_get_current_karma_with_expired(self):
         # Arrange

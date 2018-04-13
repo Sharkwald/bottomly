@@ -16,10 +16,13 @@ class KarmaType(Enum):
 class Karma(MongoModel):
 
     @staticmethod
-    def get_all_recent_karma():
+    def get_leader_board():
         cut_off = datetime.today() - timedelta(days=karma_expiry_days)
-        query_set = Karma.objects.raw({'awarded': {'$gt': cut_off}})
-        return list(query_set)
+        query_set = Karma.objects.aggregate({ "$match" : {"karma_type" : "KarmaType.POZZYPOZ",
+                                                          'awarded': {'$gt':cut_off}}},
+                                            {"$group" : {"_id" : "$awarded_to_username","total" : {"$sum" : 1.0}}})
+        result = map((lambda r: {"username": r["_id"], "positive_karma": r["total"]}), list(query_set))
+        return list(result)
 
     @staticmethod
     def get_recent_karma_for_recipient(recipient: str):
