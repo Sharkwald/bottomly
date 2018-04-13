@@ -16,13 +16,21 @@ class KarmaType(Enum):
 class Karma(MongoModel):
 
     @staticmethod
+    def get_current_net_karma(filter) -> list:
+        projection = {"$project": {"_id": "$awarded_to_username",
+                                   "karma_value": {
+                                       "$cond": [{"$eq": ["$karma_type", str(KarmaType.POZZYPOZ)]}, 1, -1]}}}
+        grouping = {"$group": {"_id": "$_id", "total": {"$sum": "$karma_value"}}}
+        sort = {"$sort": {"total": -1}}
+        query_set = Karma.objects.aggregate(filter, projection, grouping, sort)
+        result = map((lambda r: {"username": r["_id"], "net_karma": r["total"]}), list(query_set))
+        return list(result)
+
+    @staticmethod
     def get_leader_board():
         cut_off = datetime.today() - timedelta(days=karma_expiry_days)
-        query_set = Karma.objects.aggregate({ "$match" : {"karma_type" : "KarmaType.POZZYPOZ",
-                                                          'awarded': {'$gt':cut_off}}},
-                                            {"$group" : {"_id" : "$awarded_to_username","total" : {"$sum" : 1.0}}})
-        result = map((lambda r: {"username": r["_id"], "positive_karma": r["total"]}), list(query_set))
-        return list(result)
+        filter = {"$match": {'awarded': {'$gt': cut_off}}}
+        return Karma.get_current_net_karma(filter)
 
     @staticmethod
     def get_recent_karma_for_recipient(recipient: str):
@@ -34,11 +42,15 @@ class Karma(MongoModel):
 
     @staticmethod
     def get_current_net_karma_for_recipient(recipient: str):
-        recent_karma = list(map((lambda k: k.karma_type), Karma.get_recent_karma_for_recipient(recipient)))
-        positive_karma = len(list(filter((lambda k: k == str(KarmaType.POZZYPOZ)), recent_karma)))
-        negative_karma = len(list(filter((lambda k: k == str(KarmaType.NEGGYNEG)), recent_karma)))
-        net_karma = positive_karma - negative_karma
-        return net_karma
+        cut_off = datetime.today() - timedelta(days=karma_expiry_days)
+        filter = {"$match": {'awarded_to_username':re.compile(recipient, re.IGNORECASE),
+                             'awarded': {'$gt': cut_off}}}
+        current_net_karma =  Karma.get_current_net_karma(filter)
+        if len(current_net_karma) == 0:
+            return 0
+        recipient_net_karma = current_net_karma[0]
+        return recipient_net_karma["net_karma"]
+
 
     @staticmethod
     def get_current_karma_reasons_for_recipient(recipient: str):

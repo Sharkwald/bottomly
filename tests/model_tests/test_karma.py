@@ -75,12 +75,15 @@ class TestKarma(unittest.TestCase):
         award_ages_ago = datetime.today() - timedelta(days=31)
         new_karma = create_karma(awarded=newly_awarded)
         recent_karma = create_karma(awarded=recently_awarded, awarded_to_username="some other dude")
+        other_recent_karma = create_karma(awarded=recently_awarded,)
         old_karma = create_karma(awarded=award_ages_ago)
         new_karma.save()
         recent_karma.save()
+        other_recent_karma.save()
         old_karma.save()
 
-        expected = [{"_id": "some other dude", "total": 1},{"_id": test_recipient, "total": 1}]
+        expected = [{"username": test_recipient, "net_karma": 2},
+                    {"username": "some other dude", "net_karma": 1}]
 
         # Act
         leader_board = Karma.get_leader_board()
@@ -105,13 +108,15 @@ class TestKarma(unittest.TestCase):
 
     def test_get_current_karma_with_net(self):
         # Arrange
-        with patch.object(Karma.objects, "raw", return_value=default_karma_list()):
+        karma_to_save = default_karma_list()
+        for k in karma_to_save:
+            k.save()
 
-            # Act
-            net_karma = Karma.get_current_net_karma_for_recipient(test_awarder)
+        # Act
+        net_karma = Karma.get_current_net_karma_for_recipient(test_recipient)
 
-            # Assert
-            self.assertEqual(0, net_karma)
+        # Assert
+        self.assertEqual(0, net_karma)
 
     def test_get_karma_reasons_all_default(self):
         # Arrange
