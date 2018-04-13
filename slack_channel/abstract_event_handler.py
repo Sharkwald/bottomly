@@ -47,6 +47,7 @@ class AbstractEventHandler(ABC):
         return self.command_trigger + help_token
 
     def handle(self, slack_event):
+        logger.info("Handling: " + str(slack_event))
         try:
             if self._is_help_event(slack_event):
                 self._handle_help_event(slack_event)
