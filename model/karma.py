@@ -16,12 +16,18 @@ class KarmaType(Enum):
 class Karma(MongoModel):
 
     @staticmethod
+    def get_all_recent_karma():
+        cut_off = datetime.today() - timedelta(days=karma_expiry_days)
+        query_set = Karma.objects.raw({'awarded': {'$gt': cut_off}})
+        return list(query_set)
+
+    @staticmethod
     def get_recent_karma_for_recipient(recipient: str):
         recipient = recipient.lower()
         cut_off = datetime.today() - timedelta(days=karma_expiry_days)
-        query_set = Karma.objects.raw({'awarded_to_username': re.compile(recipient, re.IGNORECASE)})
-        all_time_karma = list(query_set)
-        return list(filter((lambda k: k.awarded > cut_off), all_time_karma))
+        query_set = Karma.objects.raw({'awarded_to_username': re.compile(recipient, re.IGNORECASE),
+                                       'awarded': {'$gt':cut_off}})
+        return list(query_set)
 
     @staticmethod
     def get_current_net_karma_for_recipient(recipient: str):

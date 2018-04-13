@@ -5,14 +5,17 @@ from datetime import datetime, timedelta
 from config import Config
 from model.karma import Karma, KarmaType
 
-test_recipient = "default awarder"
+test_awarder = "default awarder"
+test_recipient = "default recipient"
 
-def create_karma(awarded_by_username=test_recipient,
+def create_karma(awarded_by_username=test_awarder,
+                 awarded_to_username=test_recipient,
                  reason=Karma.default_reason,
                  awarded=datetime.today(),
                  karma_type=KarmaType.POZZYPOZ):
     k = Karma()
     k.awarded_by_username = awarded_by_username
+    k.awarded_to_username = awarded_to_username
     k.reason = reason
     k.awarded = awarded
     k.karma_type = karma_type
@@ -25,13 +28,14 @@ def default_karma_list():
 
 
 class TestKarma(unittest.TestCase):
-    def test_persistence(self):
+    def setUp(self):
         # Set up
         Config().connect_to_db()
         old_karma = Karma.objects.all()
         for ok in old_karma:
             ok.delete()
 
+    def test_persistence(self):
         # Arrange
         awarded_to = "testUser1"
         awarded_by = "testUser2"
@@ -55,9 +59,6 @@ class TestKarma(unittest.TestCase):
         self.assertEqual(k.karma_type, loaded_karma.karma_type)
         # We'll assume that awarded is equal cause date equality assertions seem to be guff.
 
-        # Tear down
-        k.delete()
-
     def test_get_current_net_karma_unknown_recipient_is_zero(self):
         config = Config()
         config.connect_to_db()
@@ -67,26 +68,45 @@ class TestKarma(unittest.TestCase):
 
         self.assertEqual(0, net_karma)
 
+    def test_get_all_recent_karma(self):
+        # Arrange
+        newly_awarded = datetime.today()
+        recently_awarded = datetime.today() - timedelta(days=5)
+        award_ages_ago = datetime.today() - timedelta(days=31)
+        new_karma = create_karma(awarded=newly_awarded)
+        recent_karma = create_karma(awarded=recently_awarded, awarded_to_username="some other dude")
+        old_karma = create_karma(awarded=award_ages_ago)
+        new_karma.save()
+        recent_karma.save()
+        old_karma.save()
+
+        # Act
+        current_karma = Karma.get_all_recent_karma()
+
+        # Assert
+        self.assertEqual(current_karma, list([new_karma, recent_karma]))
+
     def test_get_current_karma_with_expired(self):
         # Arrange
         newly_awarded = datetime.today()
         award_ages_ago = datetime.today() - timedelta(days=31)
         new_karma = create_karma(awarded=newly_awarded)
         old_karma = create_karma(awarded=award_ages_ago)
+        new_karma.save()
+        old_karma.save()
 
-        with patch.object(Karma.objects, "raw", return_value=list([new_karma, old_karma])):
-            # Act
-            current_karma = Karma.get_current_net_karma_for_recipient(test_recipient)
+        # Act
+        current_karma = Karma.get_current_net_karma_for_recipient(test_recipient)
 
-            # Assert
-            self.assertEqual(1, current_karma)
+        # Assert
+        self.assertEqual(1, current_karma)
 
     def test_get_current_karma_with_net(self):
         # Arrange
         with patch.object(Karma.objects, "raw", return_value=default_karma_list()):
 
             # Act
-            net_karma = Karma.get_current_net_karma_for_recipient(test_recipient)
+            net_karma = Karma.get_current_net_karma_for_recipient(test_awarder)
 
             # Assert
             self.assertEqual(0, net_karma)
@@ -95,7 +115,7 @@ class TestKarma(unittest.TestCase):
         # Arrange
         with patch.object(Karma.objects, "raw", return_value=default_karma_list()):
             # Act
-            karma_reasons = Karma.get_current_karma_reasons_for_recipient(test_recipient)
+            karma_reasons = Karma.get_current_karma_reasons_for_recipient(test_awarder)
 
             # Assert
             self.assertEqual(len(default_karma_list()), karma_reasons['reasonless'])
@@ -109,7 +129,7 @@ class TestKarma(unittest.TestCase):
 
         with patch.object(Karma.objects, "raw", return_value=karma_list):
             # Act
-            karma_reasons = Karma.get_current_karma_reasons_for_recipient(test_recipient)
+            karma_reasons = Karma.get_current_karma_reasons_for_recipient(test_awarder)
 
             # Assert
             self.assertEqual(len(default_karma_list()), karma_reasons['reasonless'])
