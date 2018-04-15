@@ -18,11 +18,11 @@ class Karma(MongoModel):
     @staticmethod
     def _get_current_net_karma(**kwargs) -> list:
         # aggregate defaults
+        filter = {"$match": {'awarded': {'$gt': _get_cut_off_date()}}}
         projection = {"$project": {"_id": "$awarded_to_username",
                                    "karma_value": {
                                        "$cond": [{"$eq": ["$karma_type", str(KarmaType.POZZYPOZ)]}, 1, -1]}}}
         grouping = {"$group": {"_id": "$_id", "net_karma": {"$sum": "$karma_value"}}}
-        filter = {"$match": {'awarded': {'$gt': _get_cut_off_date()}}}
         sort = {"$sort": {"net_karma": -1, "_id": 1}}
         limit = {"$limit": 3}
 
