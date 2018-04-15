@@ -16,45 +16,51 @@ class KarmaType(Enum):
 class Karma(MongoModel):
 
     @staticmethod
-    def get_current_net_karma(filter) -> list:
+    def _get_current_net_karma(**kwargs) -> list:
+        # aggregate defaults
         projection = {"$project": {"_id": "$awarded_to_username",
                                    "karma_value": {
                                        "$cond": [{"$eq": ["$karma_type", str(KarmaType.POZZYPOZ)]}, 1, -1]}}}
         grouping = {"$group": {"_id": "$_id", "net_karma": {"$sum": "$karma_value"}}}
-        sort = {"$sort": {"net_karma": -1}}
-        query_set = Karma.objects.aggregate(filter, projection, grouping, sort)
+        filter = {"$match": {'awarded': {'$gt': _get_cut_off_date()}}}
+        sort = {"$sort": {"net_karma": -1, "_id": 1}}
+        limit = {"$limit": 3}
+
+        # kwarg aggregate overrides
+        if "awarded_to_username" in kwargs:
+            filter["$match"]["awarded_to_username"] = re.compile(kwargs["awarded_to_username"], re.IGNORECASE)
+        if "sort" in kwargs and kwargs["sort"] == "asc":
+            sort["$sort"]["net_karma"] = 1
+        if "limit" in kwargs:
+            limit["$limit"] = kwargs["limit"]
+
+        # execution
+        query_set = Karma.objects.aggregate(filter, projection, grouping, sort, limit)
         result = map((lambda r: {"username": r["_id"], "net_karma": r["net_karma"]}), list(query_set))
         return list(result)
 
     @staticmethod
     def get_leader_board() -> list:
-        cut_off = datetime.today() - timedelta(days=karma_expiry_days)
-        filter = {"$match": {'awarded': {'$gt': cut_off}}}
-        return Karma.get_current_net_karma(filter)
+        return Karma._get_current_net_karma()
 
     @staticmethod
-    def get_recent_karma_for_recipient(recipient: str) -> list:
-        recipient = recipient.lower()
-        cut_off = datetime.today() - timedelta(days=karma_expiry_days)
-        query_set = Karma.objects.raw({'awarded_to_username': re.compile(recipient, re.IGNORECASE),
-                                       'awarded': {'$gt':cut_off}})
-        return list(query_set)
+    def get_loser_board() -> list:
+        sort = "asc"
+        return Karma._get_current_net_karma(sort=sort)
 
     @staticmethod
     def get_current_net_karma_for_recipient(recipient: str) -> int:
-        cut_off = datetime.today() - timedelta(days=karma_expiry_days)
-        filter = {"$match": {'awarded_to_username':re.compile(recipient, re.IGNORECASE),
-                             'awarded': {'$gt': cut_off}}}
-        net_karma_results =  Karma.get_current_net_karma(filter)
+        net_karma_results =  Karma._get_current_net_karma(awarded_to_username=recipient)
         if len(net_karma_results) == 0:
             return 0
         recipient_net_karma = net_karma_results[0]
         return recipient_net_karma["net_karma"]
 
-
     @staticmethod
     def get_current_karma_reasons_for_recipient(recipient: str) -> dict:
-        recent_karma = Karma.get_recent_karma_for_recipient(recipient)
+        query_set = Karma.objects.raw({'awarded_to_username': re.compile(recipient, re.IGNORECASE),
+                                       'awarded': {'$gt': _get_cut_off_date()}})
+        recent_karma = list(query_set)
         karma_with_reasons = list(filter((lambda k: k.reason != Karma.default_reason), recent_karma))
         karma_without_reasons = list(filter((lambda k: k.reason == Karma.default_reason), recent_karma))
         return {'reasonless': len(karma_without_reasons), 'reasoned': karma_with_reasons}
@@ -79,3 +85,7 @@ class Karma(MongoModel):
     class Meta:
         write_concern = WriteConcern(j=True)
         connection_alias = Config.Connection
+
+
+def _get_cut_off_date() -> datetime:
+    return datetime.today() - timedelta(days=karma_expiry_days)

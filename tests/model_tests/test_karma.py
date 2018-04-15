@@ -28,6 +28,26 @@ def default_karma_list():
 
 
 class TestKarma(unittest.TestCase):
+    @staticmethod
+    def setup_leaderboard():
+        newly_awarded = datetime.today()
+        recently_awarded = datetime.today() - timedelta(days=5)
+        award_ages_ago = datetime.today() - timedelta(days=31)
+        cool_guy = "cool guy"
+        guy_1 = "guy 1"
+        guy_2 = "guy 2"
+        loser = "loser"
+        karma_leader_board = list([create_karma(awarded=newly_awarded, awarded_to_username=cool_guy),
+                                   create_karma(awarded=recently_awarded, awarded_to_username=cool_guy),
+                                   create_karma(awarded=recently_awarded, awarded_to_username=guy_1),
+                                   create_karma(awarded=recently_awarded, awarded_to_username=guy_2),
+                                   create_karma(awarded=recently_awarded, awarded_to_username=loser, karma_type=KarmaType.NEGGYNEG),
+                                   create_karma(awarded=award_ages_ago)])
+        for k in karma_leader_board:
+            k.save()
+
+        return karma_leader_board
+
     def setUp(self):
         # Set up
         Config().connect_to_db()
@@ -70,26 +90,31 @@ class TestKarma(unittest.TestCase):
 
     def test_get_leader_board(self):
         # Arrange
-        newly_awarded = datetime.today()
-        recently_awarded = datetime.today() - timedelta(days=5)
-        award_ages_ago = datetime.today() - timedelta(days=31)
-        new_karma = create_karma(awarded=newly_awarded)
-        recent_karma = create_karma(awarded=recently_awarded, awarded_to_username="some other dude")
-        other_recent_karma = create_karma(awarded=recently_awarded,)
-        old_karma = create_karma(awarded=award_ages_ago)
-        new_karma.save()
-        recent_karma.save()
-        other_recent_karma.save()
-        old_karma.save()
+        self.setup_leaderboard()
 
-        expected = [{"username": test_recipient, "net_karma": 2},
-                    {"username": "some other dude", "net_karma": 1}]
+        expected = [{"username": "cool guy", "net_karma": 2},
+                    {"username": "guy 1", "net_karma": 1},
+                    {"username": "guy 2", "net_karma": 1}]
 
         # Act
         leader_board = Karma.get_leader_board()
 
         # Assert
         self.assertEqual(expected, leader_board)
+
+    def test_get_loser_board(self):
+        # Arrange
+        self.setup_leaderboard()
+
+        expected = [{"username": "loser", "net_karma": -1},
+                    {"username": "guy 1", "net_karma": 1},
+                    {"username": "guy 2", "net_karma": 1}]
+
+        # Act
+        loser_board = Karma.get_loser_board()
+
+        # Assert
+        self.assertEqual(expected, loser_board)
 
     def test_get_current_karma_with_expired(self):
         # Arrange
