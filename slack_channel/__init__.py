@@ -8,3 +8,4 @@ from .get_current_karma_reasons_event_handler import GetCurrentKarmaReasonsEvent
 from .help_event_handler import HelpEventHandler
 from .giphy_event_handler import GiphyEventHandler
 from .get_leader_board_event_handler import GetLeaderBoardEventHandler
+from .get_loser_board_event_handler import GetLoserBoardEventHandler
