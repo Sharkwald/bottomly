@@ -6,3 +6,4 @@ from .add_karma import AddKarmaCommand
 from .get_current_net_karma import GetCurrentNetKarmaCommand
 from .get_current_karma_reasons import GetCurrentKarmaReasonsCommand
 from .giphy_translate import GiphyTranslateCommand
+from .get_leader_board import GetLeaderBoardCommand

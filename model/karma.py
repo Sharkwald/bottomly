@@ -40,13 +40,13 @@ class Karma(MongoModel):
         return list(result)
 
     @staticmethod
-    def get_leader_board() -> list:
-        return Karma._get_current_net_karma()
+    def get_leader_board(size: int=3) -> list:
+        return Karma._get_current_net_karma(limit=size)
 
     @staticmethod
-    def get_loser_board() -> list:
+    def get_loser_board(size: int=3) -> list:
         sort = "asc"
-        return Karma._get_current_net_karma(sort=sort)
+        return Karma._get_current_net_karma(limit=size, sort=sort)
 
     @staticmethod
     def get_current_net_karma_for_recipient(recipient: str) -> int:
