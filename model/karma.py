@@ -45,7 +45,8 @@ class Karma(MongoModel):
 
     @staticmethod
     def get_loser_board(size: int=3) -> list:
-        return Karma._get_current_net_karma(sort="asc", limit=size)
+        sort = "asc"
+        return Karma._get_current_net_karma(limit=size, sort=sort)
 
     @staticmethod
     def get_current_net_karma_for_recipient(recipient: str) -> int:

@@ -9,7 +9,7 @@ class GetLeaderBoardCommand(AbstractCommand):
         return "Shows the best of the best!"
 
     def execute(self, size: int=3):
-        return Karma.get_leader_board(size)
+        return Karma.get_leader_board(size=size)
 
     def __init__(self):
         super(GetLeaderBoardCommand, self)
