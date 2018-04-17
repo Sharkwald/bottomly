@@ -227,6 +227,21 @@ class TestKarma(unittest.TestCase):
 
         self.assertTrue(valid)
 
+    def test_karma_calculation_bug(self):
+        toms_karma = list([Karma(awarded_to_username="TomAllen",reason="",awarded_by_username="gee",awarded=datetime.now(),
+                                 karma_type=KarmaType.NEGGYNEG),
+                           Karma(awarded_to_username="TomAllen", reason="", awarded_by_username="gee", awarded=datetime.now(),
+                                 karma_type=KarmaType.NEGGYNEG),
+                           Karma(awarded_to_username="TomAllen", reason="", awarded_by_username="gee", awarded=datetime.now(),
+                                 karma_type=KarmaType.NEGGYNEG)])
+
+        for k in toms_karma:
+            k.save()
+
+        net_karma = Karma.get_current_net_karma_for_recipient("tomallen")
+
+        self.assertEqual(-3, net_karma)
+
 
 if __name__ == '__main__':
     unittest.main()
