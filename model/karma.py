@@ -22,7 +22,7 @@ class Karma(MongoModel):
         projection = {"$project": {"_id": "$awarded_to_username",
                                    "karma_value": {
                                        "$cond": [{"$eq": ["$karma_type", str(KarmaType.POZZYPOZ)]}, 1, -1]}}}
-        grouping = {"$group": {"_id": "$_id", "net_karma": {"$sum": "$karma_value"}}}
+        grouping = {"$group": {"_id": {"$toLower": "$_id"}, "net_karma": {"$sum": "$karma_value"}}}
         sort = {"$sort": {"net_karma": -1, "_id": 1}}
         limit = {"$limit": 3}
 

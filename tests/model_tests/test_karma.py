@@ -38,7 +38,7 @@ class TestKarma(unittest.TestCase):
         guy_2 = "guy 2"
         loser = "loser"
         karma_leader_board = list([create_karma(awarded=newly_awarded, awarded_to_username=cool_guy),
-                                   create_karma(awarded=recently_awarded, awarded_to_username=cool_guy),
+                                   create_karma(awarded=recently_awarded, awarded_to_username=cool_guy.upper()),
                                    create_karma(awarded=recently_awarded, awarded_to_username=guy_1),
                                    create_karma(awarded=recently_awarded, awarded_to_username=guy_2),
                                    create_karma(awarded=recently_awarded, awarded_to_username=loser, karma_type=KarmaType.NEGGYNEG),
