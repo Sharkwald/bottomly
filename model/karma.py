@@ -21,10 +21,10 @@ class Karma(MongoModel):
     def _get_current_net_karma(**kwargs) -> list:
         # aggregate defaults
         projection = {"$project": {"_id": "$_id", "recipient": {"$toLower": "$awarded_to_username"},
-                                   "karma_value": {"$cond": [{"$eq": ["$karma_type", str(KarmaType.POZZYPOZ)]}, 1, -1]},
+                                   "net_karma": {"$cond": [{"$eq": ["$karma_type", str(KarmaType.POZZYPOZ)]}, 1, -1]},
                                    "awarded": "$awarded"}}
         match = {"$match": {'awarded': {'$gt': _get_cut_off_date()}}}
-        grouping = {"$group": {"_id": "$recipient", "net_karma": {"$sum": "$karma_value"}}}
+        grouping = {"$group": {"_id": "$recipient", "net_karma": {"$sum": "$net_karma"}}}
         sort = {"$sort": {"net_karma": -1, "_id": 1}}
         limit = {"$limit": 3}
 
@@ -37,8 +37,12 @@ class Karma(MongoModel):
             limit["$limit"] = kwargs["limit"]
 
         # execution
-        query_set = Karma.objects.aggregate(projection, match, grouping, sort, limit)
-        result = map((lambda r: {"username": r["_id"], "net_karma": r["net_karma"]}), list(query_set))
+        query_set = Karma.objects.aggregate(projection,
+                                            match,
+                                            grouping,
+                                            sort)
+        result_set = list(query_set)[:3]
+        result = map((lambda r: {"username": r["_id"], "net_karma": r["net_karma"]}), result_set)
         return list(result)
 
     @staticmethod

@@ -59,7 +59,7 @@ class TestGiphyEventHandler(unittest.TestCase):
         expected_help = "Giphy" + os.linesep + \
                         "Giphys" + os.linesep + \
                         "Usage: `" + test_prefix + "gif <query>" + "`"
-        purpose_method.assert_called_once()
+        purpose_method.assert_called_once_with()
         response_method.assert_called_once_with(expected_help, help_event)
 
 if __name__ == '__main__':

@@ -59,7 +59,7 @@ class TestUrbanEventHandler(unittest.TestCase):
         expected_help = "Urban Dictionary" + os.linesep + \
                         "Urbans"+ os.linesep +\
                         "Usage: `" + test_prefix + "ud <query>" + "`"
-        purpose_method.assert_called_once()
+        purpose_method.assert_called_once_with()
         response_method.assert_called_once_with(expected_help, help_event)
 
     if __name__ == '__main__':

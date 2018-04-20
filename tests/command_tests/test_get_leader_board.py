@@ -20,7 +20,7 @@ class TestGetLeaderBoard(unittest.TestCase):
             leader_board = c.execute()
 
             # Assert
-            execution_method.assert_called_once()
+            execution_method.assert_called_once_with(size=3)
             self.assertEqual(expected, leader_board)
 
     def test_get_leader_board_size_specified(self):

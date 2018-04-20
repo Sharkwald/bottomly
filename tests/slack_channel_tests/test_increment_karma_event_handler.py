@@ -46,7 +46,7 @@ class TestIncrementKarmaEventHandler(unittest.TestCase):
         expected_help = "Pozzy-poz" + os.linesep + \
                         "Karmas" + os.linesep +\
                         "Usage: `++ recipient [[for <if recipient is not a known user>] reason]`"
-        purpose_method.assert_called_once()
+        purpose_method.assert_called_once_with()
         response_method.assert_called_once_with(expected_help, help_event)
 
     if __name__ == '__main__':
