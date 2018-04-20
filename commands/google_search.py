@@ -1,3 +1,5 @@
+import warnings
+
 from commands.abstract_command import AbstractCommand
 from config import ConfigKeys, Config
 from googleapiclient.discovery import build
@@ -9,13 +11,15 @@ class GoogleSearchCommand(AbstractCommand):
         return "Performs a google search and returns the top hit."
 
     def execute(self, search_term):
-        if search_term is None or search_term == '':
-            return None
-        service = build("customsearch", "v1", developerKey=self.api_key)
-        results = service.cse().list(q=search_term, cx=self.cse_id, num=1).execute()
-        if self._result_set_is_empty(results):
-            return None
-        return results['items'][0]
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            if search_term is None or search_term == '':
+                return None
+            service = build("customsearch", "v1", developerKey=self.api_key)
+            results = service.cse().list(q=search_term, cx=self.cse_id, num=1).execute()
+            if self._result_set_is_empty(results):
+                return None
+            return results['items'][0]
 
     def _result_set_is_empty(self, results):
         # This seems garbage... better way?

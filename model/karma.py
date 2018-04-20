@@ -2,15 +2,18 @@ from datetime import datetime, timedelta
 from pymodm import MongoModel, fields
 from enum import Enum
 
+from pymodm.errors import ValidationError
 from pymongo import WriteConcern
 from config import Config
 
 
 karma_expiry_days = 30
 
+
 class KarmaType(Enum):
     POZZYPOZ = 1
     NEGGYNEG = -1
+
 
 class Karma(MongoModel):
 
@@ -18,24 +21,28 @@ class Karma(MongoModel):
     def _get_current_net_karma(**kwargs) -> list:
         # aggregate defaults
         projection = {"$project": {"_id": "$_id", "recipient": {"$toLower": "$awarded_to_username"},
-                                   "karma_value": {"$cond": [{"$eq": ["$karma_type", str(KarmaType.POZZYPOZ)]}, 1, -1]},
+                                   "net_karma": {"$cond": [{"$eq": ["$karma_type", str(KarmaType.POZZYPOZ)]}, 1, -1]},
                                    "awarded": "$awarded"}}
-        filter = {"$match": {'awarded': {'$gt': _get_cut_off_date()}}}
-        grouping = {"$group": {"_id": "$recipient", "net_karma": {"$sum": "$karma_value"}}}
+        match = {"$match": {'awarded': {'$gt': _get_cut_off_date()}}}
+        grouping = {"$group": {"_id": "$recipient", "net_karma": {"$sum": "$net_karma"}}}
         sort = {"$sort": {"net_karma": -1, "_id": 1}}
         limit = {"$limit": 3}
 
         # kwarg aggregate overrides
         if "recipient" in kwargs:
-            filter["$match"]["recipient"] = str(kwargs["recipient"]).lower()
+            match["$match"]["recipient"] = str(kwargs["recipient"]).lower()
         if "sort" in kwargs and kwargs["sort"] == "asc":
             sort["$sort"]["net_karma"] = 1
         if "limit" in kwargs:
             limit["$limit"] = kwargs["limit"]
 
         # execution
-        query_set = Karma.objects.aggregate(projection, filter, grouping, sort, limit)
-        result = map((lambda r: {"username": r["_id"], "net_karma": r["net_karma"]}), list(query_set))
+        query_set = Karma.objects.aggregate(projection,
+                                            match,
+                                            grouping,
+                                            sort)
+        result_set = list(query_set)[:3]
+        result = map((lambda r: {"username": r["_id"], "net_karma": r["net_karma"]}), result_set)
         return list(result)
 
     @staticmethod
@@ -44,12 +51,11 @@ class Karma(MongoModel):
 
     @staticmethod
     def get_loser_board(size: int=3) -> list:
-        sort = "asc"
-        return Karma._get_current_net_karma(limit=size, sort=sort)
+        return Karma._get_current_net_karma(limit=size, sort="asc")
 
     @staticmethod
     def get_current_net_karma_for_recipient(recipient: str) -> int:
-        net_karma_results =  Karma._get_current_net_karma(recipient=recipient)
+        net_karma_results = Karma._get_current_net_karma(recipient=recipient)
         if len(net_karma_results) == 0:
             return 0
         recipient_net_karma = net_karma_results[0]
@@ -67,12 +73,12 @@ class Karma(MongoModel):
         match = {'$match': {'awarded_to_username': recipient.lower(),
                             'awarded': {'$gt': _get_cut_off_date()}}}
         query_set = Karma.objects.aggregate(projection, match)
-        recent_karma = list(map((lambda k: Karma(awarded_to_username= k["awarded_to_username"],
+        recent_karma = list(map((lambda k: Karma(awarded_to_username=k["awarded_to_username"],
                                                  awarded_by_username=k["awarded_by_username"],
                                                  karma_type=k["karma_type"],
                                                  awarded=k["awarded"],
                                                  reason=k["reason"],
-                                                 _id= k["_id"])),list(query_set)))
+                                                 _id=k["_id"])), list(query_set)))
         karma_with_reasons = list(filter((lambda k: k.reason != Karma.default_reason), recent_karma))
         karma_without_reasons = list(filter((lambda k: k.reason == Karma.default_reason), recent_karma))
         return {'reasonless': len(karma_without_reasons), 'reasoned': karma_with_reasons}
@@ -84,15 +90,16 @@ class Karma(MongoModel):
     awarded = fields.DateTimeField()
     karma_type = fields.CharField()
 
-    def validate(self) -> bool:
+    def validate_auto_pozzypoz(self):
         valid = True
         if self.karma_type == str(KarmaType.POZZYPOZ):
             valid = self.awarded_by_username != self.awarded_to_username  # can't give yourself positive karma
-        return valid
+        if not valid:
+            raise ValidationError("Can't give yourself positive karma")
 
-    def validate_and_save(self):
-        if self.validate():
-            self.save()
+    def clean(self):
+        self.validate_auto_pozzypoz()
+
 
     class Meta:
         write_concern = WriteConcern(j=True)

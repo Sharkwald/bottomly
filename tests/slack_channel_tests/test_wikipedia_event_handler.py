@@ -59,7 +59,7 @@ class TestWikipediaEventHandler(unittest.TestCase):
         expected_help = "Wikipedia" + os.linesep + \
                         "Wikipedias" + os.linesep + \
                         "Usage: `" + test_prefix + "wik <query>" + "`"
-        purpose_method.assert_called_once()
+        purpose_method.assert_called_once_with()
         response_method.assert_called_once_with(expected_help, help_event)
 
     if __name__ == '__main__':
