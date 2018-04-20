@@ -26,7 +26,7 @@ class Karma(MongoModel):
         match = {"$match": {'awarded': {'$gt': _get_cut_off_date()}}}
         grouping = {"$group": {"_id": "$recipient", "net_karma": {"$sum": "$net_karma"}}}
         sort = {"$sort": {"net_karma": -1, "_id": 1}}
-        limit = {"$limit": 3}
+        limit = 3
 
         # kwarg aggregate overrides
         if "recipient" in kwargs:
@@ -34,14 +34,14 @@ class Karma(MongoModel):
         if "sort" in kwargs and kwargs["sort"] == "asc":
             sort["$sort"]["net_karma"] = 1
         if "limit" in kwargs:
-            limit["$limit"] = kwargs["limit"]
+            limit = int(kwargs["limit"])
 
         # execution
         query_set = Karma.objects.aggregate(projection,
                                             match,
                                             grouping,
                                             sort)
-        result_set = list(query_set)[:3]
+        result_set = list(query_set)[:limit]
         result = map((lambda r: {"username": r["_id"], "net_karma": r["net_karma"]}), result_set)
         return list(result)
 
