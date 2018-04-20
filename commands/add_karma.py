@@ -3,7 +3,7 @@ from datetime import datetime
 
 from commands.abstract_command import AbstractCommand
 from config import Config
-from model.karma import Karma, KarmaType
+from model.karma import Karma
 
 
 class AddKarmaCommand(AbstractCommand):
@@ -18,7 +18,7 @@ class AddKarmaCommand(AbstractCommand):
                   awarded=datetime.now(),
                   karma_type=str(karma_type))
 
-        k.validate_and_save()
+        k.save()
         return k
 
     def __init__(self):

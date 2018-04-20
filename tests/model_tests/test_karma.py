@@ -1,6 +1,8 @@
 import unittest
 from datetime import datetime, timedelta
 
+from pymodm.errors import ValidationError
+
 from config import Config
 from model.karma import Karma, KarmaType
 
@@ -184,9 +186,8 @@ class TestKarma(unittest.TestCase):
                   awarded_by_username=awarded_by,
                   awarded=test_awarded,
                   karma_type=test_type)
-        valid = k.validate()
 
-        self.assertFalse(valid)
+        self.assertRaises(ValidationError, k.save)
 
     def test_positive_karma_can_be_awarded_by_others(self):
         awarded_to = "testUser1"
@@ -199,9 +200,7 @@ class TestKarma(unittest.TestCase):
                   awarded_by_username=awarded_by,
                   awarded=test_awarded,
                   karma_type=test_type)
-        valid = k.validate()
-
-        self.assertTrue(valid)
+        k.save()
 
     def test_negative_karma_can_be_self_awarded(self):
         awarded_to = "testUser1"
@@ -214,9 +213,7 @@ class TestKarma(unittest.TestCase):
                   awarded_by_username=awarded_by,
                   awarded=test_awarded,
                   karma_type=test_type)
-        valid = k.validate()
-
-        self.assertTrue(valid)
+        k.save()
 
     def test_negative_karma_can_be_awarded_by_others(self):
         awarded_to = "testUser1"
@@ -229,9 +226,7 @@ class TestKarma(unittest.TestCase):
                   awarded_by_username=awarded_by,
                   awarded=test_awarded,
                   karma_type=test_type)
-        valid = k.validate()
-
-        self.assertTrue(valid)
+        k.save()
 
     def test_karma_calculation_bug(self):
         toms_karma = list([Karma(awarded_to_username="TomAllen", reason="", awarded_by_username="gee",
