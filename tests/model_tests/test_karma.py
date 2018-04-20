@@ -1,5 +1,4 @@
 import unittest
-from unittest.mock import patch
 from datetime import datetime, timedelta
 
 from config import Config
@@ -7,6 +6,7 @@ from model.karma import Karma, KarmaType
 
 test_awarder = "default awarder"
 test_recipient = "default recipient"
+
 
 def create_karma(awarded_by_username=test_awarder,
                  awarded_to_username=test_recipient,
@@ -20,6 +20,7 @@ def create_karma(awarded_by_username=test_awarder,
     k.awarded = awarded
     k.karma_type = karma_type
     return k
+
 
 def default_karma_list():
     """Returns a list of 4 karma entries, 2 negative, 2 positive"""
@@ -41,7 +42,8 @@ class TestKarma(unittest.TestCase):
                                    create_karma(awarded=recently_awarded, awarded_to_username=cool_guy.upper()),
                                    create_karma(awarded=recently_awarded, awarded_to_username=guy_1),
                                    create_karma(awarded=recently_awarded, awarded_to_username=guy_2),
-                                   create_karma(awarded=recently_awarded, awarded_to_username=loser, karma_type=KarmaType.NEGGYNEG),
+                                   create_karma(awarded=recently_awarded, awarded_to_username=loser,
+                                                karma_type=KarmaType.NEGGYNEG),
                                    create_karma(awarded=award_ages_ago)])
         for k in karma_leader_board:
             k.save()
@@ -145,13 +147,15 @@ class TestKarma(unittest.TestCase):
 
     def test_get_karma_reasons_all_default(self):
         # Arrange
-        with patch.object(Karma.objects, "raw", return_value=default_karma_list()):
-            # Act
-            karma_reasons = Karma.get_current_karma_reasons_for_recipient(test_awarder)
+        for k in default_karma_list():
+            k.save()
 
-            # Assert
-            self.assertEqual(len(default_karma_list()), karma_reasons['reasonless'])
-            self.assertEqual(0, len(karma_reasons['reasoned']))
+        # Act
+        karma_reasons = Karma.get_current_karma_reasons_for_recipient(test_recipient)
+
+        # Assert
+        self.assertEqual(len(default_karma_list()), karma_reasons['reasonless'])
+        self.assertEqual(0, len(karma_reasons['reasoned']))
 
     def test_get_karma_reasons_one_non_default(self):
         # Arrange
@@ -159,13 +163,15 @@ class TestKarma(unittest.TestCase):
         karma_with_reason = create_karma(reason="This is a silly reason")
         karma_list.append(karma_with_reason)
 
-        with patch.object(Karma.objects, "raw", return_value=karma_list):
-            # Act
-            karma_reasons = Karma.get_current_karma_reasons_for_recipient(test_awarder)
+        for k in karma_list:
+            k.save()
 
-            # Assert
-            self.assertEqual(len(default_karma_list()), karma_reasons['reasonless'])
-            self.assertEqual(list([karma_with_reason]), karma_reasons['reasoned'])
+        # Act
+        karma_reasons = Karma.get_current_karma_reasons_for_recipient(test_recipient)
+
+        # Assert
+        self.assertEqual(len(default_karma_list()), karma_reasons['reasonless'])
+        self.assertEqual(list([karma_with_reason]), karma_reasons['reasoned'])
 
     def test_positive_karma_cannot_be_self_awarded(self):
         awarded_to = "testUser1"
@@ -228,12 +234,12 @@ class TestKarma(unittest.TestCase):
         self.assertTrue(valid)
 
     def test_karma_calculation_bug(self):
-        toms_karma = list([Karma(awarded_to_username="TomAllen",reason="",awarded_by_username="gee",awarded=datetime.now(),
-                                 karma_type=KarmaType.NEGGYNEG),
-                           Karma(awarded_to_username="TomAllen", reason="", awarded_by_username="gee", awarded=datetime.now(),
-                                 karma_type=KarmaType.NEGGYNEG),
-                           Karma(awarded_to_username="TomAllen", reason="", awarded_by_username="gee", awarded=datetime.now(),
-                                 karma_type=KarmaType.NEGGYNEG)])
+        toms_karma = list([Karma(awarded_to_username="TomAllen", reason="", awarded_by_username="gee",
+                                 awarded=datetime.now(), karma_type=KarmaType.NEGGYNEG),
+                           Karma(awarded_to_username="TomAllen", reason="", awarded_by_username="gee",
+                                 awarded=datetime.now(), karma_type=KarmaType.NEGGYNEG),
+                           Karma(awarded_to_username="TomAllen", reason="", awarded_by_username="gee",
+                                 awarded=datetime.now(), karma_type=KarmaType.NEGGYNEG)])
 
         for k in toms_karma:
             k.save()
@@ -241,6 +247,25 @@ class TestKarma(unittest.TestCase):
         net_karma = Karma.get_current_net_karma_for_recipient("tomallen")
 
         self.assertEqual(-3, net_karma)
+
+    def test_karma_reasons_do_not_filter_on_substrings(self):
+        # Arrange
+        dan_karma = Karma(awarded_to_username="dan", reason="a reason", awarded_by_username=test_awarder,
+                          awarded=datetime.now(), karma_type=KarmaType.POZZYPOZ)
+        dan_karma.save()
+
+        seniordaniel_karma = Karma(awarded_to_username="seniordaniel", reason="a different reason",
+                                   awarded_by_username=test_awarder, awarded=datetime.now(),
+                                   karma_type=KarmaType.POZZYPOZ)
+        seniordaniel_karma.save()
+
+        expected_reasoned_karma = list([dan_karma])
+
+        # Act
+        dan_reasons = Karma.get_current_karma_reasons_for_recipient("dan")
+
+        # Assert
+        self.assertEqual(expected_reasoned_karma, dan_reasons["reasoned"])
 
 
 if __name__ == '__main__':
