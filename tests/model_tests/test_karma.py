@@ -15,12 +15,11 @@ def create_karma(awarded_by_username=test_awarder,
                  reason=Karma.default_reason,
                  awarded=datetime.today(),
                  karma_type=KarmaType.POZZYPOZ):
-    k = Karma()
-    k.awarded_by_username = awarded_by_username
-    k.awarded_to_username = awarded_to_username
-    k.reason = reason
-    k.awarded = awarded
-    k.karma_type = karma_type
+    k = Karma(awarded_by_username=awarded_by_username,
+              awarded_to_username=awarded_to_username,
+              reason=reason,
+              awarded=awarded,
+              karma_type=karma_type)
     return k
 
 
@@ -29,35 +28,36 @@ def default_karma_list():
     return list([create_karma(karma_type=KarmaType.NEGGYNEG), create_karma(karma_type=KarmaType.NEGGYNEG),
                  create_karma(karma_type=KarmaType.POZZYPOZ), create_karma(karma_type=KarmaType.POZZYPOZ)])
 
+def default_leader_board():
+    newly_awarded = datetime.today()
+    recently_awarded = datetime.today() - timedelta(days=5)
+    award_ages_ago = datetime.today() - timedelta(days=31)
+    cool_guy = "cool guy"
+    guy_1 = "guy 1"
+    guy_2 = "guy 2"
+    loser = "loser"
+    default_leader_board = list([create_karma(awarded=newly_awarded, awarded_to_username=cool_guy),
+                                 create_karma(awarded=recently_awarded, awarded_to_username=cool_guy.upper()),
+                                 create_karma(awarded=recently_awarded, awarded_to_username=guy_1),
+                                 create_karma(awarded=recently_awarded, awarded_to_username=guy_2),
+                                 create_karma(awarded=recently_awarded, awarded_to_username=loser,
+                                              karma_type=KarmaType.NEGGYNEG),
+                                 create_karma(awarded=award_ages_ago)])
+    return default_leader_board
 
 class TestKarma(unittest.TestCase):
-    @staticmethod
-    def setup_leaderboard():
-        newly_awarded = datetime.today()
-        recently_awarded = datetime.today() - timedelta(days=5)
-        award_ages_ago = datetime.today() - timedelta(days=31)
-        cool_guy = "cool guy"
-        guy_1 = "guy 1"
-        guy_2 = "guy 2"
-        loser = "loser"
-        karma_leader_board = list([create_karma(awarded=newly_awarded, awarded_to_username=cool_guy),
-                                   create_karma(awarded=recently_awarded, awarded_to_username=cool_guy.upper()),
-                                   create_karma(awarded=recently_awarded, awarded_to_username=guy_1),
-                                   create_karma(awarded=recently_awarded, awarded_to_username=guy_2),
-                                   create_karma(awarded=recently_awarded, awarded_to_username=loser,
-                                                karma_type=KarmaType.NEGGYNEG),
-                                   create_karma(awarded=award_ages_ago)])
-        for k in karma_leader_board:
-            k.save()
-
-        return karma_leader_board
-
     def setUp(self):
-        # Set up
         Config().connect_to_db()
         old_karma = Karma.objects.all()
         for ok in old_karma:
             ok.delete()
+
+    def persist_leaderboard(self):
+        karma_leader_board = default_leader_board()
+        for k in karma_leader_board:
+            k.save()
+
+        return karma_leader_board
 
     def test_persistence(self):
         # Arrange
@@ -84,9 +84,6 @@ class TestKarma(unittest.TestCase):
         # We'll assume that awarded is equal cause date equality assertions seem to be guff.
 
     def test_get_current_net_karma_unknown_recipient_is_zero(self):
-        config = Config()
-        config.connect_to_db()
-
         recipient = "bfvhdsukvhksdbv"
         net_karma = Karma.get_current_net_karma_for_recipient(recipient)
 
@@ -94,7 +91,7 @@ class TestKarma(unittest.TestCase):
 
     def test_get_leader_board(self):
         # Arrange
-        self.setup_leaderboard()
+        self.persist_leaderboard()
 
         expected = [{"username": "cool guy", "net_karma": 2},
                     {"username": "guy 1", "net_karma": 1},
@@ -108,7 +105,7 @@ class TestKarma(unittest.TestCase):
 
     def test_get_loser_board(self):
         # Arrange
-        self.setup_leaderboard()
+        self.persist_leaderboard()
 
         expected = [{"username": "loser", "net_karma": -1},
                     {"username": "guy 1", "net_karma": 1},
