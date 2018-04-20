@@ -20,8 +20,8 @@ class TestGoogleSearchCommand(unittest.TestCase):
         result = command.execute("stackoverflow site:en.wikipedia.org")
 
         self.assertIsNotNone(result)
-        self.assertEqual('Stack overflow - Wikipedia', result['title'])
-        self.assertEqual('https://en.wikipedia.org/wiki/Stack_overflow', result['link'])
+        self.assertEqual('Stack overflow - Wikipedia'.lower(), result['title'].lower())
+        self.assertEqual('https://en.wikipedia.org/wiki/Stack_overflow'.lower(), result['link'].lower())
 
 if __name__ == '__main__':
     unittest.main()
