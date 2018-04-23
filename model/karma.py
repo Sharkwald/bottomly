@@ -25,7 +25,7 @@ class Karma(MongoModel):
                                    "awarded": "$awarded"}}
         match = {"$match": {'awarded': {'$gt': _get_cut_off_date()}}}
         grouping = {"$group": {"_id": "$recipient", "net_karma": {"$sum": "$net_karma"}}}
-        sort = {"$sort": {"net_karma": -1, "_id": 1}}
+        sort = {"$sort": {"net_karma": -1}}
         limit = 3
 
         # kwarg aggregate overrides
