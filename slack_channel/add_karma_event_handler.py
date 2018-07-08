@@ -24,6 +24,11 @@ class AbstractKarmaEventHandler(AbstractEventHandler):
     def command(self) -> AddKarmaCommand:
         return AddKarmaCommand()
 
+    @property
+    @abstractmethod
+    def karma_type(self) -> KarmaType:
+        pass
+
     def get_usage(self):
         return self._get_command_symbol() + " recipient [[for <if recipient is not a known user>] reason]"
 
@@ -49,27 +54,24 @@ class AbstractKarmaEventHandler(AbstractEventHandler):
 
     def _parse_command_text(self, command_text):
         command_text = SlackParser.replace_slack_id_tokens_with_usernames(command_text)
-        karma_type_arg = command_text[:2]
-        karma_type = KarmaType.POZZYPOZ if karma_type_arg == "++" else KarmaType.NEGGYNEG
-        command_text = command_text[2:].lstrip()
+        command_text = command_text[len(self._get_command_symbol()):].lstrip()
 
-        if command_text.find(" for ") != -1:
-            command_split = command_text.split(" for ")
-            recipient = self._parse_recipient(command_split[0].split(" "))
+        command_split = command_text.split(" for ") # Attempt to tokenise on "for"
+        if len(command_split) > 1: # If there's a "for" then life is easy
+            recipient = command_split[0] # First token is the username
+            reason = " for ".join(command_split[1:]) # Rest of the tokens added back together are the reason
         else:
-            command_split = command_text.split(" ")
-            recipient = self._parse_recipient(command_split)
+            recipient = self._parse_recipient(command_text) # Get the recipient out
+            reason = command_text.replace(recipient, "").lstrip() # Remove the recipient and some leading whitespace from command text to get the reason
 
-        reason = self._parse_reason(command_text, recipient)
+        return {"recipient": recipient, "reason": reason, "karma_type": self.karma_type}
 
-        return {"recipient": recipient, "reason": reason, "karma_type": karma_type}
-
-    def _parse_recipient(self, command_split):
-        possible_username = command_split[0]
-        decided_username = " ".join(command_split)
+    def _parse_recipient(self, command_text):
+        possible_username = command_text.split(" ")[0] # split on spaces, first word is a possible user
+        decided_username = command_text # assume we're going to be using the full command_text as the username
 
         username_is_known = self._username_is_known(possible_username)
-        if username_is_known:
+        if username_is_known: # if user is known in the DB then it is a usable name
             decided_username = possible_username
 
         return decided_username
@@ -81,14 +83,6 @@ class AbstractKarmaEventHandler(AbstractEventHandler):
             return True
         else:
             return False
-
-    @staticmethod
-    def _parse_reason(command_text, recipient):
-        recipient_length = len(recipient) + 1  # +1 to account for space
-        if command_text.find(" for ") != -1:
-            recipient_length += 4
-        reason = command_text[recipient_length:]
-        return reason
 
     def __init__(self, debug=False):
         self.config = Config()
@@ -102,6 +96,10 @@ class IncrementKarmaEventHandler(AbstractKarmaEventHandler):
     def name(self):
         return "Pozzy-poz"
 
+    @property
+    def karma_type(self):
+        return KarmaType.POZZYPOZ
+
     def _get_command_symbol(self):
         return "++"
 
@@ -114,6 +112,10 @@ class DecrementKarmaEventHandler(AbstractKarmaEventHandler):
     @property
     def name(self):
         return "Neggy-neg"
+
+    @property
+    def karma_type(self):
+        return KarmaType.NEGGYNEG
 
     def _get_command_symbol(self):
         return "--"
