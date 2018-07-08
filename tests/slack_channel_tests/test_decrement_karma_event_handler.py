@@ -10,6 +10,8 @@ from model.karma import KarmaType
 from slack_channel import DecrementKarmaEventHandler
 
 valid_event = {"text": "-- username for being awful", "user": "meanuser"}
+valid_event_nospace = {"test": "--username for being a good sport", "user": "meanuser"}
+
 invalid_event = {"text": "this is missing a valid command prefix"}
 help_event = {"text": "-- -?"}
 
@@ -37,6 +39,19 @@ class TestDecrementKarmaEventHandler(unittest.TestCase):
             karma_type=KarmaType.NEGGYNEG
         )
         response_method.assert_called_once_with(valid_event)
+
+    @patch.object(DecrementKarmaEventHandler, "_send_reaction_response")
+    @patch.object(AddKarmaCommand, "execute")
+    def test_command_executes_and_response_sent(self, execute_method, response_method):
+        handler = DecrementKarmaEventHandler()
+        handler.handle(valid_event)
+        execute_method.assert_called_once_with(
+            awarded_to="username",
+            awarded_by=valid_event["user"],
+            reason="being awful",
+            karma_type=KarmaType.NEGGYNEG
+        )
+        response_method.assert_called_once_with(valid_event_nospace)
 
     @patch.object(AddKarmaCommand, "get_purpose", return_value="Karmas")
     @patch.object(DecrementKarmaEventHandler, "_send_message_response")

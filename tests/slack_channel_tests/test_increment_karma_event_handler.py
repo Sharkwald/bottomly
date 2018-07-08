@@ -10,8 +10,11 @@ from model.karma import KarmaType
 from slack_channel import IncrementKarmaEventHandler
 
 valid_event = {"text": "++ username for being awesome", "user": "kinduser"}
+valid_event_nospace = {"test": "++username for being a good sport", "user": "kinduser"}
+
 invalid_event = {"text": "this is missing a valid command prefix"}
 help_event = {"text": "++ -?"}
+
 
 class TestIncrementKarmaEventHandler(unittest.TestCase):
 
@@ -37,6 +40,19 @@ class TestIncrementKarmaEventHandler(unittest.TestCase):
             karma_type=KarmaType.POZZYPOZ
         )
         response_method.assert_called_once_with(valid_event)
+
+    @patch.object(IncrementKarmaEventHandler, "_send_reaction_response")
+    @patch.object(AddKarmaCommand, "execute")
+    def test_command_executes_and_response_sent(self, execute_method, response_method):
+        handler = IncrementKarmaEventHandler()
+        handler.handle(valid_event)
+        execute_method.assert_called_once_with(
+            awarded_to="username",
+            awarded_by=valid_event["user"],
+            reason="being awesome",
+            karma_type=KarmaType.POZZYPOZ
+        )
+        response_method.assert_called_once_with(valid_event_nospace)
 
     @patch.object(AddKarmaCommand, "get_purpose", return_value="Karmas")
     @patch.object(IncrementKarmaEventHandler, "_send_message_response")
