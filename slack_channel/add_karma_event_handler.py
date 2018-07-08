@@ -51,7 +51,7 @@ class AbstractKarmaEventHandler(AbstractEventHandler):
         command_text = SlackParser.replace_slack_id_tokens_with_usernames(command_text)
         karma_type_arg = command_text[:2]
         karma_type = KarmaType.POZZYPOZ if karma_type_arg == "++" else KarmaType.NEGGYNEG
-        command_text = command_text[3:]
+        command_text = command_text[2:].lstrip()
 
         if command_text.find(" for ") != -1:
             command_split = command_text.split(" for ")
