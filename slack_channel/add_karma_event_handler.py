@@ -11,6 +11,8 @@ from slack_channel.slack_parser import SlackParser
 
 class AbstractKarmaEventHandler(AbstractEventHandler):
 
+    FOR_STRING = " for "
+
     @property
     @abstractmethod
     def name(self) -> str:
@@ -56,13 +58,17 @@ class AbstractKarmaEventHandler(AbstractEventHandler):
         command_text = SlackParser.replace_slack_id_tokens_with_usernames(command_text)
         command_text = command_text[len(self._get_command_symbol()):].lstrip()
 
-        command_split = command_text.split(" for ") # Attempt to tokenise on "for"
+        command_split = command_text.split(self.FOR_STRING) # Attempt to tokenise on "for"
         if len(command_split) > 1: # If there's a "for" then life is easy
             recipient = command_split[0] # First token is the username
-            reason = " for ".join(command_split[1:]) # Rest of the tokens added back together are the reason
         else:
             recipient = self._parse_recipient(command_text) # Get the recipient out
-            reason = command_text.replace(recipient, "").lstrip() # Remove the recipient and some leading whitespace from command text to get the reason
+
+        # Get the reason by removing the first occurrence of the recipient from the command_text
+        reason = command_text.replace(recipient, "",1)
+        if reason.startswith(self.FOR_STRING):
+            # If Command starts with for then remove it
+            reason = reason.replace(self.FOR_STRING).lstrip()
 
         return {"recipient": recipient, "reason": reason, "karma_type": self.karma_type}
 
