@@ -42,7 +42,7 @@ The following environment variables _must_ be configured for the app to run & al
 * `bottomly_google_cse_id`: A valid google custom search engine ID
 * `bottomly_mongo_conn_str`: A mongo DB connection string. Since we're using `pymodm` for data access, this connection string must include a DB name.
 * `bottomly_slack_bot_token`: The "Bot User OAuth Access Token" from slack to allow access to their RTM endpoint.
-
+* `bottomly_giphy_api_key`: A valid Giphy API Key
 ## Contributing
 
 Most actions will be carried out by adding a `handler`/`command` pair in the relevant modules, with the command handing off to the model layer for any work that requires persistence. PRs will *not be merged* without proper test coverage.
