@@ -7,3 +7,5 @@ PyYAML==3.12
 requests==2.18.4
 slacksocket==0.9.1
 slacker==0.9.60
+beautifulsoup4==4.7.1
+soupsieve==1.9
