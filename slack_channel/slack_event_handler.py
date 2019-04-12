@@ -15,6 +15,7 @@ token = config.get_config_value(ConfigKeys.slack_bot_token)
 logging.config.fileConfig('logging.conf')
 logger = logging.getLogger('bottomly')
 
+
 def _is_subscribed_event(slack_event):
     try:
         subscribed = True
@@ -41,7 +42,8 @@ class SlackEventHandler(object):
             GiphyEventHandler(self.debug),
             GetLoserBoardEventHandler(self.debug),
             GetLeaderBoardEventHandler(self.debug),
-            RegEventHandler(self.debug)
+            RegEventHandler(self.debug),
+            TestEventHandler(self.debug)
         ])
 
     def handle_slack_context(self):
@@ -62,7 +64,7 @@ class SlackEventHandler(object):
                 if self.debug:
                     logging.debug(e.json)
 
-                slack_event = e.event
+                slack_event = e
                 if not _is_subscribed_event(slack_event):
                     continue
 
@@ -108,8 +110,9 @@ class SlackEventHandler(object):
 
     def _insert_user_id(self, slack_event):
         try:
-            member = Member.get_member_by_username(slack_event["user"])
-            slack_event["user_id"] = member.slack_id
+            # member = Member.get_member_by_username(slack_event["user"])
+            # slack_event["user_id"] = member.slack_id
+            slack_event["user_id"] = slack_event["user"]
         except Exception:
             logger.exception("Error loading user id from event: " + str(slack_event))
 

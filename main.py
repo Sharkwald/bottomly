@@ -28,13 +28,14 @@ def activate_job():
         handler = SlackEventHandler(app.debug)
         handler.handle_slack_context()
 
-    # thread = threading.Thread(target=spin_up_slack_socket)
-    # thread.start()
-    spin_up_slack_socket()
+    thread = threading.Thread(target=spin_up_slack_socket)
+    thread.start()
+
 
 @app.route("/init_members", methods=["GET"])
 def init_members():
     return InitialMemberlistPopulator().populate()
+
 
 def start_runner():
     def start_loop():
@@ -58,7 +59,7 @@ def start_runner():
 
 if __name__ == '__main__':
     # start_runner()
-    handler = SlackEventHandler(app.debug)
+    # app.run(debug=True)
+    InitialMemberlistPopulator().populate()
+    handler = SlackEventHandler(True)
     handler.handle_slack_context()
-    app.run(debug=True)
-

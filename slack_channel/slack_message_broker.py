@@ -1,5 +1,6 @@
 # coding=utf-8
 import logging
+from types import SimpleNamespace
 
 from slacker import Slacker
 from slacksocket import SlackSocket
@@ -23,9 +24,9 @@ class SlackMessageBroker(object):
             return
         if self.debug:
             message_text = "[DEBUG] " + message_text
-        try :
+        try:
             with SlackSocket(self.token) as s:
-                msg = s.send_msg(message_text, channel)
+                msg = s.send_msg(message_text, SimpleNamespace(id=channel))
                 logging.info(msg.sent)
         except Exception:
             logging.exception("Error sending message response to: " + channel)
