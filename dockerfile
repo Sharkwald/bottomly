@@ -3,4 +3,4 @@ COPY . /app
 WORKDIR /app
 RUN pip install -r requirements.txt
 EXPOSE 5000
-CMD python -m unittest tests/test_config.py
+CMD python main.py
