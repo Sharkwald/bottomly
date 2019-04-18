@@ -69,9 +69,6 @@ class SlackEventHandler(object):
                 if not _is_subscribed_event(slack_event):
                     continue
 
-                self._insert_channel_id(slack_event)
-                self._insert_user_id(slack_event)
-
                 handled = False
 
                 help_handler = HelpEventHandler(self.debug, self._command_handlers)
@@ -95,6 +92,8 @@ class SlackEventHandler(object):
         handled = False
         for handler in self._command_handlers:
             if handler.can_handle(slack_event):
+                self._insert_channel_id(slack_event)
+                self._insert_username(slack_event)
                 handler.handle(slack_event)
                 handled = True
                 continue
@@ -109,11 +108,13 @@ class SlackEventHandler(object):
         except Exception:
             logger.exception("Error loading channel id from event: " + str(slack_event))
 
-    def _insert_user_id(self, slack_event):
+    @staticmethod
+    def _insert_username(slack_event):
         try:
-            # member = Member.get_member_by_username(slack_event["user"])
-            # slack_event["user_id"] = member.slack_id
+            member = Member.get_member_by_slack_id(slack_event["user"])
             slack_event["user_id"] = slack_event["user"]
+            slack_event["user"] = member.username
+
         except Exception:
             logger.exception("Error loading user id from event: " + str(slack_event))
 
