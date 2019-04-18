@@ -106,3 +106,4 @@ ENV/
 # development environment configs
 devenv.sh
 devenv.bat
+quick-run-on-azure.bat

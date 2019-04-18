@@ -1,1 +1,1 @@
-docker run --rm --name bottomly --env-file .env -p 5000:5000 docker-bottomly
+docker run --rm --name bottomly --env-file .env docker-bottomly

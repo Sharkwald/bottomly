@@ -13,6 +13,7 @@ valid_event = {"text": "-- username for being awful", "user": "meanuser"}
 invalid_event = {"text": "this is missing a valid command prefix"}
 help_event = {"text": "-- -?"}
 
+
 class TestDecrementKarmaEventHandler(unittest.TestCase):
 
     def test_handles_correct_event(self):
