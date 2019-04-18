@@ -11,10 +11,10 @@ from config import Config, ConfigKeys
 class SlackMessageBroker(object):
 
     def send_reaction(self, slack_event_to_react_to):
-        try :
+        try:
             slack = Slacker(self.token)
             slack.reactions.add(name="robot_face",
-                                channel=slack_event_to_react_to["channel_id"],
+                                channel=slack_event_to_react_to["channel"],
                                 timestamp=slack_event_to_react_to["ts"])
         except Exception:
             logging.exception("Error sending reaction to: " + str(slack_event_to_react_to))
