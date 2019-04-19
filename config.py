@@ -10,6 +10,7 @@ class ConfigKeys(Enum):
     slack_bot_token = "bottomly_slack_bot_token"
     prefix = "bottomly_prefix"
     giphy_api_key = "bottomly_giphy_api_key"
+    env_key = "bottomly_env"
 
 
 class Config(object):
@@ -22,7 +23,8 @@ class Config(object):
         ConfigKeys.mongo_conn_st: 'MongoDB connection string is not configured',
         ConfigKeys.slack_bot_token: 'Slack bot auth token is not configured',
         ConfigKeys.prefix: "Standard command prefix is not configured",
-        ConfigKeys.giphy_api_key: "Giphy API key is not configured"
+        ConfigKeys.giphy_api_key: "Giphy API key is not configured",
+        ConfigKeys.env_key: "Environment mode is not configured"
     }
 
     # Functions
