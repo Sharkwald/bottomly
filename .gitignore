@@ -113,3 +113,5 @@ devenv.bat
 deploy-to-test.ps1
 deploy-to-live.ps1
 
+# logs
+bottomly.log
