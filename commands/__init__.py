@@ -10,4 +10,4 @@ from .get_current_karma_reasons import GetCurrentKarmaReasonsCommand
 from .giphy_translate import GiphyTranslateCommand
 from .get_leader_board import GetLeaderBoardCommand
 from .get_loser_board import GetLoserBoardCommand
-from .test_command import TestCommand
+from .void_command import VoidCommand

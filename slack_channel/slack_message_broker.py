@@ -23,7 +23,7 @@ class SlackMessageBroker(object):
         if message_text is None or message_text == "":
             return
         if self.debug:
-            message_text = "[DEBUG] " + message_text
+            message_text = f"[{self.environment}] {message_text}"
         try:
             with SlackSocket(self.token) as s:
                 msg = s.send_msg(message_text, SimpleNamespace(id=channel))
@@ -35,7 +35,7 @@ class SlackMessageBroker(object):
         if message_text is None or message_text == "":
             return
         if self.debug:
-            message_text = "[DEBUG] " + message_text
+            message_text = f"[{self.environment}] {message_text}"
         try:
             slack = Slacker(self.token)
             im = slack.im.open(user_slack_id).body
@@ -53,3 +53,4 @@ class SlackMessageBroker(object):
         self.debug = debug
         config = Config()
         self.token = config.get_config_value(ConfigKeys.slack_bot_token)
+        self.environment = config.get_config_value(ConfigKeys.env_key)

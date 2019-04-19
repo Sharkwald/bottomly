@@ -1,5 +1,5 @@
 # coding=utf-8
-from commands import TestCommand
+from commands import VoidCommand
 from slack_channel.abstract_event_handler import AbstractEventHandler
 
 
@@ -8,8 +8,8 @@ command_symbol = "react"
 
 class ReactionTestHandler(AbstractEventHandler):
     @property
-    def command(self) -> TestCommand:
-        return TestCommand()
+    def command(self) -> VoidCommand:
+        return VoidCommand()
 
     @property
     def name(self):

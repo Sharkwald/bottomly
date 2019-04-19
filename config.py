@@ -28,7 +28,8 @@ class Config(object):
     }
 
     # Functions
-    def get_config_value(self, key):
+    @staticmethod
+    def get_config_value(key):
         if key.value in os.environ:
             return os.environ.get(key.value)
         else:
@@ -38,7 +39,8 @@ class Config(object):
         conn_str = self.get_config_value(ConfigKeys.mongo_conn_st)
         connect(conn_str, alias=Config.Connection)
 
-    def get_prefix(self):
+    @staticmethod
+    def get_prefix():
         key = ConfigKeys.prefix
         if key.value in os.environ:
             return os.environ.get(key.value)
