@@ -103,7 +103,12 @@ ENV/
 # pycharm
 .idea/
 
+# VS Code
+.vscode/
+
+
 # development environment configs
 devenv.sh
 devenv.bat
 quick-run-on-azure.bat
+
