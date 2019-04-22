@@ -33,7 +33,7 @@ class TestLogFeatureRequestEventHandler(unittest.TestCase):
     def test_command_execute_is_called(self, execute_method, response_method, config_method, prefix_method):
         handler = LogFeatureRequestEventHandler()
         handler.handle(valid_event)
-        execute_method.assert_called_once_with(valid_event["text"][16:], valid_event["user"])
+        execute_method.assert_called_once_with(request=valid_event["text"][16:], requester=valid_event["user"])
         response_method.assert_called_once_with(valid_event)
 
     @patch.object(LogFeatureRequestCommand, "get_purpose", return_value="Logs a request")

@@ -29,7 +29,7 @@ class LogFeatureRequestEventHandler(AbstractEventHandler):
         try:
             request = slack_event["text"][len(self.command_trigger):]
             requester = slack_event["user"]
-            self.command.execute(request, requester)
+            self.command.execute(request=request, requester=requester)
             self._send_reaction_response(slack_event)
         except Exception as ex:
             logging.exception("Error logging feature request", ex)
