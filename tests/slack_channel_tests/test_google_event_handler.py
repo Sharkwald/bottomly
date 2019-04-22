@@ -62,5 +62,6 @@ class TestGoogleEventHandler(unittest.TestCase):
         purpose_method.assert_called_once_with()
         response_method.assert_called_once_with(expected_help, help_event)
 
+
 if __name__ == '__main__':
     unittest.main()
