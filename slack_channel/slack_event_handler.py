@@ -44,7 +44,8 @@ class SlackEventHandler(object):
             GetLeaderBoardEventHandler(self.debug),
             RegEventHandler(self.debug),
             TestEventHandler(self.debug),
-            ReactionTestHandler(self.debug)
+            ReactionTestHandler(self.debug),
+            LogFeatureRequestEventHandler(self.debug)
         ])
 
     def handle_slack_context(self):
