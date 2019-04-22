@@ -12,3 +12,4 @@ from .get_leader_board import GetLeaderBoardCommand
 from .get_loser_board import GetLoserBoardCommand
 from .void_command import VoidCommand
 from .log_feature_request import LogFeatureRequestCommand
+from .get_feature_requests_by_status import GetFeatureRequestsByStatusCommand
