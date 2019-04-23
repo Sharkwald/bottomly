@@ -13,3 +13,4 @@ from .get_loser_board_event_handler import GetLoserBoardEventHandler
 from .test_event_handler import TestEventHandler
 from .reaction_test_handler import ReactionTestHandler
 from .log_feature_request_event_handler import LogFeatureRequestEventHandler
+from .get_feature_requests_event_handler import GetFeatureRequestsEventHandler
