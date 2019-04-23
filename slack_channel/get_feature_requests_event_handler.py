@@ -10,10 +10,10 @@ invalid_request_state_message = "That's not a valid request state, try asking fo
 
 
 def _build_response(request_state: FeatureRequestState, result: list) -> str:
-    """List should be a collection of FeatureRequest dicts"""
-    response = f"Current feature requests with a state of {str(request_state)[20:].lower()}:" + os.linesep
+    """List should be a collection of FeatureRequest objects"""
+    response = f"Current feature requests with a state of {request_state.name.lower()}:" + os.linesep
     for r in result:
-        response += "\"{request}\" from {requester}".format(request=r["request"], requester=r["requester"])
+        response += f"\"{r.request}\" from {r.requester}"
         response += os.linesep
     return response.strip()
 

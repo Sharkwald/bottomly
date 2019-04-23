@@ -6,8 +6,16 @@ import os
 
 from commands import GetFeatureRequestsByStatusCommand
 from config import Config
-from model.feature_request import FeatureRequestState
+from model.feature_request import FeatureRequest, FeatureRequestState
 from slack_channel import GetFeatureRequestsEventHandler
+
+
+def create_request(requester, request) -> FeatureRequest:
+    fr = FeatureRequest(requester=requester,
+                        request=request,
+                        request_state=str(FeatureRequestState.REQUESTED))
+    return fr
+
 
 test_prefix = "_"
 valid_event_no_state = {"text": test_prefix + "requestedFeatures"}
@@ -18,9 +26,8 @@ valid_event_rejected = {"text": test_prefix + "requestedFeatures rejected"}
 valid_event_guff_state= {"text": test_prefix + "requestedFeatures wibble "}
 invalid_event = {'text': '_g test'}
 help_event = {"text": test_prefix + "requestedFeatures -?"}
-command_result = list([{"request": "do something", "requester": "someone", "request_state": "some_state"},
-                       {"request": "do something else",
-                        "requester": "someone else", "request_state": "some_state"}])
+command_result = list([create_request("someone", "do something"),
+                       create_request("someone else", "do something else")])
 expected_response = "Current feature requests with a state of requested:" + os.linesep + \
                     "\"do something\" from someone" + os.linesep + \
                     "\"do something else\" from someone else"
