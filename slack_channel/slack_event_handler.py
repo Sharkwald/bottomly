@@ -1,5 +1,4 @@
 # coding=utf-8
-import datetime
 import logging
 import logging.config
 
@@ -45,7 +44,8 @@ class SlackEventHandler(object):
             RegEventHandler(self.debug),
             TestEventHandler(self.debug),
             ReactionTestHandler(self.debug),
-            LogFeatureRequestEventHandler(self.debug)
+            LogFeatureRequestEventHandler(self.debug),
+            GetFeatureRequestsEventHandler(self.debug)
         ])
 
     def handle_slack_context(self):
