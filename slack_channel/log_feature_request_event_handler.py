@@ -31,9 +31,9 @@ class LogFeatureRequestEventHandler(AbstractEventHandler):
             requester = slack_event["user"]
             self.command.execute(request=request, requester=requester)
             self._send_reaction_response(slack_event)
-        except Exception as ex:
-            logging.exception("Error logging feature request", ex)
-            self._send_message_response("Unable to log this request. Please try again later.")
+        except Exception:
+            logging.exception("Error logging feature request")
+            self._send_message_response("Unable to log this request. Please try again later.", slack_event)
 
     def __init__(self, debug=False):
         self.debug = debug
