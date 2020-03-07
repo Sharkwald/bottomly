@@ -10,7 +10,7 @@ from model.karma import KarmaType
 from slack_channel import IncrementKarmaEventHandler
 
 valid_event = {"text": "++ username for being awesome", "user": "kinduser"}
-valid_event_no_space = {"text": "++username for being a good sport", "user": "kinduser"}
+valid_event_no_space = {"text": "++username for being awesome", "user": "kinduser"}
 
 invalid_event = {"text": "this is missing a valid command prefix"}
 help_event = {"text": "++ -?"}
