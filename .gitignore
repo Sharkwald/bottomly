@@ -103,6 +103,15 @@ ENV/
 # pycharm
 .idea/
 
+# VS Code
+.vscode/
+
+
 # development environment configs
 devenv.sh
 devenv.bat
+deploy-to-test.ps1
+deploy-to-live.ps1
+
+# logs
+bottomly.log

@@ -94,8 +94,8 @@ class TestKarma(unittest.TestCase):
         self.persist_leaderboard()
 
         expected = [{"username": "cool guy", "net_karma": 2},
-                    {"username": "guy 1", "net_karma": 1},
-                    {"username": "guy 2", "net_karma": 1}]
+                    {"username": "guy 2", "net_karma": 1},
+                    {"username": "guy 1", "net_karma": 1}]
 
         # Act
         leader_board = Karma.get_leader_board()
@@ -108,8 +108,8 @@ class TestKarma(unittest.TestCase):
         self.persist_leaderboard()
 
         expected = [{"username": "loser", "net_karma": -1},
-                    {"username": "guy 1", "net_karma": 1},
-                    {"username": "guy 2", "net_karma": 1}]
+                    {"username": "guy 2", "net_karma": 1},
+                    {"username": "guy 1", "net_karma": 1}]
 
         # Act
         loser_board = Karma.get_loser_board()

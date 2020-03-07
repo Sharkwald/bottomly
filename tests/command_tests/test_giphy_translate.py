@@ -9,12 +9,6 @@ class TestGiphyTranslateCommand(unittest.TestCase):
 
         self.assertIsNone(result)
 
-    def test_garbage_input(self):
-        command = GiphyTranslateCommand()
-        result = command.execute('asdhbhklasdvfbuioasvfbhuilasdvfbhjkl')
-
-        self.assertIsNone(result)
-
     def test_valid_input(self):
         command = GiphyTranslateCommand()
         result = command.execute("puppers and kittehs")

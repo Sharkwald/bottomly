@@ -10,14 +10,16 @@ from config import Config, ConfigKeys
 
 token = Config().get_config_value(ConfigKeys.slack_bot_token)
 
-logging.config.fileConfig('logging.conf')
+logging.config.fileConfig('../logging.conf')
 logger = logging.getLogger('bottomly')
 
 
 class InitialMemberlistPopulator(object):
 
-    def populate(self):
+    @staticmethod
+    def populate():
         try:
+            print("Beginning population...")
             Config().connect_to_db()
             slack = Slacker(token)
             response = slack.users.list()
@@ -34,7 +36,11 @@ class InitialMemberlistPopulator(object):
         except Exception as ex:
             message = "Error running initial populate"
             logger.exception(message)
-            return message + ": " + ex
+            print(message + ": " + ex)
 
     def __init__(self):
         super(InitialMemberlistPopulator, self)
+
+
+if __name__ == '__main__':
+    InitialMemberlistPopulator().populate()

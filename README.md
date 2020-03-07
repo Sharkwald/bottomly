@@ -3,6 +3,16 @@
 
 A python slack bot
 
+## Running Bottomly
+
+### Development
+
+Simply executing `main.py` will allow Bottomly to run, connect to slack, and listen for events.
+
+### Production
+
+The `dockerfile` allows the easy creation of a simple docker image based on Alpine which will allow the app to be run from within a container and hosted in your container framework of choice.
+
 ## Design
 
 Modules are broadly divided by responsibility. Files in the root are related to global config and application spin up, everyhing else is in a module.
@@ -37,11 +47,14 @@ Has an internal structure matching the rest of the app, and each app file should
 
 The following environment variables _must_ be configured for the app to run & all unit tests pass:
 
+* `bottomly_env`: A string describing the active environment. If it is not set to `live` all output messages will display marked as "DEBUG".
 * `bottomly_prefix`: The prefix for bottomly commands. While events can overload this, for example karma changes can trigger on `++` or `--` regardless of the common prefix, most commands should require a single character prefix such as `.` or `!`. This sets that prefix globally, allowing for easy switching between test and production, for example.
 * `bottomly_google_api_key`: A valid google API key
 * `bottomly_google_cse_id`: A valid google custom search engine ID
 * `bottomly_mongo_conn_str`: A mongo DB connection string. Since we're using `pymodm` for data access, this connection string must include a DB name.
 * `bottomly_slack_bot_token`: The "Bot User OAuth Access Token" from slack to allow access to their RTM endpoint.
+* `bottomly_giphy_api_key`: a valid giphy API key.
+
 
 ## Contributing
 
