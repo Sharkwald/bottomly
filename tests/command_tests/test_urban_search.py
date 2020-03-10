@@ -21,6 +21,13 @@ class TestUrbanSearchCommand(unittest.TestCase):
 
         self.assertIsNotNone(result)
 
+    def test_multi_word_search(self):
+        command = UrbanSearchCommand()
+        result = command.execute("hugh laurie")
+
+        print(result)
+        self.assertIsNotNone(result)
+
 
 if __name__ == '__main__':
     unittest.main()

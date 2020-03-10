@@ -1,4 +1,5 @@
 # bottomly
+
 [![Build Status](https://travis-ci.org/Sharkwald/bottomly.svg?branch=master)](https://travis-ci.org/Sharkwald/bottomly)
 
 A python slack bot
@@ -55,8 +56,6 @@ The following environment variables _must_ be configured for the app to run & al
 * `bottomly_slack_bot_token`: The "Bot User OAuth Access Token" from slack to allow access to their RTM endpoint.
 * `bottomly_giphy_api_key`: a valid giphy API key.
 
-
 ## Contributing
 
 Most actions will be carried out by adding a `handler`/`command` pair in the relevant modules, with the command handing off to the model layer for any work that requires persistence. PRs will *not be merged* without proper test coverage.
-
