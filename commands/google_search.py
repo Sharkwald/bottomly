@@ -22,8 +22,7 @@ class GoogleSearchCommand(AbstractCommand):
             return results['items'][0]
 
     def _result_set_is_empty(self, results):
-        # This seems garbage... better way?
-        return results['queries']['request'][0]['totalResults'] == '0'
+        return results['searchInformation']['totalResults'] == '0'
 
     def __init__(self):
         super(GoogleSearchCommand, self)

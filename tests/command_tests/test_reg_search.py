@@ -3,7 +3,7 @@ import unittest
 from commands.reg_search import RegSearchCommand
 
 
-class TestUrbanSearchCommand(unittest.TestCase):
+class TestRegSearchCommand(unittest.TestCase):
 
     def test_empty_input(self):
         command = RegSearchCommand()
@@ -51,7 +51,7 @@ class TestUrbanSearchCommand(unittest.TestCase):
         command = RegSearchCommand()
         result = command.execute('f1')
 
-        self.assertEqual(result, 'Sorry, we didn\'t recognise that registration.')
+        self.assertEqual(result, 'Sorry, we do not have enough information on this vehicle.')
 
     def test_successful_lookup_missing_info(self):
         command = RegSearchCommand()
