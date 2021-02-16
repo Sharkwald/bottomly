@@ -102,9 +102,9 @@ class SlackEventHandler(object):
 
     def _insert_channel_id(self, slack_event):
         try:
-            known_channel_names = list(map((lambda c: c["name"]), self._channel_list))
+            known_channel_names = [c["name"] for c in self._channel_list]
             if slack_event["channel"] in known_channel_names:
-                channel = list(filter((lambda c: c["name"] == slack_event["channel"]), self._channel_list))[0]
+                channel = [c for c in self._channel_list if c["name"] == slack_event["channel"]][0]
                 slack_event["channel_id"] = channel["id"]
         except Exception:
             logger.exception("Error loading channel id from event: " + str(slack_event))

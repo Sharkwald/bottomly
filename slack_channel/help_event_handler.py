@@ -20,7 +20,7 @@ class HelpEventHandler(AbstractEventHandler):
     @property
     def _prefixed_command_symbols(self):
         prefix = self.config.get_prefix()
-        return list(map((lambda c: prefix + c), command_symbols))
+        return [prefix + c for c in command_symbols]
 
     def can_handle(self, slack_event) -> bool:
         split = slack_event["text"].split(" ")

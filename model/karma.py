@@ -42,8 +42,7 @@ class Karma(MongoModel):
                                             grouping,
                                             sort)
         result_set = list(query_set)[:limit]
-        result = map((lambda r: {"username": r["_id"], "net_karma": r["net_karma"]}), result_set)
-        return list(result)
+        return [{"username": r["_id"], "net_karma": r["net_karma"]} for r in result_set]
 
     @staticmethod
     def get_leader_board(size: int=3) -> list:
@@ -73,14 +72,14 @@ class Karma(MongoModel):
         match = {'$match': {'awarded_to_username': recipient.lower(),
                             'awarded': {'$gt': _get_cut_off_date()}}}
         query_set = Karma.objects.aggregate(projection, match)
-        recent_karma = list(map((lambda k: Karma(awarded_to_username=k["awarded_to_username"],
-                                                 awarded_by_username=k["awarded_by_username"],
-                                                 karma_type=k["karma_type"],
-                                                 awarded=k["awarded"],
-                                                 reason=k["reason"],
-                                                 _id=k["_id"])), list(query_set)))
-        karma_with_reasons = list(filter((lambda k: k.reason != Karma.default_reason), recent_karma))
-        karma_without_reasons = list(filter((lambda k: k.reason == Karma.default_reason), recent_karma))
+        recent_karma = [Karma(awarded_to_username=k["awarded_to_username"],
+                              awarded_by_username=k["awarded_by_username"],
+                              karma_type=k["karma_type"],
+                              awarded=k["awarded"],
+                              reason=k["reason"],
+                              _id=k["_id"]) for k in list(query_set)]
+        karma_with_reasons = [k for k in recent_karma if k.reason != Karma.default_reason]
+        karma_without_reasons = [k for k in recent_karma if k.reason == Karma.default_reason]
         return {'reasonless': len(karma_without_reasons), 'reasoned': karma_with_reasons}
 
     awarded_to_username = fields.CharField()
