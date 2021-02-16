@@ -10,7 +10,7 @@ from config import Config, ConfigKeys
 
 token = Config().get_config_value(ConfigKeys.slack_bot_token)
 
-logging.config.fileConfig('../logging.conf')
+logging.config.fileConfig('./logging.conf')
 logger = logging.getLogger('bottomly')
 
 
