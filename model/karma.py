@@ -42,8 +42,7 @@ class Karma(MongoModel):
                                             grouping,
                                             sort)
         result_set = list(query_set)[:limit]
-        result = [{"username": r["_id"], "net_karma": r["net_karma"]} for r in result_set]
-        return list(result)
+        return [{"username": r["_id"], "net_karma": r["net_karma"]} for r in result_set]
 
     @staticmethod
     def get_leader_board(size: int=3) -> list:
