@@ -19,6 +19,11 @@ debug = Config().get_config_value(ConfigKeys.env_key) != live_mode
 
 logging.config.fileConfig('logging.conf')
 logger = logging.getLogger('bottomly')
+for handler in logger.handlers:
+    if debug:
+        handler.setLevel(logging.INFO)
+    else:
+        handler.setLevel(logging.WARN)
 
 _command_handlers = list([
     GoogleEventHandler(debug),
@@ -47,15 +52,15 @@ def _is_subscribed_event(slack_event):
         return subscribed
     except Exception as ex:
         logger.warning("Error determining if event is subscribed: " + str(ex))
-        logger.warning("Message: " + slack_event)
+        logger.warning("Message: " + str(slack_event))
     return False
 
 
 def handle_slack_context():
     try:
         rtm_client = RTMClient(token=token)
-        rtm_client.start()
         logging.info("Opening connection to slack.")
+        rtm_client.start()
     except SlackApiError:
         logger.exception("Error establishing connection to slack.")
 
@@ -63,12 +68,11 @@ def handle_slack_context():
 @RTMClient.run_on(event="message")
 def _process_slack_event(**e):
     try:
-        if debug:
-            logging.info(e["data"])
-
         slack_event = e["data"]
         if not _is_subscribed_event(slack_event):
             return
+
+        logging.info("Subscribing to: " + str(slack_event))
 
         _insert_channel_id(slack_event)
         _insert_username(slack_event)

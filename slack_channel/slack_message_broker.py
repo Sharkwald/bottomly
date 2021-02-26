@@ -26,27 +26,20 @@ class SlackMessageBroker(object):
         try:
             client = WebClient(token=self.token)
             msg_response = client.chat_postMessage(channel=channel, text=message_text)
-            logging.info(msg_response)
+            logging.info("Sent message: " + str(msg_response) + ", to channel: " + channel)
         except SlackApiError:
             logging.exception("Error sending message response to: " + channel)
 
     def send_dm(self, message_text, user_slack_id):
         if message_text is None or message_text == "":
             return
-        if self.debug:
-            message_text = f"[{self.environment}] {message_text}"
-        # try:
-            # slack = Slacker(self.token)
-            # im = slack.im.open(user_slack_id).body
-            # if im["ok"]:
-            #     channel_id = im["channel"]["id"]
-            #     slack.chat.post_message(channel_id, text=message_text)
-            #
-            # else:
-            #     raise Exception("Failed to open a DM to send response.")
-
-        # except Exception:
-        #     logging.exception("Error sending DM response to: " + str(user_slack_id))
+        try:
+            client = WebClient(token=self.token)
+            im = client.conversations_open(users=user_slack_id)
+            channel_id = im["channel"]["id"]
+            self.send_message(message_text, channel_id)
+        except SlackApiError:
+            logging.exception("Error sending DM response to: " + str(user_slack_id))
 
     def __init__(self, debug=False):
         self.debug = debug
