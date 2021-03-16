@@ -1,6 +1,6 @@
 # bottomly
 
-[![Build Status](https://travis-ci.org/Sharkwald/bottomly.svg?branch=master)](https://travis-ci.org/Sharkwald/bottomly)
+[![Build & Test](https://github.com/Sharkwald/bottomly/actions/workflows/python-app.yml/badge.svg)](https://github.com/Sharkwald/bottomly/actions/workflows/python-app.yml)
 
 A python slack bot
 
