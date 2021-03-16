@@ -14,6 +14,9 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    environment:
+      name: test
+
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python 3.9
@@ -32,5 +35,13 @@ jobs:
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
+      env: 
+        bottomly_giphy_api_key: ${{ secrets.GIPHY_API_KEY }}
+        bottomly_google_api_key: ${{ secrets.GOOGLE_API_KEY }}
+        bottomly_google_cse_id: ${{ secrets.GOOGLE_CSE_ID }}
+        bottomly_slack_bot_token: ${{ secrets.SLACK_TOKEN }}
+        bottomly_prefix: _
+        bottomly_env: test
+        bottomly_mongo_conn_str: ${{ secrets.MONGO_CONN_STR }}
       run: |
         pytest
