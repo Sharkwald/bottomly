@@ -38,7 +38,8 @@ _command_handlers = list([
     GetLeaderBoardEventHandler(debug),
     RegEventHandler(debug),
     TestEventHandler(debug),
-    ReactionTestHandler(debug)
+    ReactionTestHandler(debug),
+    GoogleImageEventHandler(debug)
 ])
 
 _channel_list = WebClient(token=token).conversations_list().data.get("channels")
