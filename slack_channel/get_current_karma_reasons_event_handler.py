@@ -8,7 +8,7 @@ from slack_channel.slack_parser import SlackParser
 command_symbol = "reasons"
 
 
-def _build_response(result, recipient):
+def _build_response(result, recipient) -> str:
     karma_keys = {str(KarmaType.POZZYPOZ): "++", str(KarmaType.NEGGYNEG): "--"}
     response = "Recent Karma for " + recipient + ":"
     response += os.linesep
