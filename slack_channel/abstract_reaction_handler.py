@@ -20,17 +20,18 @@ class AbstractReactionHandler(ABC):
         pass
 
     @abstractmethod
-    def can_handle(self, slack_event) -> bool:
+    def can_handle(self, reaction_add_event) -> bool:
         pass
 
     @abstractmethod
-    def _invoke_handler_logic(self, slack_event):
+    def _invoke_handler_logic(self, reaction_add_event):
         pass
 
     def handle(self, reaction_add_event):
         logger.info(str(self) + " Handling: " + str(reaction_add_event))
         try:
-            self._invoke_handler_logic(reaction_add_event)
+            if self.can_handle(reaction_add_event):
+              self._invoke_handler_logic(reaction_add_event)
         except Exception:
             logger.exception("Error thrown handling event: " + reaction_add_event)
 

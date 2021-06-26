@@ -23,7 +23,7 @@ class AddKarmaReactionHandler(AbstractReactionHandler):
         try:
             self.command.execute(awarded_to=reaction_add_event["reactee"],
                                  awarded_by=reaction_add_event["reactor"],
-                                 reason="Reacted with " + reaction_add_event["reaction"],
+                                 reason="Reacted with " + str(reaction_add_event["reaction"]),
                                  karma_type=self._lookup_karma_type(reaction_add_event["reaction"]))
             self._send_reaction_response(reaction_add_event)
         except Exception as ex:
