@@ -42,40 +42,55 @@ _command_handlers = list([
     GoogleImageEventHandler(debug)
 ])
 
+_reaction_handlers = list([
+    AddKarmaReactionHandler(debug)
+])
+
 _channel_list = WebClient(token=token).conversations_list().data.get("channels")
 
 
-def _is_subscribed_event(slack_event):
+def _is_subscribed_message(slack_event):
     try:
         subscribed = True
         subscribed = subscribed and "text" in slack_event
         subscribed = subscribed and "bot_id" not in slack_event
         return subscribed
     except Exception as ex:
-        logger.warning("Error determining if event is subscribed: " + str(ex))
+        logger.warning("Error determining if message is subscribed: " + str(ex))
         logger.warning("Message: " + str(slack_event))
+    return False
+
+
+def _is_subscribed_reaction(slack_event):
+    try:
+        subscribed = True
+        # subscribed = subscribed and "bot_id" not in slack_event
+        return subscribed
+    except Exception as ex:
+        logger.warning("Error determining if reaction is subscribed: " + str(ex))
+        logger.warning("Reaction Event: " + str(slack_event))
     return False
 
 
 def handle_slack_context():
     try:
         rtm_client = RTMClient(token=token)
-        logging.info("Opening connection to slack.")
+        logger.info("Opening connection to slack.")
         rtm_client.start()
     except SlackApiError:
         logger.exception("Error establishing connection to slack.")
 
 
 @RTMClient.run_on(event="message")
-def _process_slack_event(**e):
+def _process_slack_message(**e):
     try:
         slack_event = e["data"]
-        if not _is_subscribed_event(slack_event):
+        if not _is_subscribed_message(slack_event):
             return
 
-        logging.info("Subscribing to: " + str(slack_event))
+        logger.info("Subscribing to: " + str(slack_event))
 
-        _insert_channel_id(slack_event)
+        _insert_channel_id_to_message(slack_event)
         _insert_username(slack_event)
 
         handled = False
@@ -95,7 +110,29 @@ def _process_slack_event(**e):
         # TODO: Dynamic response handler
 
     except SlackApiError:
-        logger.exception("Error processing slack event")
+        logger.exception("Error processing slack message")
+
+
+@RTMClient.run_on(event="reaction_added")
+def _process_slack_reaction(**e):
+    try:
+        slack_event = e["data"]
+        if not _is_subscribed_reaction(slack_event):
+            return
+        slack_event["channel"] = slack_event["item"]["channel"]
+
+        slack_event["reactor"] = Member.get_member_by_slack_id(slack_event["user"]).username
+        slack_event["reactee"] = Member.get_member_by_slack_id(slack_event["item_user"]).username
+
+        logger.info(str(slack_event))
+
+        _reaction_handlers[0].handle(slack_event)
+
+    except SlackApiError:
+        logger.exception("Slack API Error processing slack reaction")
+    
+    except Exception as ex:
+        logger.exception("General error processing slack reaction: " + str(ex))
 
 
 def _execute_command_handlers(slack_event):
@@ -108,14 +145,14 @@ def _execute_command_handlers(slack_event):
     return handled
 
 
-def _insert_channel_id(slack_event):
+def _insert_channel_id_to_message(message_event):
     try:
         known_channel_names = [c["name"] for c in _channel_list]
-        if slack_event["channel"] in known_channel_names:
-            channel = [c for c in _channel_list if c["name"] == slack_event["channel"]][0]
-            slack_event["channel_id"] = channel["id"]
+        if message_event["channel"] in known_channel_names:
+            channel = [c for c in _channel_list if c["name"] == message_event["channel"]][0]
+            message_event["channel_id"] = channel["id"]
     except Exception:
-        logger.exception("Error loading channel id from event: " + str(slack_event))
+        logger.exception("Error loading channel id from message: " + str(message_event))
 
 
 def _insert_username(slack_event):

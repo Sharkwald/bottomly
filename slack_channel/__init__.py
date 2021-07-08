@@ -12,4 +12,8 @@ from .get_leader_board_event_handler import GetLeaderBoardEventHandler
 from .get_loser_board_event_handler import GetLoserBoardEventHandler
 from .test_event_handler import TestEventHandler
 from .reaction_test_handler import ReactionTestHandler
+<<<<<<< HEAD
 from .google_image_event_handler import GoogleImageEventHandler
+=======
+from .add_karma_reaction_handler import AddKarmaReactionHandler
+>>>>>>> master
