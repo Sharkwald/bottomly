@@ -4,7 +4,14 @@ from model.karma import Karma, KarmaType
 from commands import AddKarmaCommand
 from slack_channel.abstract_reaction_handler import AbstractReactionHandler
 
-# TODO: Dictionary of reactions to karma types
+_karma_reactions = {
+    "joy": KarmaType.POZZYPOZ,
+    "+1": KarmaType.POZZYPOZ,
+    "thumbsup": KarmaType.POZZYPOZ,
+    "clap": KarmaType.POZZYPOZ,
+    "-1": KarmaType.NEGGYNEG,
+    "thumbsdown": KarmaType.NEGGYNEG
+}
 
 class AddKarmaReactionHandler(AbstractReactionHandler):
 
@@ -13,11 +20,10 @@ class AddKarmaReactionHandler(AbstractReactionHandler):
         return AddKarmaCommand()
     
     def can_handle(self, reaction_add_event) -> bool:
-        return reaction_add_event["reaction"] == "joy"
+        return reaction_add_event["reaction"] in _karma_reactions
     
     def _lookup_karma_type(self, reaction: str) -> KarmaType:
-        if reaction == "joy":
-            return KarmaType.POZZYPOZ
+        return _karma_reactions[reaction]
 
     def _invoke_handler_logic(self, reaction_add_event):
         try:
