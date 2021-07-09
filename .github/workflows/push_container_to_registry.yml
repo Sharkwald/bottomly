@@ -1,6 +1,4 @@
 name: Azure Container Registry Build
-  # You may pin to the exact commit or the version.
-  # uses: ams0/acr-task-github-action@bc2f02f4e97c4912d2b17fa7e35a1e2caa66ed09
   uses: ams0/acr-task-github-action@v2
   with:
     # Service Principal with Contributor role on the ACR
@@ -12,7 +10,7 @@ name: Azure Container Registry Build
     # The name of the ACR, minus the .azurecr.io
     registry: bottomlycontainerreg
     # Repository to use
-    repository: 
+    repository: bottomlycontainerreg
     # Docker image name
     image: bottomly
     # Docker image tag, default to the commit SHA
@@ -24,4 +22,3 @@ name: Azure Container Registry Build
     # The location of the Dockerfile; defaults to ./Dockerfile
     dockerfile: run.dockerfile
     # JSON specifying key=value pairs as as Docker build arguments
-    build_args: # optional
