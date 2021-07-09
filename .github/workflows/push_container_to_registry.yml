@@ -1,34 +1,39 @@
-# This workflow will supoosedly deploy a docker image to the ACR
-
-name: Azure Container Registry Build
-
 on:
   release:
-    types:
-      - created
+    - created
+name: Push to Container Reg
 
 jobs:
-  build:
-    uses: ams0/acr-task-github-action@v2
-    with:
-      # Service Principal with Contributor role on the ACR
-      service_principal: ${{ secrets.REGISTRY_USERNAME }}
-      # Service Principal password
-      service_principal_password: ${{ secrets.REGISTRY_PASSWORD }}
-      # Azure Container Registry tenant
-      tenant: b5d31eb2-8df5-4e64-9f87-18900b7fe3b6
-      # The name of the ACR, minus the .azurecr.io
-      registry: bottomlycontainerreg
-      # Repository to use
-      repository: bottomlycontainerreg
-      # Docker image name
-      image: bottomly
-      # Docker image tag, default to the commit SHA
-      tag: # optional
-      # Branch to build from, defaults to master
-      branch: master
-      # The folder in the Github repo that holds the source
-      folder: .
-      # The location of the Dockerfile; defaults to ./Dockerfile
-      dockerfile: run.dockerfile
-      # JSON specifying key=value pairs as as Docker build arguments
+    build-and-deploy:
+        runs-on: ubuntu-latest
+        steps:
+        # checkout the repo
+        - name: 'Checkout GitHub Action'
+          uses: actions/checkout@main
+          
+        - name: 'Login via Azure CLI'
+          uses: azure/login@v1
+          with:
+            creds: ${{ secrets.AZURE_CREDENTIALS }}
+        
+        - name: 'Build and push image'
+          uses: azure/docker-login@v1
+          with:
+            login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+            username: ${{ secrets.REGISTRY_USERNAME }}
+            password: ${{ secrets.REGISTRY_PASSWORD }}
+        - run: |
+            docker build run.dockerfile -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/bottomly:${{ github.sha }}
+            docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/bottomly:${{ github.sha }}
+
+        - name: 'Deploy to Azure Container Instances'
+          uses: 'azure/aci-deploy@v1'
+          with:
+            resource-group: ${{ secrets.RESOURCE_GROUP }}
+            dns-name-label: ${{ secrets.RESOURCE_GROUP }}${{ github.run_number }}
+            image: ${{ secrets.REGISTRY_LOGIN_SERVER }}/bottomly:${{ github.sha }}
+            registry-login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+            registry-username: ${{ secrets.REGISTRY_USERNAME }}
+            registry-password: ${{ secrets.REGISTRY_PASSWORD }}
+            name: bottomly-test
+            location: 'uk south'
