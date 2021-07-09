@@ -3,11 +3,15 @@ on: push
   # release:
   #   types:
   #     - created
-name: Push to Container Reg
+name: Push to Test
 
 jobs:
     build-and-deploy:
         runs-on: ubuntu-latest
+        
+        environment:
+          name: test
+        
         steps:
         # checkout the repo
         - name: 'Checkout GitHub Action'
@@ -39,3 +43,11 @@ jobs:
             registry-password: ${{ secrets.REGISTRY_PASSWORD }}
             name: bottomly-test
             location: 'uk south'
+            environment-variables:
+              bottomly_giphy_api_key: ${{ secrets.GIPHY_API_KEY }}
+              bottomly_google_api_key: ${{ secrets.GOOGLE_API_KEY }}
+              bottomly_google_cse_id: ${{ secrets.GOOGLE_CSE_ID }}
+              bottomly_slack_bot_token: ${{ secrets.SLACK_TOKEN }}
+              bottomly_prefix: ${{ secrets.PREFIX }}
+              bottomly_env: ${{ secrets.ENV }}
+              bottomly_mongo_conn_str: ${{ secrets.MONGO_CONN_STR }}
