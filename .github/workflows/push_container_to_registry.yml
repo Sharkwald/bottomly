@@ -1,5 +1,12 @@
 name: Azure Container Registry Build
+
+  on:
+    release:
+      types:
+        - created
+
   uses: ams0/acr-task-github-action@v2
+  
   with:
     # Service Principal with Contributor role on the ACR
     service_principal: ${{ secrets.REGISTRY_USERNAME }}
