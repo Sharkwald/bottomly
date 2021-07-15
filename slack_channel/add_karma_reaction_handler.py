@@ -10,6 +10,7 @@ _karma_reactions = {
     "thumbsup": KarmaType.POZZYPOZ,
     "clap": KarmaType.POZZYPOZ,
     "arrow_up": KarmaType.POZZYPOZ,
+    "heart": KarmaType.POZZYPOZ,
     "smile": KarmaType.POZZYPOZ,
     "-1": KarmaType.NEGGYNEG,
     "thumbsdown": KarmaType.NEGGYNEG,
