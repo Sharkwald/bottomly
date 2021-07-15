@@ -38,7 +38,8 @@ _command_handlers = list([
     GetLeaderBoardEventHandler(debug),
     RegEventHandler(debug),
     TestEventHandler(debug),
-    ReactionTestHandler(debug)
+    ReactionTestHandler(debug),
+    GoogleImageEventHandler(debug)
 ])
 
 _reaction_handlers = list([

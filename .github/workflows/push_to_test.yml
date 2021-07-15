@@ -1,0 +1,46 @@
+on: push
+  
+  # release:
+  #   types:
+  #     - created
+name: Push to Test
+
+jobs:
+    build-and-deploy:
+        runs-on: ubuntu-latest
+        
+        environment:
+          name: test
+        
+        steps:
+        # checkout the repo
+        - name: 'Checkout GitHub Action'
+          uses: actions/checkout@main
+          
+        - name: 'Login via Azure CLI'
+          uses: azure/login@v1
+          with:
+            creds: ${{ secrets.AZURE_CREDENTIALS }}
+        
+        - name: 'Build and push image'
+          uses: azure/docker-login@v1
+          with:
+            login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+            username: ${{ secrets.REGISTRY_USERNAME }}
+            password: ${{ secrets.REGISTRY_PASSWORD }}
+        - run: |
+            docker build . -f run.dockerfile -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/bottomly:${{ github.sha }}
+            docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/bottomly:${{ github.sha }}
+
+        - name: 'Deploy to Azure Container Instances'
+          uses: 'azure/aci-deploy@v1'
+          with:
+            resource-group: ${{ secrets.RESOURCE_GROUP }}
+            dns-name-label: ${{ secrets.RESOURCE_GROUP }}${{ github.run_number }}
+            image: ${{ secrets.REGISTRY_LOGIN_SERVER }}/bottomly:${{ github.sha }}
+            registry-login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+            registry-username: ${{ secrets.REGISTRY_USERNAME }}
+            registry-password: ${{ secrets.REGISTRY_PASSWORD }}
+            name: bottomly-test
+            location: 'uk south'
+            environment-variables: bottomly_giphy_api_key=${{ secrets.GIPHY_API_KEY }} bottomly_google_api_key=${{ secrets.GOOGLE_API_KEY }} bottomly_google_cse_id=${{ secrets.GOOGLE_CSE_ID }} bottomly_slack_bot_token=${{ secrets.SLACK_TOKEN }} bottomly_prefix=${{ secrets.PREFIX }} bottomly_env=${{ secrets.ENV }} bottomly_mongo_conn_str=${{ secrets.MONGO_CONN_STR }}
