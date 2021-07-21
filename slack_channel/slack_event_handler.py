@@ -10,6 +10,7 @@ from slack_sdk.errors import SlackApiError
 from config import Config, ConfigKeys
 from model.member import Member
 from slack_channel import *
+from commands import AddMemberCommand
 
 live_mode = "live"
 
@@ -97,7 +98,8 @@ def _process_slack_message(**e):
 
         help_handler = HelpEventHandler(debug, _command_handlers)
         if help_handler.can_handle(slack_event):
-            handled = help_handler.handle(slack_event)
+            help_handler.handle(slack_event)
+            handled = True
 
         if handled:
             return
@@ -121,8 +123,8 @@ def _process_slack_reaction(**e):
             return
         slack_event["channel"] = slack_event["item"]["channel"]
 
-        slack_event["reactor"] = Member.get_member_by_slack_id(slack_event["user"]).username
-        slack_event["reactee"] = Member.get_member_by_slack_id(slack_event["item_user"]).username
+        slack_event["reactor"] = _lookup_member(slack_event["user"]).username
+        slack_event["reactee"] = _lookup_member(slack_event["item_user"]).username
 
         logger.info(str(slack_event))
 
@@ -157,9 +159,24 @@ def _insert_channel_id_to_message(message_event):
 
 def _insert_username(slack_event):
     try:
-        member = Member.get_member_by_slack_id(slack_event["user"])
+        member = _lookup_member(user_id=slack_event["user"])
         slack_event["user_id"] = slack_event["user"]
         slack_event["user"] = member.username
 
     except Exception:
         logger.exception("Error loading user id from event: " + str(slack_event))
+
+def _lookup_member(user_id) -> Member:
+    try:
+        member = Member.get_member_by_slack_id(user_id)
+        if member == None:
+            # Unknown user, so add them to the DB
+            client = WebClient(token=token)
+            member_info = client.users_info(user=user_id)
+            command = AddMemberCommand(member_info["user"]["name"], user_id)
+            command.execute()
+            member = Member.get_member_by_slack_id(user_id)
+        return member
+    except Exception as ex:
+        logger.exception("Error looking up/creating member for " + user_id, ex)
+        return None
