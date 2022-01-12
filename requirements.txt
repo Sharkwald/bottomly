@@ -10,4 +10,4 @@ slack-sdk==3.4.0
 beautifulsoup4==4.7.1
 soupsieve==1.9
 dnspython==1.16.0
-dnslib==0.9.14
+dnslib==0.9.17
