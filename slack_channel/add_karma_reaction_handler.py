@@ -15,7 +15,8 @@ _karma_reactions = {
     "-1": KarmaType.NEGGYNEG,
     "thumbsdown": KarmaType.NEGGYNEG,
     "poo": KarmaType.NEGGYNEG,
-    "arrow_down": KarmaType.NEGGYNEG
+    "arrow_down": KarmaType.NEGGYNEG,
+    "raised_hands": KarmaType.POZZYPOZ
 }
 
 class AddKarmaReactionHandler(AbstractReactionHandler):
