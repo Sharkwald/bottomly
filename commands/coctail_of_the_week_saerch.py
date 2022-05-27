@@ -26,13 +26,10 @@ class CocktailOfTheWeekSearchCommand(AbstractCommand):
             # Name & Price Row
             name_row = blank_row.find_next('tr')
             name_row_data_cells = name_row.findAll('td')
-
-            # Name
             name = name_row_data_cells[0].text
-            # Price
             price = name_row_data_cells[1].text
 
-            # Description Row
+            # Ingredients Row
             ingredients_row = name_row.find_next('tr')
             ingredients = ingredients_row.find('td').text
 
