@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from commands.coctail_of_the_week_saerch import CocktailOfTheWeekSearchCommand
+from commands.cocktail_of_the_week_search import CocktailOfTheWeekSearchCommand
 
 
 class TestCocktailOfTheWeekSearchCommand(unittest.TestCase):
