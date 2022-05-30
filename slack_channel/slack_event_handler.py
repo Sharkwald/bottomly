@@ -39,7 +39,8 @@ _command_handlers = list([
     RegEventHandler(debug),
     TestEventHandler(debug),
     ReactionTestHandler(debug),
-    GoogleImageEventHandler(debug)
+    GoogleImageEventHandler(debug),
+    CocktailOfTheWeekEventHandler(debug)
 ])
 
 _reaction_handlers = list([

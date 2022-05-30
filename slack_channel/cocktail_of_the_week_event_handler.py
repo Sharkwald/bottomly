@@ -21,7 +21,7 @@ class CocktailOfTheWeekEventHandler(AbstractEventHandler):
 
     def can_handle(self, slack_event):
         text = slack_event["text"]
-        return text.startswith(self.command_trigger)
+        return text.startswith(self.command_trigger[:-1]) # No trailing space because no arguments for this.
 
     def _invoke_handler_logic(self, slack_event):
         response_message = self.command.execute()

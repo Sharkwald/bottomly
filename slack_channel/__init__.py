@@ -14,3 +14,4 @@ from .test_event_handler import TestEventHandler
 from .reaction_test_handler import ReactionTestHandler
 from .google_image_event_handler import GoogleImageEventHandler
 from .add_karma_reaction_handler import AddKarmaReactionHandler
+from .cocktail_of_the_week_event_handler import CocktailOfTheWeekEventHandler
