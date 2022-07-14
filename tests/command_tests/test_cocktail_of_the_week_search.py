@@ -10,11 +10,10 @@ class TestCocktailOfTheWeekSearchCommand(unittest.TestCase):
         command = CocktailOfTheWeekSearchCommand()
         result = command.execute()
 
-        expected = 'Cocktail of the Week' + os.linesep + \
-             'Raspberry Gin Cosmo - (£7.00)' + os.linesep + \
-             'Whitley Neil Raspberry Gin, Triple Sec, Lime Juice, Cranberry'
-             
-        self.assertEqual(expected, result)
+        results = result.splitlines();
+
+        self.assertEqual(len(results), 3)
+        self.assertEqual(results[0], 'Cocktail of the Week')
 
 if __name__ == '__main__':
     unittest.main()
