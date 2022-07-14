@@ -1,0 +1,1 @@
+az ad sp create-for-rbac --name "BottomlyGithub" --sdk-auth
