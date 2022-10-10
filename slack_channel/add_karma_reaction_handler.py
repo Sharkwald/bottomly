@@ -11,6 +11,7 @@ _karma_reactions = {
     "clap": KarmaType.POZZYPOZ,
     "arrow_up": KarmaType.POZZYPOZ,
     "heart": KarmaType.POZZYPOZ,
+    "heart_eyes": KarmaType.POZZYPOZ,
     "smile": KarmaType.POZZYPOZ,
     "-1": KarmaType.NEGGYNEG,
     "thumbsdown": KarmaType.NEGGYNEG,
