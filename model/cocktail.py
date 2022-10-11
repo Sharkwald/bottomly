@@ -9,6 +9,7 @@ class Cocktail(MongoModel):
     description = fields.CharField()
     ingredients = fields.ListField()
     instructions = fields.ListField()
+    source = fields.CharField()
     url = fields.URLField()
     image = fields.URLField()
 

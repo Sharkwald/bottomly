@@ -1,8 +1,15 @@
 from commands.abstract_command import AbstractCommand
 
+import logging.config
+from os import path
 import requests
 
+log_file_path = path.join(path.dirname(path.abspath(__file__)), '../logging.conf')
+logging.config.fileConfig(log_file_path)
+logger = logging.getLogger('bottomly')
+
 from model.cocktail import Cocktail
+
 
 class CocktailOfTheWeekSearchCommand(AbstractCommand):
     base_url = 'https://cocktailflow.com'
@@ -27,10 +34,14 @@ class CocktailOfTheWeekSearchCommand(AbstractCommand):
                 # Get what we can from the collection request
                 new_cocktail.name = cocktail["name"]
                 new_cocktail.url = self.base_url + cocktail["key"] + self.lang_query_param
+                new_cocktail.source = "Cocktail Flow"
                 # Hydrate the cocktails details from a secondary request
                 new_cocktail = self.get_cocktail_details(new_cocktail)
-                # Append the cocktail to the list
-                cocktails.append(new_cocktail)
+
+                if cocktail is not None:
+                    # Append the cocktail to the list
+                    cocktails.append(new_cocktail)
+
             return cocktail_json_list
 
         except:
@@ -48,7 +59,9 @@ class CocktailOfTheWeekSearchCommand(AbstractCommand):
 
             return cocktail
         except:
-            return "="
+            # Let's log this, but not stop getting the rest of the cocktails
+            logger.exception("Error - Cocktail of the week - get_cocktail_details for: " + cocktail.name)
+            return None
 
     def get_cocktail_ingredients(self, json_response):
         ingredients = []
@@ -66,8 +79,8 @@ class CocktailOfTheWeekSearchCommand(AbstractCommand):
             preparation_step_list = json_response["cocktail"]["preparationSteps"]["items"]
 
             for step in preparation_step_list:  # oO)-.
-                step_words = ''  # /__  _\  - Big-O Toad disproves
-                for word in step["words"]:  # \  \(  |
+                step_words = ''                 # /__  _\  - Big-O Toad disproves
+                for word in step["words"]:      # \  \(  |
                     step_words += word["word"]  # '  '--'
 
                 # remove what looks to be unnecessary commas
