@@ -15,6 +15,18 @@ class CocktailOfTheWeekSearchCommand(AbstractCommand):
     base_url = 'https://cocktailflow.com'
     lang_query_param = '?lang=en-US'
 
+    cocktailTypes = [
+        '/ajax/collection/type-champagne',
+        '/ajax/collection/type-classical',
+        '/ajax/collection/type-creamy',
+        '/ajax/collection/type-frozen',
+        '/ajax/collection/type-hotdrink',
+        '/ajax/collection/type-longdrink',
+        '/ajax/collection/type-martini',
+        '/ajax/collection/type-short',
+        '/ajax/collection/type-tropical'
+    ]
+
     def get_purpose(self):
         return 'Cocktail of the week, a reminder we were once fun.'
 
@@ -79,7 +91,7 @@ class CocktailOfTheWeekSearchCommand(AbstractCommand):
             preparation_step_list = json_response["cocktail"]["preparationSteps"]["items"]
 
             for step in preparation_step_list:  # oO)-.
-                step_words = ''                 # /__  _\  - Big-O Toad disproves
+                step_words = ''                 # /__  _\  - Big-O Toad disapproves.
                 for word in step["words"]:      # \  \(  |
                     step_words += word["word"]  # '  '--'
 
