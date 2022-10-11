@@ -38,23 +38,23 @@ class CocktailOfTheWeekSearchCommand(AbstractCommand):
             # Parse json response
             json_response = response.json()
             # get cocktails into an array from json
-            cocktail_json_list = json_response["collection"]["cocktails"]
+            cocktail_json_list = json_response["collection"]["cocktails"]["items"]
 
-            cocktails = []
+            cocktail_list = []
             for cocktail in cocktail_json_list:
                 new_cocktail = Cocktail()
                 # Get what we can from the collection request
                 new_cocktail.name = cocktail["name"]
-                new_cocktail.url = self.base_url + cocktail["key"] + self.lang_query_param
+                new_cocktail.url = self.base_url + "/ajax/cocktail/" + cocktail["key"] + self.lang_query_param
                 new_cocktail.source = "Cocktail Flow"
                 # Hydrate the cocktails details from a secondary request
                 new_cocktail = self.get_cocktail_details(new_cocktail)
 
                 if cocktail is not None:
                     # Append the cocktail to the list
-                    cocktails.append(new_cocktail)
+                    cocktail_list.append(new_cocktail)
 
-            return cocktail_json_list
+            return cocktail_list
 
         except:
             return "FAILED"
@@ -95,10 +95,11 @@ class CocktailOfTheWeekSearchCommand(AbstractCommand):
                 for word in step["words"]:      # \  \(  |
                     step_words += word["word"]  # '  '--'
 
-                # remove what looks to be unnecessary commas
-                # replace last comma with an and
-                step_words = step_words.replace(", ,", ",")
-                instructions.append(step_words.replace(',', ''))
+                if step_words.count(',') > 0:
+                    # Replace the last comma with 'and'
+                    step_words = ",".join(step_words.split(",")[:-1]) + " and " + step_words.split(",")[-1]
+
+                instructions.append(step_words)
 
             return instructions
         except:
