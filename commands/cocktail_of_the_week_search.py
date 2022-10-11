@@ -15,7 +15,7 @@ class CocktailOfTheWeekSearchCommand(AbstractCommand):
     base_url = 'https://cocktailflow.com'
     lang_query_param = '?lang=en-US'
 
-    cocktailTypes = [
+    cocktail_collection_list = [
         '/ajax/collection/type-champagne',
         '/ajax/collection/type-classical',
         '/ajax/collection/type-creamy',
@@ -31,9 +31,21 @@ class CocktailOfTheWeekSearchCommand(AbstractCommand):
         return 'Cocktail of the week, a reminder we were once fun.'
 
     def execute(self):
-        cocktail_classics_url = self.base_url + '/ajax/collection/type-classical' + self.lang_query_param
+        return self.get_all_cocktails()
 
+    def get_all_cocktails(self) -> []:
         try:
+            cocktail_list = []
+            for cocktail_collection in self.cocktail_collection_list:
+                cocktail_list += self.get_cocktails_in_collection(cocktail_collection)
+            return cocktail_list
+        except:
+            logger.exception("Error - Cocktail of the week - get_all_cocktails failed")
+            return None
+
+    def get_cocktails_in_collection(self, collection_name) -> []:
+        try:
+            cocktail_classics_url = self.base_url + collection_name + self.lang_query_param
             response = requests.get(cocktail_classics_url)
             # Parse json response
             json_response = response.json()
@@ -47,7 +59,7 @@ class CocktailOfTheWeekSearchCommand(AbstractCommand):
                 new_cocktail.name = cocktail["name"]
                 new_cocktail.url = self.base_url + "/ajax/cocktail/" + cocktail["key"] + self.lang_query_param
                 new_cocktail.source = "Cocktail Flow"
-                # Hydrate the cocktails details from a secondary request
+                # Get the cocktails details from a secondary request
                 new_cocktail = self.get_cocktail_details(new_cocktail)
 
                 if cocktail is not None:
@@ -57,7 +69,8 @@ class CocktailOfTheWeekSearchCommand(AbstractCommand):
             return cocktail_list
 
         except:
-            return "FAILED"
+            logger.exception("Error - Cocktail of the week - get_cocktails_in_collection for: " + collection_name)
+            return None
 
     def get_cocktail_details(self, cocktail) -> Cocktail:
         try:
@@ -75,7 +88,7 @@ class CocktailOfTheWeekSearchCommand(AbstractCommand):
             logger.exception("Error - Cocktail of the week - get_cocktail_details for: " + cocktail.name)
             return None
 
-    def get_cocktail_ingredients(self, json_response):
+    def get_cocktail_ingredients(self, json_response) -> []:
         ingredients = []
         try:
             for ingredient in json_response["cocktail"]["ingredients"]["items"]:
@@ -85,7 +98,7 @@ class CocktailOfTheWeekSearchCommand(AbstractCommand):
         except:
             return ingredients
 
-    def get_cocktail_instructions(self, json_response):
+    def get_cocktail_instructions(self, json_response) -> []:
         instructions = []
         try:
             preparation_step_list = json_response["cocktail"]["preparationSteps"]["items"]
@@ -97,6 +110,7 @@ class CocktailOfTheWeekSearchCommand(AbstractCommand):
 
                 if step_words.count(',') > 0:
                     # Replace the last comma with 'and'
+                    # What are you doing step_words?!
                     step_words = ",".join(step_words.split(",")[:-1]) + " and " + step_words.split(",")[-1]
 
                 instructions.append(step_words)
