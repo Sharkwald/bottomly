@@ -75,6 +75,12 @@ class AbstractEventHandler(ABC):
     def _send_message_response(self, response_message, slack_event):
         self._slack_message_broker.send_message(response_message, slack_event["channel"])
 
+    def _send_message_response(self, response_message, slack_event, as_reply):
+        reply_ts = ""
+        if as_reply:
+            reply_ts = slack_event["ts"]
+        self._slack_message_broker.send_message(response_message, slack_event["channel"], reply_ts)
+
     def _send_reaction_response(self, slack_event):
         self._slack_message_broker.send_reaction(slack_event)
 
