@@ -41,7 +41,10 @@ class TestUrbanEventHandler(unittest.TestCase):
     def test_command_result_is_correctly_built(self, response_method, execute_method, config_method, prefix_method):
         handler = UrbanEventHandler()
         handler.handle(valid_event)
-        response_method.assert_called_once_with(urban_response, valid_event)
+        response_method.assert_called_once_with(
+            response_message=urban_response,
+            slack_event=valid_event,
+            as_reply=True)
 
     @patch.object(UrbanSearchCommand, "execute", return_value=None)
     @patch.object(UrbanEventHandler, "_send_message_response")
@@ -49,7 +52,10 @@ class TestUrbanEventHandler(unittest.TestCase):
         handler = UrbanEventHandler()
         handler.handle(valid_event)
         empty_results_message = "Left as an exercise for the reader."
-        response_method.assert_called_once_with(empty_results_message, valid_event)
+        response_method.assert_called_once_with(
+            response_message=empty_results_message,
+            slack_event=valid_event,
+            as_reply=True)
 
     @patch.object(UrbanSearchCommand, "get_purpose", return_value="Urbans")
     @patch.object(UrbanEventHandler, "_send_message_response")

@@ -72,10 +72,7 @@ class AbstractEventHandler(ABC):
         usage = "Usage: `" + self.get_usage() + "`"
         return name + purpose + usage
 
-    def _send_message_response(self, response_message, slack_event):
-        self._slack_message_broker.send_message(response_message, slack_event["channel"])
-
-    def _send_message_response(self, response_message, slack_event, as_reply):
+    def _send_message_response(self, response_message, slack_event, as_reply=False):
         reply_ts = ""
         if as_reply:
             reply_ts = slack_event["ts"]
