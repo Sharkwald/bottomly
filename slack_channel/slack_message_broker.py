@@ -18,14 +18,14 @@ class SlackMessageBroker(object):
         except SlackApiError:
             logging.exception("Error sending reaction to: " + str(slack_event_to_react_to))
 
-    def send_message(self, message_text, channel):
+    def send_message(self, message_text, channel, in_reply_to_ts=None):
         if message_text is None or message_text == "":
             return
         if self.debug:
             message_text = f"[{self.environment}] {message_text}"
         try:
             client = WebClient(token=self.token)
-            msg_response = client.chat_postMessage(channel=channel, text=message_text)
+            msg_response = client.chat_postMessage(channel=channel, thread_ts=in_reply_to_ts, text=message_text)
             logging.info("Sent message: " + str(msg_response) + ", to channel: " + channel)
         except SlackApiError:
             logging.exception("Error sending message response to: " + channel)

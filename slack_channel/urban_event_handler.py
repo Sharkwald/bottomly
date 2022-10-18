@@ -27,9 +27,15 @@ class UrbanEventHandler(AbstractEventHandler):
         q = slack_event["text"][len(self.command_trigger):]
         response_message = self.command.execute(q)
         if response_message is None:
-            self._send_message_response(empty_result_message, slack_event)
+            self._send_message_response(
+                response_message=empty_result_message,
+                slack_event=slack_event,
+                as_reply=True)
         else:
-            self._send_message_response(response_message, slack_event)
+            self._send_message_response(
+                response_message=response_message, 
+                slack_event=slack_event,
+                as_reply=True)
 
     def _get_command_symbol(self):
         return command_symbol
