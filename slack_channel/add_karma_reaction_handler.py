@@ -1,5 +1,5 @@
 import logging
-from model.karma import Karma, KarmaType
+from model.karma import KarmaType
 
 from commands import AddKarmaCommand
 from slack_channel.abstract_reaction_handler import AbstractReactionHandler
@@ -21,7 +21,10 @@ _karma_reactions = {
     "party_parrot": KarmaType.POZZYPOZ,
     "poop": KarmaType.NEGGYNEG,
     "shit": KarmaType.NEGGYNEG,
-    "hankey": KarmaType.NEGGYNEG
+    "hankey": KarmaType.NEGGYNEG,
+    "heavy_plus_sign": KarmaType.POZZYPOZ,
+    "heavy_tick": KarmaType.POZZYPOZ,
+    "heavy_minus_sign": KarmaType.NEGGYNEG
 }
 
 class AddKarmaReactionHandler(AbstractReactionHandler):
