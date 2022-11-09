@@ -1,8 +1,8 @@
 import unittest
+
 from commands.release import ReleaseCommand
 
-
-class TestUrbanSearchCommand(unittest.TestCase):
+class TestReleaseCommand(unittest.TestCase):
     def test_empty_input(self):
         command = ReleaseCommand()
         result = command.execute()
