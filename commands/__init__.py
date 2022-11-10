@@ -13,3 +13,4 @@ from .get_loser_board import GetLoserBoardCommand
 from .void_command import VoidCommand
 from .google_image_search import GoogleImageSearchCommand
 from .cocktail_of_the_week_search import CocktailOfTheWeekSearchCommand
+from .release import ReleaseCommand

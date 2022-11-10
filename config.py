@@ -11,6 +11,7 @@ class ConfigKeys(Enum):
     prefix = "bottomly_prefix"
     giphy_api_key = "bottomly_giphy_api_key"
     env_key = "bottomly_env"
+    github_token = "bottomly_github_token"
 
 
 class Config(object):
@@ -24,7 +25,8 @@ class Config(object):
         ConfigKeys.slack_bot_token: 'Slack bot auth token is not configured',
         ConfigKeys.prefix: "Standard command prefix is not configured",
         ConfigKeys.giphy_api_key: "Giphy API key is not configured",
-        ConfigKeys.env_key: "Environment mode is not configured"
+        ConfigKeys.env_key: "Environment mode is not configured",
+        ConfigKeys.github_token: "Github token is not configured"
     }
 
     # Functions
