@@ -43,5 +43,6 @@ jobs:
         bottomly_prefix: _
         bottomly_env: test
         bottomly_mongo_conn_str: ${{ secrets.MONGO_CONN_STR }}
+        bottomly_github_token: ${{ secrets.RELEASE_HISTORY_TOKEN }}
       run: |
         pytest
