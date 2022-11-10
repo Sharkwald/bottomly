@@ -17,7 +17,7 @@ class ReleaseCommand(AbstractCommand):
             release_desc = f'Latest Release: *{release.title}* v{release.tag_name}'
             release_desc += f'\n_Published at {release.published_at}_'
             if len(release.body) > 0:
-                release += f'\n{release.body}'
+                release_desc += f'\n{release.body}'
             return release_desc
         except Exception as ex:
             logging.exception('Error retrieving release info from Github: ' + str(ex))
