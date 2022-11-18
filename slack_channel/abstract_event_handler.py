@@ -42,6 +42,9 @@ class AbstractEventHandler(ABC):
     def get_usage(self) -> str:
         pass
 
+    def get_usage_addendum(self) -> str:
+        return ""
+
     @property
     def _help_message(self):
         return self.command_trigger + help_token
@@ -69,8 +72,9 @@ class AbstractEventHandler(ABC):
         purpose = ""
         if self.command is not None:
             purpose = self.command.get_purpose() + os.linesep
-        usage = "Usage: `" + self.get_usage() + "`"
-        return name + purpose + usage
+        usage = f"Usage: `{self.get_usage()}`"
+        addendum = self.get_usage_addendum()
+        return name + purpose + usage + addendum
 
     def _send_message_response(self, response_message, slack_event, as_reply=False):
         reply_ts = ""

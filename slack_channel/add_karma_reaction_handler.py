@@ -1,5 +1,4 @@
 import logging
-from model.karma import KarmaType
 
 from commands import AddKarmaCommand
 from slack_channel.abstract_reaction_handler import AbstractReactionHandler
