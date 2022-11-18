@@ -78,8 +78,10 @@ class AbstractEventHandler(ABC):
 
     def _send_message_response(self, response_message, slack_event, as_reply=False):
         reply_ts = ""
-        if as_reply:
+        if as_reply: # Force reply in thread
             reply_ts = slack_event["ts"]
+        if "thread_ts" in slack_event: # We're already in a thread so stay there
+            reply_ts = slack_event["thread_ts"]
         self._slack_message_broker.send_message(response_message, slack_event["channel"], reply_ts)
 
     def _send_reaction_response(self, slack_event):
