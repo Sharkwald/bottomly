@@ -113,8 +113,9 @@ class TestGetCurrentNetKarmaEventHandler(unittest.TestCase):
         handler.handle(help_event)
         expected_help = "Get Current Karma" + os.linesep + \
                         "GetCurrentNetKarma"+ os.linesep +\
-                        "Usage: `" + test_prefix + "karma [recipient <if blank, will default to you>]`"
+                        "Usage: `" + test_prefix + "karma [recipient <if blank, will default to you>]`" +\
+                        handler.get_usage_addendum()
         response_method.assert_called_once_with(expected_help, help_event)
-
+        
     if __name__ == '__main__':
         unittest.main()

@@ -1,4 +1,7 @@
-from commands import GetCurrentNetKarmaCommand
+import os
+
+from commands import GetCurrentNetKarmaCommand, AddKarmaCommand
+from model.karma import KarmaType
 from slack_channel.abstract_event_handler import AbstractEventHandler
 from slack_channel.slack_parser import SlackParser
 
@@ -20,6 +23,17 @@ class GetCurrentNetKarmaEventHandler(AbstractEventHandler):
 
     def get_usage(self):
         return self.command_trigger + "[recipient <if blank, will default to you>]"
+
+    def get_usage_addendum(self):
+        karma_reactions = AddKarmaCommand.get_karma_reactions()
+        karma_descriptions = {
+            KarmaType.POZZYPOZ: "PozzyPoz",
+            KarmaType.NEGGYNEG: "NeggyNeg"
+        }
+        response = f"{os.linesep}Giving Karma with reactions: {os.linesep}"
+        for reaction_key in karma_reactions.keys():
+            response += f":{reaction_key}: will {karma_descriptions[karma_reactions[reaction_key]]}{os.linesep}"
+        return response
 
     def can_handle(self, slack_event):
         text = slack_event["text"]
