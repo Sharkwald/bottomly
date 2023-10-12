@@ -134,6 +134,24 @@ class TestKarma(unittest.TestCase):
         # Assert
         self.assertEqual(1, current_karma)
 
+    def test_get_historical_karma_with_expired(self):
+        # Arrange
+        newly_awarded = datetime.today()
+        award_ages_ago = datetime.today() - timedelta(days=31)
+        at = datetime.today() - timedelta(days=2)
+        new_karma = create_karma(awarded=newly_awarded)
+        other_new_karma = create_karma(awarded=newly_awarded)
+        old_karma = create_karma(awarded=award_ages_ago)
+        new_karma.save()
+        other_new_karma.save()
+        old_karma.save()
+
+        # Act
+        current_karma = Karma.get_historical_net_karma_for_recipient(test_recipient, at)
+
+        # Assert
+        self.assertEqual(1, current_karma)
+
     def test_get_current_karma_with_net(self):
         # Arrange
         karma_to_save = default_karma_list()

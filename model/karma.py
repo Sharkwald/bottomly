@@ -18,7 +18,7 @@ class KarmaType(Enum):
 class Karma(MongoModel):
 
     @staticmethod
-    def _get_current_net_karma(**kwargs) -> list:
+    def _get_net_karma(**kwargs) -> list:
         # aggregate defaults
         projection = {"$project": {"_id": "$_id", "recipient": {"$toLower": "$awarded_to_username"},
                                    "net_karma": {"$cond": [{"$eq": ["$karma_type", str(KarmaType.POZZYPOZ)]}, 1, -1]},
@@ -35,6 +35,9 @@ class Karma(MongoModel):
             sort["$sort"]["net_karma"] = 1
         if "limit" in kwargs:
             limit = int(kwargs["limit"])
+        if "at" in kwargs:
+            parsed_at = kwargs["at"]
+            match["$match"]["awarded"] = {'$lte': parsed_at,'$gt': _get_cut_off_date(parsed_at)}
 
         # execution
         query_set = Karma.objects.aggregate(projection,
@@ -46,15 +49,23 @@ class Karma(MongoModel):
 
     @staticmethod
     def get_leader_board(size: int=3) -> list:
-        return Karma._get_current_net_karma(limit=size)
+        return Karma._get_net_karma(limit=size)
 
     @staticmethod
     def get_loser_board(size: int=3) -> list:
-        return Karma._get_current_net_karma(limit=size, sort="asc")
+        return Karma._get_net_karma(limit=size, sort="asc")
 
     @staticmethod
     def get_current_net_karma_for_recipient(recipient: str) -> int:
-        net_karma_results = Karma._get_current_net_karma(recipient=recipient)
+        net_karma_results = Karma._get_net_karma(recipient=recipient)
+        if len(net_karma_results) == 0:
+            return 0
+        recipient_net_karma = net_karma_results[0]
+        return recipient_net_karma["net_karma"]
+
+    @staticmethod
+    def get_historical_net_karma_for_recipient(recipient: str, at: datetime) -> int:
+        net_karma_results = Karma._get_net_karma(recipient=recipient, at=at)
         if len(net_karma_results) == 0:
             return 0
         recipient_net_karma = net_karma_results[0]
@@ -105,5 +116,5 @@ class Karma(MongoModel):
         connection_alias = Config.Connection
 
 
-def _get_cut_off_date() -> datetime:
-    return datetime.today() - timedelta(days=karma_expiry_days)
+def _get_cut_off_date(at: datetime=datetime.today()) -> datetime:
+    return at - timedelta(days=karma_expiry_days)
