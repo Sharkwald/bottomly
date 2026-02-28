@@ -1,7 +1,9 @@
-using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Configuration;
 using Projects;
 
 var builder = DistributedApplication.CreateBuilder(args);
+
+builder.Configuration.AddUserSecrets<Bottomly>();
 
 var mongo = builder.AddMongoDB("mongo")
     .WithLifetime(ContainerLifetime.Persistent);

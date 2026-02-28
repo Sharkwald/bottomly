@@ -1,9 +1,10 @@
 <Solution>
-  <Folder Name="/RepoConfig/">
-    <File Path=".editorconfig" />
-    <File Path=".gitignore" />
-  </Folder>
-  <Project Path="Bottomly.AppHost/Bottomly.AppHost.csproj" />
-  <Project Path="Bottomly.ServiceDefaults/Bottomly.ServiceDefaults.csproj" />
-  <Project Path="Bottomly/Bottomly.csproj" />
+    <Folder Name="/RepoConfig/">
+        <File Path=".editorconfig"/>
+        <File Path=".gitignore"/>
+    </Folder>
+    <Project Path="Bottomly.AppHost/Bottomly.AppHost.csproj"/>
+    <Project Path="Bottomly.ServiceDefaults/Bottomly.ServiceDefaults.csproj"/>
+    <Project Path="Bottomly.Tests/Bottomly.Tests.csproj"/>
+    <Project Path="Bottomly/Bottomly.csproj"/>
 </Solution>
