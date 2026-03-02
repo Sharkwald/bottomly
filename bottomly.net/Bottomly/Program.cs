@@ -4,7 +4,6 @@ using Bottomly.Configuration;
 using Bottomly.Repositories;
 using Bottomly.Slack;
 using Bottomly.Slack.EventHandlers;
-using Bottomly.Slack.EventHandlers.KarmaEventHandlers;
 using Bottomly.Slack.ReactionHandlers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -88,29 +87,17 @@ public static class HostBuilderExtensions
 {
     extension(HostApplicationBuilder builder)
     {
-        public void RegisterEventHandlers(Assembly assembly)
-        {
-            var handlerTypes = assembly.GetTypes()
+        public void RegisterEventHandlers(Assembly assembly) =>
+            assembly.GetTypes()
                 .Where(t => typeof(IEventHandler).IsAssignableFrom(t) && t is { IsInterface: false, IsAbstract: false })
                 .Where(t => t.Name != nameof(HelpEventHandler))
-                .ToList();
+                .ToList()
+                .ForEach(t => builder.Services.AddSingleton(typeof(IEventHandler), t));
 
-            foreach (var handlerType in handlerTypes)
-            {
-                builder.Services.AddSingleton(typeof(IEventHandler), handlerType);
-            }
-        }
-
-        public void RegisterCommands(Assembly assembly)
-        {
-            var commandTypes = assembly.GetTypes()
+        public void RegisterCommands(Assembly assembly) =>
+            assembly.GetTypes()
                 .Where(t => typeof(ICommand).IsAssignableFrom(t) && t is { IsInterface: false, IsAbstract: false })
-                .ToList();
-
-            foreach (var commandType in commandTypes)
-            {
-                builder.Services.AddSingleton(commandType);
-            }
-        }
+                .ToList()
+                .ForEach(t => builder.Services.AddSingleton(t));
     }
 }
