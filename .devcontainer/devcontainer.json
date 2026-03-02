@@ -40,7 +40,8 @@
 				"ms-python.python",
 				"ms-python.vscode-pylance",
 				"ms-azuretools.vscode-docker",
-				"eamodio.gitlens"
+				"eamodio.gitlens",
+				"kuscamara.yamllint-fix"
 			]
 		}
 	},
