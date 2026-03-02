@@ -6,7 +6,7 @@ slackclient==1.1.3
 requests>=2.20.0
 websocket-client==0.48.0
 slacksocket==1.0.0
-slack-sdk==3.4.0
+slack-sdk==3.13.0
 beautifulsoup4==4.7.1
 soupsieve==1.9
 dnspython==1.16.0
