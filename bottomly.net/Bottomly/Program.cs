@@ -8,6 +8,7 @@ using Bottomly.Slack.ReactionHandlers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using SlackNet.Events;
@@ -74,6 +75,7 @@ var slackAppToken = builder.Configuration["bottomly_slack_app_token"] ?? string.
 builder.Services.AddSlackNet(c => c
     .UseApiToken(slackBotToken)
     .UseAppLevelToken(slackAppToken)
+    .RegisterSlashCommandHandler<PingSlashCommandHandler>("/ping")
     .RegisterEventHandler<MessageEvent, SlackMessageEventDispatcher>()
     .RegisterEventHandler<ReactionAdded, SlackReactionEventDispatcher>());
 
@@ -91,6 +93,7 @@ builder.Services.AddSingleton<IEventHandler, RegEventHandler>();
 builder.Services.AddSingleton<IEventHandler, ReleaseEventHandler>();
 builder.Services.AddSingleton<IEventHandler, IncrementKarmaEventHandler>();
 builder.Services.AddSingleton<IEventHandler, DecrementKarmaEventHandler>();
+builder.Services.AddSingleton<IEventHandler, TestEventHandler>();
 
 // Help handler (also registered as singleton for direct injection into SlackWorker)
 builder.Services.AddSingleton<HelpEventHandler>();
@@ -104,4 +107,10 @@ builder.Services.AddSingleton<SlackMessageEventDispatcher>();
 builder.Services.AddSingleton<SlackReactionEventDispatcher>();
 builder.Services.AddHostedService(sp => sp.GetRequiredService<SlackWorker>());
 
-builder.Build().Run();
+var app = builder.Build();
+
+var logger = app.Services.GetRequiredService<ILogger<Program>>();
+
+logger.LogInformation("Starting Bottomly...");
+
+await app.RunAsync();

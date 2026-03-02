@@ -21,11 +21,18 @@ public class SlackWorker(
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        logger.LogInformation("Starting Slack Socket Mode connection...");
+        try
+        {
+            logger.LogInformation("Starting Slack Socket Mode connection...");
 
-        await socketClient.Connect(new SocketModeConnectionOptions(), stoppingToken);
+            await socketClient.Connect(new SocketModeConnectionOptions(), stoppingToken);
 
-        logger.LogInformation("Connected to Slack.");
+            logger.LogInformation("Connected to Slack.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error connecting to Slack.");
+        }
 
         // Keep alive until cancellation
         await Task.Delay(Timeout.Infinite, stoppingToken);

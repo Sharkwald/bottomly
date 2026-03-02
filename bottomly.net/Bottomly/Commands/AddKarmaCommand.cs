@@ -7,7 +7,7 @@ public class AddKarmaCommand(IKarmaRepository karmaRepository) : ICommand
 {
     public string GetPurpose() => "Awards an imaginary internet point to someone/something.";
 
-    public async Task<Karma> ExecuteAsync(string awardedTo, string awardedBy, string reason, KarmaType karmaType)
+    public async Task<Karma?> ExecuteAsync(string awardedTo, string awardedBy, string reason, KarmaType karmaType)
     {
         if (karmaType == KarmaType.PozzyPoz && awardedBy.Equals(awardedTo, StringComparison.OrdinalIgnoreCase))
         {
