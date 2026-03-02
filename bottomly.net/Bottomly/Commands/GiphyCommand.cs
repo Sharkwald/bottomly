@@ -8,7 +8,7 @@ public class GiphyCommand(IHttpClientFactory httpClientFactory, IOptions<Bottoml
     : ICommand
 {
     private readonly string _apiKey = options.Value.GiphyApiKey;
-    private readonly HttpClient _httpClient = httpClientFactory.CreateClient();
+    private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
 
     public string GetPurpose() => "Uses Giphy to find a gif matching the given search term";
 
@@ -21,7 +21,8 @@ public class GiphyCommand(IHttpClientFactory httpClientFactory, IOptions<Bottoml
 
         var url =
             $"http://api.giphy.com/v1/gifs/translate?limit=1&api_key={_apiKey}&s={Uri.EscapeDataString(searchTerm)}";
-        var response = await _httpClient.GetAsync(url);
+        var httpClient = _httpClientFactory.CreateClient();
+        var response = await httpClient.GetAsync(url);
         response.EnsureSuccessStatusCode();
 
         using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());

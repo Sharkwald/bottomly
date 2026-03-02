@@ -1,5 +1,8 @@
 # .NET and Visual Studio .gitignore
 
+# Planning documents
+.plans/
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/

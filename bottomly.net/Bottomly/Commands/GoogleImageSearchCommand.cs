@@ -5,22 +5,28 @@ using Microsoft.Extensions.Options;
 
 namespace Bottomly.Commands;
 
-public sealed class GoogleImageSearchCommand(IOptions<BottomlyOptions> options) : ICommand
+public class GoogleImageSearchCommand : ICommand
 {
-    private readonly string _apiKey = options.Value.GoogleApiKey;
-    private readonly string _cseId = options.Value.GoogleCseId;
+    private readonly CustomSearchAPIService _service;
+    private readonly string _cseId;
+
+    public GoogleImageSearchCommand(IOptions<BottomlyOptions> options)
+    {
+        _cseId = options.Value.GoogleCseId;
+        _service = new CustomSearchAPIService(
+            new BaseClientService.Initializer { ApiKey = options.Value.GoogleApiKey });
+    }
 
     public string GetPurpose() => "Performs a google image search and returns the top hit.";
 
-    public async Task<GoogleSearchResult?> ExecuteAsync(string searchTerm)
+    public virtual async Task<GoogleSearchResult?> ExecuteAsync(string searchTerm)
     {
         if (string.IsNullOrWhiteSpace(searchTerm))
         {
             return null;
         }
 
-        var service = new CustomSearchAPIService(new BaseClientService.Initializer { ApiKey = _apiKey });
-        var request = service.Cse.List();
+        var request = _service.Cse.List();
         request.Q = searchTerm;
         request.Cx = _cseId;
         request.Num = 1;

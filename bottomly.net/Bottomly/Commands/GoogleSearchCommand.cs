@@ -7,10 +7,17 @@ namespace Bottomly.Commands;
 
 public record GoogleSearchResult(string Title, string Link);
 
-public class GoogleSearchCommand(IOptions<BottomlyOptions> options) : ICommand
+public class GoogleSearchCommand : ICommand
 {
-    private readonly string _apiKey = options.Value.GoogleApiKey;
-    private readonly string _cseId = options.Value.GoogleCseId;
+    private readonly CustomSearchAPIService _service;
+    private readonly string _cseId;
+
+    public GoogleSearchCommand(IOptions<BottomlyOptions> options)
+    {
+        _cseId = options.Value.GoogleCseId;
+        _service = new CustomSearchAPIService(
+            new BaseClientService.Initializer { ApiKey = options.Value.GoogleApiKey });
+    }
 
     public string GetPurpose() => "Performs a google search and returns the top hit.";
 
@@ -21,8 +28,7 @@ public class GoogleSearchCommand(IOptions<BottomlyOptions> options) : ICommand
             return null;
         }
 
-        var service = new CustomSearchAPIService(new BaseClientService.Initializer { ApiKey = _apiKey });
-        var request = service.Cse.List();
+        var request = _service.Cse.List();
         request.Q = searchTerm;
         request.Cx = _cseId;
         request.Num = 1;

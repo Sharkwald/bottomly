@@ -6,7 +6,7 @@ public record WikipediaResult(string Text, string Link);
 
 public class WikipediaSearchCommand(IHttpClientFactory httpClientFactory) : ICommand
 {
-    private readonly HttpClient _httpClient = httpClientFactory.CreateClient();
+    private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
 
     public string GetPurpose() => "Performs a wikipedia search and returns the top hit.";
 
@@ -19,7 +19,8 @@ public class WikipediaSearchCommand(IHttpClientFactory httpClientFactory) : ICom
 
         var url =
             $"https://en.wikipedia.org/w/api.php?action=opensearch&format=json&search={Uri.EscapeDataString(searchTerm)}";
-        var response = await _httpClient.GetAsync(url);
+        var httpClient = _httpClientFactory.CreateClient();
+        var response = await httpClient.GetAsync(url);
         response.EnsureSuccessStatusCode();
 
         using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
