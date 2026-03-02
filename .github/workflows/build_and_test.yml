@@ -38,10 +38,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python 3.9
+    - name: Set up Python 3.11.4
       uses: actions/setup-python@v2
       with:
-        python-version: 3.9
+        python-version: 3.11.4
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -59,6 +59,7 @@ jobs:
         bottomly_google_api_key: ${{ secrets.GOOGLE_API_KEY }}
         bottomly_google_cse_id: ${{ secrets.GOOGLE_CSE_ID }}
         bottomly_slack_bot_token: ${{ secrets.SLACK_TOKEN }}
+        bottomly_slack_app_token: ${{ secrets.SLACK_APP_TOKEN }}
         bottomly_prefix: _
         bottomly_env: test
         bottomly_mongo_conn_str: ${{ secrets.MONGO_CONN_STR }}
