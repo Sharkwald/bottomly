@@ -1,3 +1,4 @@
+using System.Reflection;
 using Bottomly.Commands;
 using Bottomly.Configuration;
 using Bottomly.Repositories;
@@ -50,18 +51,7 @@ builder.Services.AddSingleton<IKarmaRepository, KarmaRepository>();
 builder.Services.AddSingleton<IMemberRepository, MemberRepository>();
 
 // Commands
-builder.Services.AddSingleton<AddKarmaCommand>();
-builder.Services.AddSingleton<GetCurrentNetKarmaCommand>();
-builder.Services.AddSingleton<GetCurrentKarmaReasonsCommand>();
-builder.Services.AddSingleton<GetLeaderBoardCommand>();
-builder.Services.AddSingleton<GetLoserBoardCommand>();
-builder.Services.AddSingleton<GoogleSearchCommand>();
-builder.Services.AddSingleton<GoogleImageSearchCommand>();
-builder.Services.AddSingleton<GiphyCommand>();
-builder.Services.AddSingleton<UrbanSearchCommand>();
-builder.Services.AddSingleton<WikipediaSearchCommand>();
-builder.Services.AddSingleton<RegSearchCommand>();
-builder.Services.AddSingleton<ReleaseCommand>();
+builder.RegisterCommands(Assembly.GetExecutingAssembly());
 
 // Slack infrastructure
 builder.Services.AddSingleton<SlackParser>();
@@ -78,19 +68,7 @@ builder.Services.AddSlackNet(c => c
     .RegisterEventHandler<ReactionAdded, SlackReactionEventDispatcher>());
 
 // Event handlers (registered for IEventHandler collection, excluding Help which is separate)
-builder.Services.AddSingleton<IEventHandler, GoogleEventHandler>();
-builder.Services.AddSingleton<IEventHandler, GoogleImageEventHandler>();
-builder.Services.AddSingleton<IEventHandler, UrbanEventHandler>();
-builder.Services.AddSingleton<IEventHandler, WikipediaEventHandler>();
-builder.Services.AddSingleton<IEventHandler, GiphyEventHandler>();
-builder.Services.AddSingleton<IEventHandler, GetCurrentNetKarmaEventHandler>();
-builder.Services.AddSingleton<IEventHandler, GetCurrentKarmaReasonsEventHandler>();
-builder.Services.AddSingleton<IEventHandler, GetLeaderBoardEventHandler>();
-builder.Services.AddSingleton<IEventHandler, GetLoserBoardEventHandler>();
-builder.Services.AddSingleton<IEventHandler, RegEventHandler>();
-builder.Services.AddSingleton<IEventHandler, ReleaseEventHandler>();
-builder.Services.AddSingleton<IEventHandler, IncrementKarmaEventHandler>();
-builder.Services.AddSingleton<IEventHandler, DecrementKarmaEventHandler>();
+builder.RegisterEventHandlers(Assembly.GetExecutingAssembly());
 
 // Help handler (also registered as singleton for direct injection into SlackWorker)
 builder.Services.AddSingleton<HelpEventHandler>();
@@ -105,3 +83,34 @@ builder.Services.AddSingleton<SlackReactionEventDispatcher>();
 builder.Services.AddHostedService(sp => sp.GetRequiredService<SlackWorker>());
 
 builder.Build().Run();
+
+public static class HostBuilderExtensions
+{
+    extension(HostApplicationBuilder builder)
+    {
+        public void RegisterEventHandlers(Assembly assembly)
+        {
+            var handlerTypes = assembly.GetTypes()
+                .Where(t => typeof(IEventHandler).IsAssignableFrom(t) && t is { IsInterface: false, IsAbstract: false })
+                .Where(t => t.Name != nameof(HelpEventHandler))
+                .ToList();
+
+            foreach (var handlerType in handlerTypes)
+            {
+                builder.Services.AddSingleton(typeof(IEventHandler), handlerType);
+            }
+        }
+
+        public void RegisterCommands(Assembly assembly)
+        {
+            var commandTypes = assembly.GetTypes()
+                .Where(t => typeof(ICommand).IsAssignableFrom(t) && t is { IsInterface: false, IsAbstract: false })
+                .ToList();
+
+            foreach (var commandType in commandTypes)
+            {
+                builder.Services.AddSingleton(commandType);
+            }
+        }
+    }
+}

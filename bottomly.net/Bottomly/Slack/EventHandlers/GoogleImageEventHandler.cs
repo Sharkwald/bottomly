@@ -16,10 +16,7 @@ public class GoogleImageEventHandler(
     public override string Name => "Google Image";
     public override ICommand Command => command;
     protected override string CommandSymbol => "gi";
-    public override string GetUsage() => CommandTrigger + "<query>";
-
-    public override bool CanHandle(MessageEvent message) =>
-        message.Text?.StartsWith(CommandTrigger) == true;
+    protected override string GetUsage() => CommandTrigger + "<query>";
 
     protected override async Task InvokeHandlerLogicAsync(MessageEvent message)
     {

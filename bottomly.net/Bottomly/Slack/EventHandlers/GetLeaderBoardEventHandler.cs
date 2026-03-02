@@ -17,10 +17,7 @@ public class GetLeaderBoardEventHandler(
     public override string Name => "Get Leaderboard";
     public override ICommand Command => command;
     protected override string CommandSymbol => "leaderboard";
-    public override string GetUsage() => CommandTrigger + "[size of leaderboard. Default is 3]";
-
-    public override bool CanHandle(MessageEvent message) =>
-        message.Text?.StartsWith(CommandTrigger.TrimEnd()) == true;
+    protected override string GetUsage() => CommandTrigger + "[size of leaderboard. Default is 3]";
 
     protected override async Task InvokeHandlerLogicAsync(MessageEvent message)
     {

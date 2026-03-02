@@ -20,7 +20,7 @@ public class HelpEventHandler(
     public override ICommand? Command => null;
     protected override string CommandSymbol => HelpSymbols[0];
 
-    public override string GetUsage()
+    protected override string GetUsage()
     {
         var parts = HelpSymbols.Select(s => $"`{Prefix}{s}`");
         return string.Join(" or ", parts);

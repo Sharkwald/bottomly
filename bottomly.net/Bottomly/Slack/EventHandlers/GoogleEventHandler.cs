@@ -16,10 +16,7 @@ public class GoogleEventHandler(
     public override string Name => "Google";
     public override ICommand Command => command;
     protected override string CommandSymbol => "g";
-    public override string GetUsage() => CommandTrigger + "<query>";
-
-    public override bool CanHandle(MessageEvent message) =>
-        message.Text?.StartsWith(CommandTrigger) == true;
+    protected override string GetUsage() => CommandTrigger + "<query>";
 
     protected override async Task InvokeHandlerLogicAsync(MessageEvent message)
     {

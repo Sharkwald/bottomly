@@ -16,10 +16,7 @@ public class ReleaseEventHandler(
     public override string Name => "Release";
     public override ICommand Command => command;
     protected override string CommandSymbol => "release";
-    public override string GetUsage() => CommandTrigger.TrimEnd();
-
-    public override bool CanHandle(MessageEvent message) =>
-        message.Text?.StartsWith(CommandTrigger.TrimEnd()) == true;
+    protected override string GetUsage() => CommandTrigger.TrimEnd();
 
     protected override async Task InvokeHandlerLogicAsync(MessageEvent message)
     {

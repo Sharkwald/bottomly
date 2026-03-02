@@ -20,10 +20,7 @@ public class GetCurrentKarmaReasonsEventHandler(
     public override string Name => "Karma Reasons";
     public override ICommand Command => command;
     protected override string CommandSymbol => "reasons";
-    public override string GetUsage() => CommandTrigger + "[recipient <if blank, will default to you>]";
-
-    public override bool CanHandle(MessageEvent message) =>
-        message.Text?.StartsWith(CommandTrigger.TrimEnd()) == true;
+    protected override string GetUsage() => CommandTrigger + "[recipient <if blank, will default to you>]";
 
     protected override async Task InvokeHandlerLogicAsync(MessageEvent message)
     {

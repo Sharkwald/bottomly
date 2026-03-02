@@ -19,7 +19,7 @@ public class GetCurrentNetKarmaEventHandler(
     public override string Name => "Get Current Karma";
     public override ICommand Command => command;
     protected override string CommandSymbol => "karma";
-    public override string GetUsage() => CommandTrigger + "[recipient <if blank, will default to you>]";
+    protected override string GetUsage() => CommandTrigger + "[recipient <if blank, will default to you>]";
 
     public override string GetUsageAddendum()
     {
@@ -32,9 +32,6 @@ public class GetCurrentNetKarmaEventHandler(
 
         return lines.ToString();
     }
-
-    public override bool CanHandle(MessageEvent message) =>
-        message.Text?.StartsWith(CommandTrigger.TrimEnd()) == true;
 
     protected override async Task InvokeHandlerLogicAsync(MessageEvent message)
     {

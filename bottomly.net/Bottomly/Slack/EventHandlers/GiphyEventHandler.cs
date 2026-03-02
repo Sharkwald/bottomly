@@ -16,10 +16,7 @@ public class GiphyEventHandler(
     public override string Name => "Giphy";
     public override ICommand Command => command;
     protected override string CommandSymbol => "gif";
-    public override string GetUsage() => CommandTrigger + "<search term>";
-
-    public override bool CanHandle(MessageEvent message) =>
-        message.Text?.StartsWith(CommandTrigger) == true;
+    protected override string GetUsage() => CommandTrigger + "<search term>";
 
     protected override async Task InvokeHandlerLogicAsync(MessageEvent message)
     {

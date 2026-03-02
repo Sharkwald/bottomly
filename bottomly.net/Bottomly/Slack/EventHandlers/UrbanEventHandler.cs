@@ -16,10 +16,7 @@ public class UrbanEventHandler(
     public override string Name => "Urban Dictionary";
     public override ICommand Command => command;
     protected override string CommandSymbol => "ud";
-    public override string GetUsage() => CommandTrigger + "<term>";
-
-    public override bool CanHandle(MessageEvent message) =>
-        message.Text?.StartsWith(CommandTrigger) == true;
+    protected override string GetUsage() => CommandTrigger + "<term>";
 
     protected override async Task InvokeHandlerLogicAsync(MessageEvent message)
     {

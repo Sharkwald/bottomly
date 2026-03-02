@@ -16,10 +16,7 @@ public class WikipediaEventHandler(
     public override string Name => "Wikipedia";
     public override ICommand Command => command;
     protected override string CommandSymbol => "wik";
-    public override string GetUsage() => CommandTrigger + "<term>";
-
-    public override bool CanHandle(MessageEvent message) =>
-        message.Text?.StartsWith(CommandTrigger) == true;
+    protected override string GetUsage() => CommandTrigger + "<term>";
 
     protected override async Task InvokeHandlerLogicAsync(MessageEvent message)
     {

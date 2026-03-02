@@ -17,10 +17,7 @@ public class GetLoserBoardEventHandler(
     public override string Name => "Get Loserboard";
     public override ICommand Command => command;
     protected override string CommandSymbol => "loserboard";
-    public override string GetUsage() => CommandTrigger + "[size of loserboard. Default is 3]";
-
-    public override bool CanHandle(MessageEvent message) =>
-        message.Text?.StartsWith(CommandTrigger.TrimEnd()) == true;
+    protected override string GetUsage() => CommandTrigger + "[size of loserboard. Default is 3]";
 
     protected override async Task InvokeHandlerLogicAsync(MessageEvent message)
     {

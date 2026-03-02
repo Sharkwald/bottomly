@@ -21,7 +21,7 @@ public abstract class AbstractEventHandler(
     protected abstract string CommandSymbol { get; }
 
     protected string CommandTrigger => Prefix + CommandSymbol + " ";
-    public abstract bool CanHandle(MessageEvent message);
+    public virtual bool CanHandle(MessageEvent message) => message.Text?.StartsWith(CommandTrigger.TrimEnd()) == true;
 
     public async Task HandleAsync(MessageEvent message)
     {
@@ -52,7 +52,7 @@ public abstract class AbstractEventHandler(
     }
 
     protected abstract Task InvokeHandlerLogicAsync(MessageEvent message);
-    public abstract string GetUsage();
+    protected virtual string GetUsage() => CommandTrigger.TrimEnd();
     public virtual string GetUsageAddendum() => string.Empty;
 
     protected virtual bool IsHelpEvent(MessageEvent message) =>

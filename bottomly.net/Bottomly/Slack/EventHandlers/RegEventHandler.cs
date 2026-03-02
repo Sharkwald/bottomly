@@ -16,10 +16,7 @@ public class RegEventHandler(
     public override string Name => "Reg Lookup";
     public override ICommand Command => command;
     protected override string CommandSymbol => "reg";
-    public override string GetUsage() => CommandTrigger + "<registration plate>";
-
-    public override bool CanHandle(MessageEvent message) =>
-        message.Text?.StartsWith(CommandTrigger) == true;
+    protected override string GetUsage() => CommandTrigger + "<registration plate>";
 
     protected override async Task InvokeHandlerLogicAsync(MessageEvent message)
     {
