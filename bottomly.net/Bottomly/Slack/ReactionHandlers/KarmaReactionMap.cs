@@ -5,7 +5,7 @@ namespace Bottomly.Slack.ReactionHandlers;
 
 public class KarmaReactionMap
 {
-    private static IDictionary<string, KarmaType> Map => new Dictionary<string, KarmaType>
+    private Dictionary<string, KarmaType> Map { get; } = new()
     {
         ["+1"] = KarmaType.PozzyPoz,
         ["arrow_up"] = KarmaType.PozzyPoz,
@@ -28,6 +28,7 @@ public class KarmaReactionMap
         ["shit"] = KarmaType.NeggyNeg,
         ["thumbsdown"] = KarmaType.NeggyNeg
     };
+
 
     public bool IsKarmaReaction(string reaction) => Map.ContainsKey(reaction);
 
