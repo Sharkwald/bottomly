@@ -24,7 +24,8 @@ public abstract class AbstractMessageKarmaEventHandler(
     public abstract override string Name { get; }
     protected abstract KarmaType KarmaTypeValue { get; }
 
-    protected override string GetUsage() => CommandSymbol + " recipient [[for <if recipient is not a known user>] reason]";
+    protected override string GetUsage() =>
+        CommandSymbol + " recipient [[for <if recipient is not a known user>] reason]";
 
     protected override bool IsHelpEvent(MessageEvent message) =>
         message.Text?.Trim() == CommandSymbol + " -?";

@@ -7,8 +7,8 @@ namespace Bottomly.Commands;
 
 public class GoogleImageSearchCommand : ICommand
 {
-    private readonly CustomSearchAPIService _service;
     private readonly string _cseId;
+    private readonly CustomSearchAPIService _service;
 
     public GoogleImageSearchCommand(IOptions<BottomlyOptions> options)
     {

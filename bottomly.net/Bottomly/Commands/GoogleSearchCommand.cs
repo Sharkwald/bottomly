@@ -9,8 +9,8 @@ public record GoogleSearchResult(string Title, string Link);
 
 public class GoogleSearchCommand : ICommand
 {
-    private readonly CustomSearchAPIService _service;
     private readonly string _cseId;
+    private readonly CustomSearchAPIService _service;
 
     public GoogleSearchCommand(IOptions<BottomlyOptions> options)
     {
