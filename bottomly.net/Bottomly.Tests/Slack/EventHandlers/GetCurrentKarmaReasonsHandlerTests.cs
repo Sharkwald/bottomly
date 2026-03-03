@@ -1,4 +1,3 @@
-using Bottomly.Commands;
 using Bottomly.Models;
 using Bottomly.Repositories;
 using Bottomly.Slack;
@@ -21,9 +20,8 @@ public class GetCurrentKarmaReasonsHandlerTests
     public GetCurrentKarmaReasonsHandlerTests()
     {
         var options = TestHelpers.CreateOptions();
-        var command = new GetCurrentKarmaReasonsCommand(_mockKarmaRepo.Object);
         var parser = new SlackParser(_mockMemberRepo.Object);
-        _handler = new GetCurrentKarmaReasonsHandler(command, parser, _mockBroker.Object, options,
+        _handler = new GetCurrentKarmaReasonsHandler(_mockKarmaRepo.Object, parser, _mockBroker.Object, options,
             NullLogger<GetCurrentKarmaReasonsHandler>.Instance);
     }
 

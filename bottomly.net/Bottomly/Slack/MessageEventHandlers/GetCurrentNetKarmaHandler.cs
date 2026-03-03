@@ -1,8 +1,6 @@
-using System.Text;
-using Bottomly.Commands;
 using Bottomly.Configuration;
-using Bottomly.Models;
 using Bottomly.Repositories;
+using Bottomly.Slack.ReactionHandlers;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SlackNet.Events;
@@ -11,6 +9,7 @@ namespace Bottomly.Slack.MessageEventHandlers;
 
 public class GetCurrentNetKarmaHandler(
     IKarmaRepository repository,
+    KarmaReactionMap reactionMap,
     SlackParser parser,
     ISlackMessageBroker broker,
     IOptions<BottomlyOptions> options,
@@ -22,19 +21,9 @@ public class GetCurrentNetKarmaHandler(
     protected override string GetUsage() => CommandTrigger + "[recipient <if blank, will default to you>]";
 
     protected override string GetPurpose() =>
-        $"Returns someone's/something's current score of imaginary internet points.{Environment.NewLine}";
+        "Returns someone's/something's current score of imaginary internet points.";
 
-    public override string GetUsageAddendum()
-    {
-        var reactions = AddKarmaCommand.GetKarmaReactions();
-        var lines = new StringBuilder($"{Environment.NewLine}Giving Karma with reactions:{Environment.NewLine}");
-        foreach (var kvp in reactions)
-        {
-            lines.AppendLine($":{kvp.Key}: will {(kvp.Value == KarmaType.PozzyPoz ? "PozzyPoz" : "NeggyNeg")}");
-        }
-
-        return lines.ToString();
-    }
+    public override string GetUsageAddendum() => reactionMap.KarmaReactionDescriptions();
 
     protected override async Task InvokeHandlerLogicAsync(MessageEvent message)
     {

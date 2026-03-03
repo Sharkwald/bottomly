@@ -1,6 +1,6 @@
 using System.Text;
-using Bottomly.Commands;
 using Bottomly.Configuration;
+using Bottomly.Repositories;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SlackNet.Events;
@@ -8,15 +8,15 @@ using SlackNet.Events;
 namespace Bottomly.Slack.MessageEventHandlers;
 
 public class GetLeaderBoardHandler(
-    GetLeaderBoardCommand command,
+    IKarmaRepository repository,
     ISlackMessageBroker broker,
     IOptions<BottomlyOptions> options,
     ILogger<GetLeaderBoardHandler> logger)
     : AbstractMessageEventHandler(broker, options, logger)
 {
     public override string Name => "Get Leaderboard";
-    protected override ICommand Command => command;
     protected override string CommandSymbol => "leaderboard";
+    protected override string GetPurpose() => "Shows the best of the best!";
     protected override string GetUsage() => CommandTrigger + "[size of leaderboard. Default is 3]";
 
     protected override async Task InvokeHandlerLogicAsync(MessageEvent message)
@@ -24,7 +24,7 @@ public class GetLeaderBoardHandler(
         var sizeArg = message.Text![CommandTrigger.Length..];
         var size = int.TryParse(sizeArg, out var parsed) && parsed > 0 ? parsed : 3;
 
-        var result = await command.ExecuteAsync(size);
+        var result = await repository.GetLeaderBoardAsync(size);
         var sb = new StringBuilder();
         foreach (var entry in result)
         {

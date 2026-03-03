@@ -1,4 +1,3 @@
-using Bottomly.Commands;
 using Bottomly.Repositories;
 using Bottomly.Slack;
 using Bottomly.Slack.MessageEventHandlers;
@@ -19,8 +18,7 @@ public class GetLeaderBoardHandlerTests
     public GetLeaderBoardHandlerTests()
     {
         var options = TestHelpers.CreateOptions();
-        var command = new GetLeaderBoardCommand(_mockKarmaRepo.Object);
-        _handler = new GetLeaderBoardHandler(command, _mockBroker.Object, options,
+        _handler = new GetLeaderBoardHandler(_mockKarmaRepo.Object, _mockBroker.Object, options,
             NullLogger<GetLeaderBoardHandler>.Instance);
     }
 

@@ -1,6 +1,7 @@
 using Bottomly.Repositories;
 using Bottomly.Slack;
 using Bottomly.Slack.MessageEventHandlers;
+using Bottomly.Slack.ReactionHandlers;
 using Bottomly.Tests.Helpers;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
@@ -20,7 +21,10 @@ public class GetCurrentNetKarmaHandlerTests
     {
         var options = TestHelpers.CreateOptions();
         var parser = new SlackParser(_mockMemberRepo.Object);
-        _handler = new GetCurrentNetKarmaHandler(_mockKarmaRepo.Object, parser, _mockBroker.Object, options,
+        _handler = new GetCurrentNetKarmaHandler(
+            _mockKarmaRepo.Object,
+            new KarmaReactionMap(), parser,
+            _mockBroker.Object, options,
             NullLogger<GetCurrentNetKarmaHandler>.Instance);
     }
 

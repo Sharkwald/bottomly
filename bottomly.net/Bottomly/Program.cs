@@ -75,6 +75,7 @@ builder.RegisterEventHandlers(Assembly.GetExecutingAssembly());
 builder.Services.AddSingleton<HelpHandler>();
 
 // Reaction handlers
+builder.Services.AddSingleton<KarmaReactionMap>();
 builder.Services.AddSingleton<IReactionHandler, AddKarmaReactionHandler>();
 
 // Membership handlers

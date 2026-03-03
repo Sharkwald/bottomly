@@ -1,4 +1,5 @@
 using Bottomly.Configuration;
+using Bottomly.Repositories;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SlackNet;
@@ -7,6 +8,7 @@ using SlackNet.WebApi;
 namespace Bottomly.Slack;
 
 public class SlackMessageBroker(
+    IMemberRepository repository,
     ISlackApiClient slack,
     IOptions<BottomlyOptions> options,
     ILogger<SlackMessageBroker> logger)
@@ -54,7 +56,7 @@ public class SlackMessageBroker(
         }
     }
 
-    public async Task SendDmAsync(string text, string userSlackId)
+    public async Task SendDmAsync(string text, string username)
     {
         if (string.IsNullOrEmpty(text))
         {
@@ -63,12 +65,13 @@ public class SlackMessageBroker(
 
         try
         {
-            var channelId = await slack.Conversations.Open([userSlackId]);
+            var member = await repository.GetByUsernameAsync(username);
+            var channelId = await slack.Conversations.Open([member!.SlackId]);
             await SendMessageAsync(text, channelId);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error sending DM to user {UserId}", userSlackId);
+            logger.LogError(ex, "Error sending DM to user {UserId}", username);
         }
     }
 }

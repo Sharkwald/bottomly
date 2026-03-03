@@ -1,4 +1,3 @@
-using Bottomly.Commands;
 using Bottomly.Repositories;
 using Bottomly.Slack;
 using Bottomly.Slack.MessageEventHandlers;
@@ -19,8 +18,7 @@ public class GetLoserBoardHandlerTests
     public GetLoserBoardHandlerTests()
     {
         var options = TestHelpers.CreateOptions();
-        var command = new GetLoserBoardCommand(_mockKarmaRepo.Object);
-        _handler = new GetLoserBoardHandler(command, _mockBroker.Object, options,
+        _handler = new GetLoserBoardHandler(_mockKarmaRepo.Object, _mockBroker.Object, options,
             NullLogger<GetLoserBoardHandler>.Instance);
     }
 

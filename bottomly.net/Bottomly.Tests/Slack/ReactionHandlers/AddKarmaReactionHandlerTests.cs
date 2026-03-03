@@ -21,7 +21,11 @@ public class AddKarmaReactionHandlerTests
     public AddKarmaReactionHandlerTests()
     {
         var command = new AddKarmaCommand(_mockKarmaRepo.Object);
-        _handler = new AddKarmaReactionHandler(command, _mockMemberRepo.Object, _mockBroker.Object,
+        _handler = new AddKarmaReactionHandler(
+            command,
+            new KarmaReactionMap(),
+            _mockMemberRepo.Object,
+            _mockBroker.Object,
             NullLogger<AddKarmaReactionHandler>.Instance);
     }
 

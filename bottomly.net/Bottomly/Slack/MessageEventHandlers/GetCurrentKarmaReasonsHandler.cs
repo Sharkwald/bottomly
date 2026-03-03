@@ -1,5 +1,4 @@
 using System.Text;
-using Bottomly.Commands;
 using Bottomly.Configuration;
 using Bottomly.Models;
 using Bottomly.Repositories;
@@ -10,7 +9,7 @@ using SlackNet.Events;
 namespace Bottomly.Slack.MessageEventHandlers;
 
 public class GetCurrentKarmaReasonsHandler(
-    GetCurrentKarmaReasonsCommand command,
+    IKarmaRepository repository,
     SlackParser parser,
     ISlackMessageBroker broker,
     IOptions<BottomlyOptions> options,
@@ -18,8 +17,11 @@ public class GetCurrentKarmaReasonsHandler(
     : AbstractMessageEventHandler(broker, options, logger)
 {
     public override string Name => "Karma Reasons";
-    protected override ICommand Command => command;
     protected override string CommandSymbol => "reasons";
+
+    protected override string GetPurpose() =>
+        "Returns the justifications for someone's/something's current score of imaginary internet points";
+
     protected override string GetUsage() => CommandTrigger + "[recipient <if blank, will default to you>]";
 
     protected override async Task InvokeHandlerLogicAsync(MessageEvent message)
@@ -31,7 +33,7 @@ public class GetCurrentKarmaReasonsHandler(
             recipient = message.User;
         }
 
-        var result = await command.ExecuteAsync(recipient);
+        var result = await repository.GetKarmaReasonsAsync(recipient);
         var response = BuildResponse(result, recipient);
         await SendDmResponseAsync(response, message);
     }

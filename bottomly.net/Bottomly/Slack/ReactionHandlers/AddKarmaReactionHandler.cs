@@ -8,6 +8,7 @@ namespace Bottomly.Slack.ReactionHandlers;
 
 public class AddKarmaReactionHandler(
     AddKarmaCommand command,
+    KarmaReactionMap reactionMap,
     IMemberRepository memberRepository,
     ISlackMessageBroker broker,
     ILogger<AddKarmaReactionHandler> logger)
@@ -16,7 +17,7 @@ public class AddKarmaReactionHandler(
     public bool CanHandle(ReactionAdded reactionEvent)
     {
         var reaction = ParseReaction(reactionEvent.Reaction);
-        return AddKarmaCommand.GetKarmaReactions().ContainsKey(reaction);
+        return reactionMap.IsKarmaReaction(reaction);
     }
 
     public async Task HandleAsync(ReactionAdded reactionEvent)
@@ -24,7 +25,6 @@ public class AddKarmaReactionHandler(
         try
         {
             var reaction = ParseReaction(reactionEvent.Reaction);
-            var reactions = AddKarmaCommand.GetKarmaReactions();
 
             var reactor = await memberRepository.GetBySlackIdAsync(reactionEvent.User);
             var reactee = await memberRepository.GetBySlackIdAsync(reactionEvent.ItemUser);
@@ -40,7 +40,7 @@ public class AddKarmaReactionHandler(
                 reactee.Username,
                 reactor.Username,
                 $"Reacted with {reaction}",
-                reactions[reaction]);
+                reactionMap.GetKarmaType(reaction));
 
             if (reactionEvent.Item is ReactionMessage messageItem)
             {
