@@ -14,7 +14,7 @@ public class GoogleHandler(
     : AbstractMessageEventHandler(broker, options, logger)
 {
     public override string Name => "Google";
-    public override ICommand Command => command;
+    protected override ICommand Command => command;
     protected override string CommandSymbol => "g";
     protected override string GetUsage() => CommandTrigger + "<query>";
 

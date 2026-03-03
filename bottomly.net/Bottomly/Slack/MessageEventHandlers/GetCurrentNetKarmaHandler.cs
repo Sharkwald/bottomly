@@ -2,6 +2,7 @@ using System.Text;
 using Bottomly.Commands;
 using Bottomly.Configuration;
 using Bottomly.Models;
+using Bottomly.Repositories;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SlackNet.Events;
@@ -9,7 +10,7 @@ using SlackNet.Events;
 namespace Bottomly.Slack.MessageEventHandlers;
 
 public class GetCurrentNetKarmaHandler(
-    GetCurrentNetKarmaCommand command,
+    IKarmaRepository repository,
     SlackParser parser,
     ISlackMessageBroker broker,
     IOptions<BottomlyOptions> options,
@@ -17,9 +18,11 @@ public class GetCurrentNetKarmaHandler(
     : AbstractMessageEventHandler(broker, options, logger)
 {
     public override string Name => "Get Current Karma";
-    public override ICommand Command => command;
     protected override string CommandSymbol => "karma";
     protected override string GetUsage() => CommandTrigger + "[recipient <if blank, will default to you>]";
+
+    protected override string GetPurpose() =>
+        $"Returns someone's/something's current score of imaginary internet points.{Environment.NewLine}";
 
     public override string GetUsageAddendum()
     {
@@ -42,7 +45,7 @@ public class GetCurrentNetKarmaHandler(
             recipient = message.User;
         }
 
-        var result = await command.ExecuteAsync(recipient);
+        var result = await repository.GetCurrentNetKarmaAsync(recipient);
         await SendMessageResponseAsync($"{recipient}: {result}", message);
     }
 }

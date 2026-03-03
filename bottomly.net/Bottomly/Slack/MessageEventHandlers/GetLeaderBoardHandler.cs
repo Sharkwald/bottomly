@@ -15,7 +15,7 @@ public class GetLeaderBoardHandler(
     : AbstractMessageEventHandler(broker, options, logger)
 {
     public override string Name => "Get Leaderboard";
-    public override ICommand Command => command;
+    protected override ICommand Command => command;
     protected override string CommandSymbol => "leaderboard";
     protected override string GetUsage() => CommandTrigger + "[size of leaderboard. Default is 3]";
 

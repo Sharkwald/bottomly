@@ -14,7 +14,7 @@ public class WikipediaHandler(
     : AbstractMessageEventHandler(broker, options, logger)
 {
     public override string Name => "Wikipedia";
-    public override ICommand Command => command;
+    protected override ICommand Command => command;
     protected override string CommandSymbol => "wik";
     protected override string GetUsage() => CommandTrigger + "<term>";
 

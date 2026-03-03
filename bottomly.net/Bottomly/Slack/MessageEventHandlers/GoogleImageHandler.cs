@@ -14,7 +14,7 @@ public class GoogleImageHandler(
     : AbstractMessageEventHandler(broker, options, logger)
 {
     public override string Name => "Google Image";
-    public override ICommand Command => command;
+    protected override ICommand Command => command;
     protected override string CommandSymbol => "gi";
     protected override string GetUsage() => CommandTrigger + "<query>";
 

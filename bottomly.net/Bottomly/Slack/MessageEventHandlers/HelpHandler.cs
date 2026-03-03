@@ -1,5 +1,4 @@
 using System.Text;
-using Bottomly.Commands;
 using Bottomly.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -17,7 +16,6 @@ public class HelpHandler(
     private static readonly string[] HelpSymbols = ["help", "?", "list"];
 
     public override string Name => "Help";
-    public override ICommand? Command => null;
     protected override string CommandSymbol => HelpSymbols[0];
 
     protected override string GetUsage()

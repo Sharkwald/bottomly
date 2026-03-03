@@ -15,7 +15,7 @@ public class GetLoserBoardHandler(
     : AbstractMessageEventHandler(broker, options, logger)
 {
     public override string Name => "Get Loserboard";
-    public override ICommand Command => command;
+    protected override ICommand Command => command;
     protected override string CommandSymbol => "loserboard";
     protected override string GetUsage() => CommandTrigger + "[size of loserboard. Default is 3]";
 

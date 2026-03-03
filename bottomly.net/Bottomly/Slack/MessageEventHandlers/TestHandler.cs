@@ -13,7 +13,6 @@ public class TestHandler(
     : AbstractMessageEventHandler(broker, options, logger)
 {
     public override string Name => "Test";
-    public override ICommand? Command => ICommand.None;
     protected override string CommandSymbol => "test";
 
     protected override async Task InvokeHandlerLogicAsync(MessageEvent message) =>

@@ -14,7 +14,7 @@ public class ReleaseHandler(
     : AbstractMessageEventHandler(broker, options, logger)
 {
     public override string Name => "Release";
-    public override ICommand Command => command;
+    protected override ICommand Command => command;
     protected override string CommandSymbol => "release";
     protected override string GetUsage() => CommandTrigger.TrimEnd();
 

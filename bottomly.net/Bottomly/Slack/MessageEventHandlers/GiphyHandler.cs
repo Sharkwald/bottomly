@@ -14,7 +14,7 @@ public class GiphyHandler(
     : AbstractMessageEventHandler(broker, options, logger)
 {
     public override string Name => "Giphy";
-    public override ICommand Command => command;
+    protected override ICommand Command => command;
     protected override string CommandSymbol => "gif";
     protected override string GetUsage() => CommandTrigger + "<search term>";
 

@@ -18,7 +18,7 @@ public class GetCurrentKarmaReasonsHandler(
     : AbstractMessageEventHandler(broker, options, logger)
 {
     public override string Name => "Karma Reasons";
-    public override ICommand Command => command;
+    protected override ICommand Command => command;
     protected override string CommandSymbol => "reasons";
     protected override string GetUsage() => CommandTrigger + "[recipient <if blank, will default to you>]";
 

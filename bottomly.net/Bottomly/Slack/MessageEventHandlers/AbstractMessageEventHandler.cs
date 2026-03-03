@@ -17,7 +17,7 @@ public abstract class AbstractMessageEventHandler(
     protected readonly string Prefix = options.Value.Prefix;
 
     public abstract string Name { get; }
-    public abstract ICommand? Command { get; }
+    protected virtual ICommand Command => ICommand.None;
     protected abstract string CommandSymbol { get; }
 
     protected string CommandTrigger => Prefix + CommandSymbol + " ";
@@ -46,10 +46,15 @@ public abstract class AbstractMessageEventHandler(
     public string BuildHelpMessage()
     {
         var name = Name + Environment.NewLine;
-        var purpose = Command is not null ? Command.GetPurpose() + Environment.NewLine : string.Empty;
+        var purpose = GetPurpose();
         var usage = $"Usage: `{GetUsage()}`";
         return name + purpose + usage + GetUsageAddendum();
     }
+
+    protected virtual string GetPurpose() =>
+        Command is not VoidCommand
+            ? Command.GetPurpose() + Environment.NewLine
+            : string.Empty;
 
     protected abstract Task InvokeHandlerLogicAsync(MessageEvent message);
     protected virtual string GetUsage() => CommandTrigger.TrimEnd();

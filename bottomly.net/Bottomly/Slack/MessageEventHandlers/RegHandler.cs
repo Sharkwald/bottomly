@@ -14,7 +14,7 @@ public class RegHandler(
     : AbstractMessageEventHandler(broker, options, logger)
 {
     public override string Name => "Reg Lookup";
-    public override ICommand Command => command;
+    protected override ICommand Command => command;
     protected override string CommandSymbol => "reg";
     protected override string GetUsage() => CommandTrigger + "<registration plate>";
 

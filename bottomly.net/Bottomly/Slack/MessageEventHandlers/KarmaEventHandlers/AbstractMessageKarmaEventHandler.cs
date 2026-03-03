@@ -20,7 +20,7 @@ public abstract class AbstractMessageKarmaEventHandler(
     private const string ForString = " for ";
     protected readonly AddKarmaCommand KarmaCommand = command;
 
-    public override ICommand Command => KarmaCommand;
+    protected override ICommand Command => KarmaCommand;
     public abstract override string Name { get; }
     protected abstract KarmaType KarmaTypeValue { get; }
 

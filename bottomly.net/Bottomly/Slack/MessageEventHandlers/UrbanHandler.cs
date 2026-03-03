@@ -14,7 +14,7 @@ public class UrbanHandler(
     : AbstractMessageEventHandler(broker, options, logger)
 {
     public override string Name => "Urban Dictionary";
-    public override ICommand Command => command;
+    protected override ICommand Command => command;
     protected override string CommandSymbol => "ud";
     protected override string GetUsage() => CommandTrigger + "<term>";
 
