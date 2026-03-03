@@ -3,7 +3,7 @@ using Bottomly.Commands;
 using Bottomly.Configuration;
 using Bottomly.Repositories;
 using Bottomly.Slack;
-using Bottomly.Slack.EventHandlers;
+using Bottomly.Slack.MembershipEventHandlers;
 using Bottomly.Slack.MessageEventHandlers;
 using Bottomly.Slack.ReactionHandlers;
 using Microsoft.Extensions.Configuration;
@@ -64,6 +64,7 @@ var slackAppToken = builder.Configuration["bottomly_slack_app_token"] ?? string.
 builder.Services.AddSlackNet(c => c
     .UseApiToken(slackBotToken)
     .UseAppLevelToken(slackAppToken)
+    .RegisterEventHandler<MemberJoinedChannel, SlackMemberAddedEventDispatcher>()
     .RegisterEventHandler<MessageEvent, SlackMessageEventDispatcher>()
     .RegisterEventHandler<ReactionAdded, SlackReactionEventDispatcher>());
 
@@ -75,6 +76,9 @@ builder.Services.AddSingleton<HelpHandler>();
 
 // Reaction handlers
 builder.Services.AddSingleton<IReactionHandler, AddKarmaReactionHandler>();
+
+// Membership handlers
+builder.Services.AddSingleton<MemberJoinedEventHandler>();
 
 // Slack dispatchers and worker
 builder.Services.AddSingleton<SlackWorker>();
@@ -93,7 +97,8 @@ public static class HostBuilderExtensions
     {
         public void RegisterEventHandlers(Assembly assembly) =>
             assembly.GetTypes()
-                .Where(t => typeof(IMessageEventHandler).IsAssignableFrom(t) && t is { IsInterface: false, IsAbstract: false })
+                .Where(t => typeof(IMessageEventHandler).IsAssignableFrom(t) &&
+                            t is { IsInterface: false, IsAbstract: false })
                 .Where(t => t.Name != nameof(HelpHandler))
                 .ToList()
                 .ForEach(t => builder.Services.AddSingleton(typeof(IMessageEventHandler), t));

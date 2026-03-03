@@ -1,3 +1,4 @@
+using Bottomly.Slack.MembershipEventHandlers;
 using SlackNet;
 using SlackNet.Events;
 
@@ -17,4 +18,10 @@ public class SlackMessageEventDispatcher(SlackWorker worker) : IEventHandler<Mes
 public class SlackReactionEventDispatcher(SlackWorker worker) : IEventHandler<ReactionAdded>
 {
     public Task Handle(ReactionAdded slackEvent) => worker.ProcessReactionAsync(slackEvent);
+}
+
+public class SlackMemberAddedEventDispatcher(MemberJoinedEventHandler handler)
+    : IEventHandler<MemberJoinedChannel>
+{
+    public async Task Handle(MemberJoinedChannel slackEvent) => await handler.ExecuteAsync(slackEvent);
 }

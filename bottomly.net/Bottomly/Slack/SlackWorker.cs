@@ -1,5 +1,4 @@
 using Bottomly.Repositories;
-using Bottomly.Slack.EventHandlers;
 using Bottomly.Slack.MessageEventHandlers;
 using Bottomly.Slack.ReactionHandlers;
 using Microsoft.Extensions.Hosting;
