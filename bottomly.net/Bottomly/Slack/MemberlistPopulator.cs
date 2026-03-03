@@ -1,4 +1,4 @@
-﻿using Bottomly.Models;
+using Bottomly.Models;
 using Bottomly.Repositories;
 using SlackNet;
 

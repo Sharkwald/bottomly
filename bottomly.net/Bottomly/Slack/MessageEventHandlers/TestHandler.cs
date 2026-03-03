@@ -1,4 +1,4 @@
-﻿using Bottomly.Configuration;
+using Bottomly.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SlackNet.Events;
