@@ -84,6 +84,7 @@ builder.Services.AddSingleton<MemberJoinedEventHandler>();
 builder.Services.AddSingleton<SlackWorker>();
 builder.Services.AddSingleton<SlackMessageEventDispatcher>();
 builder.Services.AddSingleton<SlackReactionEventDispatcher>();
+builder.Services.AddSingleton<SlackMemberAddedEventDispatcher>();
 builder.Services.AddHostedService(sp => sp.GetRequiredService<SlackWorker>());
 
 var app = builder.Build();

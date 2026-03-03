@@ -8,17 +8,20 @@ public class KarmaRepository(IMongoDatabase database) : IKarmaRepository
 {
     private readonly IMongoCollection<Karma> _collection = database.GetCollection<Karma>("karma");
 
+    private static DateTime CutOffDate => DateTime.UtcNow.AddDays(-Karma.ExpiryDays);
+
     public async Task AddAsync(Karma karma) => await _collection.InsertOneAsync(karma);
 
     public async Task<int> GetCurrentNetKarmaAsync(string recipient)
     {
         var scores = await GetNetKarmaAggregateAsync(recipient.ToLower(), 1);
-        return scores.FirstOrDefault()?.NetKarma ?? 0;
+        return scores.Count != 0
+            ? scores[0].NetKarma
+            : 0;
     }
 
     public async Task<KarmaReasonsResult> GetKarmaReasonsAsync(string recipient)
     {
-        var cutOff = CutOffDate();
         var lower = recipient.ToLower();
 
         var pipeline = new[]
@@ -34,7 +37,7 @@ public class KarmaRepository(IMongoDatabase database) : IKarmaRepository
             new BsonDocument("$match", new BsonDocument
             {
                 { "awarded_to_username", lower },
-                { "awarded", new BsonDocument("$gt", cutOff) }
+                { "awarded", new BsonDocument("$gt", CutOffDate) }
             })
         };
 
@@ -56,18 +59,15 @@ public class KarmaRepository(IMongoDatabase database) : IKarmaRepository
     }
 
     public async Task<IReadOnlyList<KarmaScore>> GetLeaderBoardAsync(int size = 3) =>
-        await GetNetKarmaAggregateAsync(limit: size, ascending: false);
+        await GetNetKarmaAggregateAsync(limit: size, sortOrder: SortOrder.Descending);
 
     public async Task<IReadOnlyList<KarmaScore>> GetLoserBoardAsync(int size = 3) =>
-        await GetNetKarmaAggregateAsync(limit: size, ascending: true);
+        await GetNetKarmaAggregateAsync(limit: size, sortOrder: SortOrder.Ascending);
 
     private async Task<IReadOnlyList<KarmaScore>> GetNetKarmaAggregateAsync(
-        string? recipient = null, int limit = 3, bool ascending = false)
+        string? recipient = null, int limit = 3, SortOrder sortOrder = SortOrder.Descending)
     {
-        var cutOff = CutOffDate();
-        var sortDirection = ascending ? 1 : -1;
-
-        var matchFilter = new BsonDocument("awarded", new BsonDocument("$gt", cutOff));
+        var matchFilter = new BsonDocument("awarded", new BsonDocument("$gt", CutOffDate));
         if (recipient != null)
         {
             matchFilter["recipient"] = recipient;
@@ -93,7 +93,7 @@ public class KarmaRepository(IMongoDatabase database) : IKarmaRepository
                 { "_id", "$recipient" },
                 { "net_karma", new BsonDocument("$sum", "$net_karma") }
             }),
-            new("$sort", new BsonDocument("net_karma", sortDirection))
+            new("$sort", new BsonDocument("net_karma", (int)sortOrder))
         };
 
         var results = await _collection.Aggregate<BsonDocument>(pipeline).ToListAsync();
@@ -103,5 +103,9 @@ public class KarmaRepository(IMongoDatabase database) : IKarmaRepository
             .ToList();
     }
 
-    private static DateTime CutOffDate() => DateTime.UtcNow.AddDays(-Karma.ExpiryDays);
+    private enum SortOrder
+    {
+        Ascending = 1,
+        Descending = -1
+    }
 }
