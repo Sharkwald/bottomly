@@ -3,9 +3,9 @@ using Bottomly.Repositories;
 
 namespace Bottomly.Slack;
 
-public class SlackParser(IMemberRepository memberRepository)
+public partial class SlackParser(IMemberRepository memberRepository)
 {
-    private static readonly Regex SlackIdPattern = new(@"<@([A-Z0-9]+)>", RegexOptions.Compiled);
+    private static readonly Regex SlackIdPattern = SlackIdRegex();
 
     public async Task<string> ReplaceSlackIdTokensWithUsernamesAsync(string message)
     {
@@ -27,4 +27,7 @@ public class SlackParser(IMemberRepository memberRepository)
 
         return message;
     }
+
+    [GeneratedRegex(@"<@([A-Z0-9]+)>", RegexOptions.Compiled)]
+    private static partial Regex SlackIdRegex();
 }

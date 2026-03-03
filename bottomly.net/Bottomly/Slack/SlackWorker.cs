@@ -1,19 +1,19 @@
 using Bottomly.Repositories;
 using Bottomly.Slack.EventHandlers;
+using Bottomly.Slack.MessageEventHandlers;
 using Bottomly.Slack.ReactionHandlers;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SlackNet;
 using SlackNet.Events;
 using SlackNet.SocketMode;
-using IEventHandler = Bottomly.Slack.EventHandlers.IEventHandler;
 
 namespace Bottomly.Slack;
 
 public class SlackWorker(
     ISlackSocketModeClient socketClient,
-    IEnumerable<IEventHandler> eventHandlers,
-    HelpEventHandler helpHandler,
+    IEnumerable<IMessageEventHandler> eventHandlers,
+    HelpHandler helpMessageHandler,
     IEnumerable<IReactionHandler> reactionHandlers,
     IMemberRepository memberRepository,
     ILogger<SlackWorker> logger)
@@ -43,9 +43,9 @@ public class SlackWorker(
             await ResolveUsernameAsync(message);
 
             // Help handler takes priority
-            if (helpHandler.CanHandle(message))
+            if (helpMessageHandler.CanHandle(message))
             {
-                await helpHandler.HandleAsync(message);
+                await helpMessageHandler.HandleAsync(message);
                 return;
             }
 

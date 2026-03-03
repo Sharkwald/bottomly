@@ -20,4 +20,5 @@ public class MemberRepository(IMongoDatabase database) : IMemberRepository
     }
 
     public async Task AddAsync(Member member) => await _collection.InsertOneAsync(member);
+    public async Task AddAsync(IEnumerable<Member> members) => await _collection.InsertManyAsync(members);
 }

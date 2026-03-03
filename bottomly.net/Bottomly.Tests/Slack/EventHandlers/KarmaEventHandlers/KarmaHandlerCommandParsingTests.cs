@@ -2,7 +2,7 @@ using Bottomly.Commands;
 using Bottomly.Models;
 using Bottomly.Repositories;
 using Bottomly.Slack;
-using Bottomly.Slack.EventHandlers.KarmaEventHandlers;
+using Bottomly.Slack.MessageEventHandlers.KarmaEventHandlers;
 using Bottomly.Tests.Helpers;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
@@ -12,7 +12,7 @@ namespace Bottomly.Tests.Slack.EventHandlers.KarmaEventHandlers;
 
 public class KarmaHandlerCommandParsingTests
 {
-    private readonly IncrementKarmaEventHandler _handler;
+    private readonly IncrementMessageKarmaEventHandler _handler;
     private readonly Mock<ISlackMessageBroker> _mockBroker = new();
     private readonly Mock<IKarmaRepository> _mockKarmaRepo = new();
     private readonly Mock<IMemberRepository> _mockMemberRepo = new();
@@ -22,8 +22,9 @@ public class KarmaHandlerCommandParsingTests
         var options = TestHelpers.CreateOptions();
         var command = new AddKarmaCommand(_mockKarmaRepo.Object);
         var parser = new SlackParser(_mockMemberRepo.Object);
-        _handler = new IncrementKarmaEventHandler(command, parser, _mockMemberRepo.Object, _mockBroker.Object, options,
-            NullLogger<IncrementKarmaEventHandler>.Instance);
+        _handler = new IncrementMessageKarmaEventHandler(command, parser, _mockMemberRepo.Object, _mockBroker.Object,
+            options,
+            NullLogger<IncrementMessageKarmaEventHandler>.Instance);
 
         _mockKarmaRepo.Setup(r => r.AddAsync(It.IsAny<Karma>())).Returns(Task.CompletedTask);
         _mockBroker.Setup(b => b.SendReactionAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))

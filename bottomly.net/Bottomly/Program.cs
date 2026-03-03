@@ -4,6 +4,7 @@ using Bottomly.Configuration;
 using Bottomly.Repositories;
 using Bottomly.Slack;
 using Bottomly.Slack.EventHandlers;
+using Bottomly.Slack.MessageEventHandlers;
 using Bottomly.Slack.ReactionHandlers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -70,7 +71,7 @@ builder.Services.AddSlackNet(c => c
 builder.RegisterEventHandlers(Assembly.GetExecutingAssembly());
 
 // Help handler (also registered as singleton for direct injection into SlackWorker)
-builder.Services.AddSingleton<HelpEventHandler>();
+builder.Services.AddSingleton<HelpHandler>();
 
 // Reaction handlers
 builder.Services.AddSingleton<IReactionHandler, AddKarmaReactionHandler>();
@@ -81,7 +82,10 @@ builder.Services.AddSingleton<SlackMessageEventDispatcher>();
 builder.Services.AddSingleton<SlackReactionEventDispatcher>();
 builder.Services.AddHostedService(sp => sp.GetRequiredService<SlackWorker>());
 
-builder.Build().Run();
+var app = builder.Build();
+
+
+app.Run();
 
 public static class HostBuilderExtensions
 {
@@ -89,10 +93,10 @@ public static class HostBuilderExtensions
     {
         public void RegisterEventHandlers(Assembly assembly) =>
             assembly.GetTypes()
-                .Where(t => typeof(IEventHandler).IsAssignableFrom(t) && t is { IsInterface: false, IsAbstract: false })
-                .Where(t => t.Name != nameof(HelpEventHandler))
+                .Where(t => typeof(IMessageEventHandler).IsAssignableFrom(t) && t is { IsInterface: false, IsAbstract: false })
+                .Where(t => t.Name != nameof(HelpHandler))
                 .ToList()
-                .ForEach(t => builder.Services.AddSingleton(typeof(IEventHandler), t));
+                .ForEach(t => builder.Services.AddSingleton(typeof(IMessageEventHandler), t));
 
         public void RegisterCommands(Assembly assembly) =>
             assembly.GetTypes()
