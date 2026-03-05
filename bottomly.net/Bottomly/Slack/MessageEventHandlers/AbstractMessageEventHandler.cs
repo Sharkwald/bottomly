@@ -58,7 +58,7 @@ public abstract class AbstractMessageEventHandler(
 
     protected abstract Task InvokeHandlerLogicAsync(MessageEvent message);
     protected virtual string GetUsage() => CommandTrigger.TrimEnd();
-    public virtual string GetUsageAddendum() => string.Empty;
+    protected virtual string GetUsageAddendum() => string.Empty;
 
     protected virtual bool IsHelpEvent(MessageEvent message) =>
         message.Text?.Trim() == CommandTrigger.TrimEnd() + " -?";

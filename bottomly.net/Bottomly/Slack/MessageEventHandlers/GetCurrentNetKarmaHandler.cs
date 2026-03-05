@@ -23,7 +23,7 @@ public class GetCurrentNetKarmaHandler(
     protected override string GetPurpose() =>
         "Returns someone's/something's current score of imaginary internet points.";
 
-    public override string GetUsageAddendum() => reactionMap.KarmaReactionDescriptions();
+    protected override string GetUsageAddendum() => reactionMap.KarmaReactionDescriptions();
 
     protected override async Task InvokeHandlerLogicAsync(MessageEvent message)
     {
