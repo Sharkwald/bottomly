@@ -8,6 +8,12 @@ public class MemberlistPopulator(ISlackApiClient slack, IMemberRepository member
 {
     public async Task<IList<Member>> PopulateMembers()
     {
+        var owenExists = await memberRepository.GetByUsernameAsync("owen") != null;
+        if (owenExists)
+        {
+            return [];
+        }
+
         var users = await slack.Users.List();
 
         var members = users.Members

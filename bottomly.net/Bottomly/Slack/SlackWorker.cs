@@ -1,3 +1,4 @@
+using Bottomly.LlmBot;
 using Bottomly.Repositories;
 using Bottomly.Slack.MessageEventHandlers;
 using Bottomly.Slack.ReactionHandlers;
@@ -15,6 +16,7 @@ public class SlackWorker(
     HelpHandler helpMessageHandler,
     IEnumerable<IReactionHandler> reactionHandlers,
     IMemberRepository memberRepository,
+    LlmMessageBroker llmMessageBroker,
     ILogger<SlackWorker> logger)
     : BackgroundService
 {
@@ -50,10 +52,13 @@ public class SlackWorker(
 
             foreach (var handler in eventHandlers)
             {
-                if (handler.CanHandle(message))
+                if (!handler.CanHandle(message))
                 {
-                    await handler.HandleAsync(message);
+                    continue;
                 }
+
+                await handler.HandleAsync(message);
+                return;
             }
         }
         catch (Exception ex)
