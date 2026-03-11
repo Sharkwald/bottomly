@@ -90,20 +90,23 @@ builder.Services.AddSingleton<SlackMemberAddedEventDispatcher>();
 builder.Services.AddHostedService(sp => sp.GetRequiredService<SlackWorker>());
 
 // LLM Support
-builder.AddOllamaApiClient("qwen3")
+builder.AddOllamaApiClient("bottomlymodel")
     .AddChatClient();
+
+// builder.Services.AddChatClient(
+//     new OllamaApiClient(new Uri("http://localhost:11434"), "qwen3.5:4b"));
 
 // The built-in resilience settings are super aggressive, with a 10s timeout.
 // Running locally Qwen3 takes ~2m to respond to simple queries, so we need to override the defaults.
 #pragma warning disable EXTEXP0001
-builder.Services.AddHttpClient("qwen3_httpClient")
+builder.Services.AddHttpClient("bottomlymodel_httpClient")
     .RemoveAllResilienceHandlers()
 #pragma warning restore EXTEXP0001
     .AddStandardResilienceHandler(options =>
     {
-        options.TotalRequestTimeout.Timeout = TimeSpan.FromMinutes(5);
-        options.AttemptTimeout.Timeout = TimeSpan.FromMinutes(2);
-        options.CircuitBreaker.SamplingDuration = TimeSpan.FromMinutes(4);
+        options.TotalRequestTimeout.Timeout = TimeSpan.FromMinutes(10);
+        options.AttemptTimeout.Timeout = TimeSpan.FromMinutes(4);
+        options.CircuitBreaker.SamplingDuration = TimeSpan.FromMinutes(8);
     });
 
 builder.Services.AddTransient<LlmMessageBroker>();

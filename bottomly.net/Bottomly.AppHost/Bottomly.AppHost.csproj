@@ -13,8 +13,11 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Aspire.Hosting.MongoDB" Version="13.1.2"/>
-        <PackageReference Include="CommunityToolkit.Aspire.Hosting.Ollama" Version="13.1.1"/>
+        <PackageReference Include="Aspire.Hosting" Version="13.3.0-preview.1.26156.8"/>
+        <PackageReference Include="Aspire.Hosting.AppHost" Version="13.3.0-preview.1.26156.8"/>
+        <PackageReference Include="Aspire.Hosting.MongoDB" Version="13.3.0-preview.1.26156.8"/>
+        <PackageReference Include="CommunityToolkit.Aspire.Hosting.Ollama" Version="13.2.1-beta.528"/>
+        <PackageReference Include="OllamaSharp" Version="5.4.23"/>
     </ItemGroup>
 
 </Project>

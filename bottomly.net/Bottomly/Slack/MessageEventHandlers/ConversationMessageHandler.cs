@@ -32,7 +32,7 @@ public class ConversationMessageHandler(
 
         var mainPrompt = BottomlyInputMessage.CreateFromSlackMessage(message, memberLookup);
 
-        var context = ChatMessageContext.Create(contextMessages, userNotes);
+        var context = MessageHistoryContext.Create(contextMessages, userNotes);
 
         var llmResponse = await llmMessageBroker.Respond(mainPrompt, context);
         var response = llmResponse.Text;
