@@ -8,5 +8,18 @@ public class Member
 
     [BsonElement("slack_id")] public string SlackId { get; set; } = string.Empty;
 
-    [BsonElement("note")] public string Note { get; set; } = string.Empty;
+    [BsonElement("full_name")] public string FullName { get; set; } = string.Empty;
+
+    [BsonElement("gender")] public Gender Gender { get; set; } = Gender.Unknown;
+
+    [BsonElement("sass_level")] public SassLevel SassLevel { get; set; } = SassLevel.Moderate;
+
+    [BsonElement("misc_info")] public string MiscInfo { get; set; } = string.Empty;
+
+    [BsonIgnore]
+    public string Note =>
+        $"FullName: {FullName}\n" +
+        $"Gender: {Gender}\n" +
+        $"SassLevel: {SassLevel}\n" +
+        $"MiscInfo: {MiscInfo}";
 }
