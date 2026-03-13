@@ -3,6 +3,9 @@
 # Planning documents
 .plans/
 
+# Confidential member seed data
+MemberSeedData/
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
