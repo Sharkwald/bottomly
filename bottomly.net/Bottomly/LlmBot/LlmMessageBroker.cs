@@ -5,7 +5,7 @@ namespace Bottomly.LlmBot;
 
 public class LlmMessageBroker(IChatClient chatClient, ILogger<LlmMessageBroker> logger)
 {
-    public async Task<ChatResponse> Respond(BottomlyInputMessage userPrompt, MessageHistoryContext historyContext)
+    public async Task<LlmResponse> Respond(BottomlyInputMessage userPrompt, MessageHistoryContext historyContext)
     {
         var options = new ChatOptions
         {
@@ -19,6 +19,46 @@ public class LlmMessageBroker(IChatClient chatClient, ILogger<LlmMessageBroker> 
             fullContext.HistoryContext.Text,
             fullContext.PromptingMessage.Text);
 
-        return await chatClient.GetResponseAsync(fullContext.ToArray(), options);
+        try
+        {
+            return (await chatClient.GetResponseAsync(fullContext.ToArray(), options)).ToSuccessResponse();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to get response from LLM");
+            return ex.ToErrorResponse();
+        }
     }
+}
+
+public abstract record LlmResponse;
+
+public record LlmMessageResponse : LlmResponse
+{
+    private LlmMessageResponse(string message) => Message = message;
+    public string Message { get; }
+
+    public static LlmResponse Create(ChatResponse chatResponse) => new LlmMessageResponse(chatResponse.Text);
+}
+
+public record LlmTimeoutResponse : LlmResponse;
+
+public record LlmUsageExceededResponse : LlmResponse;
+
+public record LlmUnknownErrorResponse : LlmResponse;
+
+public static class LlmResponseExtensions
+{
+    public static LlmResponse ToSuccessResponse(this ChatResponse chatResponse) =>
+        LlmMessageResponse.Create(chatResponse);
+
+    public static LlmResponse ToErrorResponse(this Exception ex) =>
+        ex switch
+        {
+            TimeoutException => new LlmTimeoutResponse(),
+            _ when ex.Message.Contains("usage") => new LlmUsageExceededResponse(),
+            _ => new LlmUnknownErrorResponse()
+        };
+
+    public static bool IsSuccess(this LlmResponse response) => response is LlmMessageResponse;
 }

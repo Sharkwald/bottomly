@@ -8,7 +8,7 @@ public class RegSearchCommand(IHttpClientFactory httpClientFactory) : ICommand
 
     public string GetPurpose() => "AutoTrader reg lookup, because Jamie is lazy.";
 
-    public async Task<string> ExecuteAsync(string searchTerm)
+    public virtual async Task<string> ExecuteAsync(string searchTerm)
     {
         if (string.IsNullOrWhiteSpace(searchTerm))
         {

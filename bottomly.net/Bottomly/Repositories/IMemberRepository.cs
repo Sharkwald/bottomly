@@ -9,4 +9,5 @@ public interface IMemberRepository
     Task<List<Member>> GetBySlackIdsAsync(IEnumerable<string> slackIds);
     Task AddAsync(Member member);
     Task AddAsync(IEnumerable<Member> members);
+    Task UpdateInfoAsync(string username, string fullName, Gender gender, SassLevel sassLevel, string miscInfo);
 }

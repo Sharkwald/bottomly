@@ -1,10 +1,9 @@
 ﻿using Bottomly.LlmBot;
-using Bottomly.Models;
 using Bottomly.Repositories;
 using SlackNet;
 using SlackNet.Events;
 
-namespace Bottomly.Slack.MessageEventHandlers;
+namespace Bottomly.Slack.MessageEventHandlers.ConversationMessageHandling;
 
 public class ConversationMessageHandler(
     LlmMessageBroker llmMessageBroker,
@@ -34,31 +33,10 @@ public class ConversationMessageHandler(
 
         var context = MessageHistoryContext.Create(contextMessages, userNotes);
 
-        var llmResponse = await llmMessageBroker.Respond(mainPrompt, context);
-        var response = llmResponse.Text;
+        var response = await llmMessageBroker.Respond(mainPrompt, context);
 
-
-        await slackBroker.SendMessageAsync(response, message.Channel);
+        await slackBroker.SendMessageAsync(response.ToSlackResponse(), message.Channel);
     }
 
     public string BuildHelpMessage() => string.Empty;
-}
-
-internal static class MessageContextExtensions
-{
-    extension(BottomlyUserNote bottomlyUserNote)
-    {
-        public static BottomlyUserNote CreateFromMember(Member member) =>
-            BottomlyUserNote.Create(member.Username, member.Note);
-    }
-
-    extension(BottomlyInputMessage bottomlyInputMessage)
-    {
-        public static BottomlyInputMessage CreateFromSlackMessage(MessageEvent message,
-            IDictionary<string, string> memberLookup)
-        {
-            var translatedUserName = memberLookup.TryGetValue(message.User, out var username) ? username : message.User;
-            return BottomlyInputMessage.Create(translatedUserName, message.Text);
-        }
-    }
 }

@@ -1,3 +1,4 @@
+using Bottomly.Seed;
 using System.Reflection;
 using Bottomly.Commands;
 using Bottomly.Configuration;
@@ -113,11 +114,18 @@ builder.Services.AddTransient<LlmMessageBroker>();
 
 // Seeding
 builder.Services.AddSingleton<MemberlistPopulator>();
+builder.Services.AddSingleton<MemberSeedDataImporter>();
 
 var app = builder.Build();
 
 var populator = app.Services.GetRequiredService<MemberlistPopulator>();
 await populator.PopulateMembers();
+
+if (app.Services.GetRequiredService<IConfiguration>().GetValue<bool>("ImportMemberSeedData"))
+{
+    var importer = app.Services.GetRequiredService<MemberSeedDataImporter>();
+    await importer.ImportAsync();
+}
 
 app.Run();
 
