@@ -16,7 +16,6 @@ public class SlackWorker(
     HelpHandler helpMessageHandler,
     IEnumerable<IReactionHandler> reactionHandlers,
     IMemberRepository memberRepository,
-    LlmMessageBroker llmMessageBroker,
     ILogger<SlackWorker> logger)
     : BackgroundService
 {
