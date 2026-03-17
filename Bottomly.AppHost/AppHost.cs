@@ -9,7 +9,7 @@ var mongo = builder.AddMongoDB("mongo")
     .WithDataVolume()
     .WithLifetime(ContainerLifetime.Persistent);
 
-var mongodb = mongo.AddDatabase("mongodb");
+var mongodb = mongo.AddDatabase("mongodb", "bottomly");
 
 // var ollama = builder.AddOllama("ollama")
 //     .WithEnvironment("OLLAMA_API_KEY", builder.Configuration["AppHost:OllamaApiKey"])

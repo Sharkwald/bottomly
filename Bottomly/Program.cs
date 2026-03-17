@@ -28,7 +28,10 @@ builder.AddMongoDBClient("mongodb");
 builder.Services.AddSingleton<IMongoDatabase>(sp =>
 {
     var client = sp.GetRequiredService<IMongoClient>();
-    return client.GetDatabase("bottomly");
+    var configuration = sp.GetRequiredService<IConfiguration>();
+    var connectionString = configuration.GetConnectionString("mongodb")!;
+    var databaseName = MongoUrl.Create(connectionString).DatabaseName ?? "bottomly";
+    return client.GetDatabase(databaseName);
 });
 
 // Configuration
