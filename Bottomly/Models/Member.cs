@@ -16,6 +16,12 @@ public class Member
 
     [BsonElement("misc_info")] public string MiscInfo { get; set; } = string.Empty;
 
+    /// <summary>
+    ///     Legacy element to enable support from pymongo persisted data
+    /// </summary>
+    [BsonElement("_cls")]
+    public string Cls { get; set; } = string.Empty;
+
     [BsonIgnore]
     public string Note =>
         $"FullName: {FullName}\n" +
