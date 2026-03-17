@@ -1,0 +1,48 @@
+﻿using Bottomly.LlmBot;
+using Bottomly.Repositories;
+using Microsoft.Extensions.Logging;
+using SlackNet;
+using SlackNet.Events;
+
+namespace Bottomly.Slack.MessageEventHandlers.ConversationMessageHandling;
+
+public class ConversationMessageHandler(
+    ILlmClient llmMessageBroker,
+    ISlackMessageBroker slackBroker,
+    ISlackApiClient apiClient,
+    IMemberRepository memberRepository,
+    ILogger<ConversationMessageHandler> logger
+) : IMessageEventHandler
+{
+    public bool CanHandle(MessageEvent message) => message.Text.Contains("bottomly");
+
+    public async Task HandleAsync(MessageEvent message)
+    {
+        logger.LogInformation("Handling conversation message from {User} in {Channel}", message.User, message.Channel);
+
+        var history = await apiClient.Conversations.History(message.Channel, limit: 11);
+
+        var contextUsersSlackIds = history.Messages.Select(m => m.User).Distinct();
+        var contextMembers = await memberRepository.GetBySlackIdsAsync(contextUsersSlackIds.Union([message.User]));
+        var memberLookup = contextMembers.ToDictionary(m => m.SlackId, m => m.Username);
+
+        var contextMessages = history.Messages
+            .OrderBy(h => h.Timestamp)
+            .Select(h => BottomlyInputMessage.CreateFromSlackMessage(h, memberLookup))
+            .ToList();
+
+        var userNotes = contextMembers.Select(BottomlyUserNote.CreateFromMember).ToList();
+
+        var mainPrompt = BottomlyInputMessage.CreateFromSlackMessage(message, memberLookup);
+
+        var context = MessageHistoryContext.Create(contextMessages, userNotes);
+
+        var response = await llmMessageBroker.Respond(mainPrompt, context);
+
+        var replyToTs = response.IsError() ? message.TsForReply() : null;
+
+        await slackBroker.SendMessageAsync(response.ToSlackResponse(), message.Channel, replyToTs);
+    }
+
+    public string BuildHelpMessage() => string.Empty;
+}
