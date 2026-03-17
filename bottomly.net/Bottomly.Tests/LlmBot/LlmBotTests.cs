@@ -102,7 +102,7 @@ public class LlmResponseExtensionsTests
         var chatResponse = new ChatResponse([new ChatMessage(ChatRole.Assistant, "ok")]);
         var response = chatResponse.ToSuccessResponse();
 
-        response.IsSuccess().ShouldBeTrue();
+        response.IsError().ShouldBeFalse();
     }
 
     [Fact]
@@ -110,7 +110,7 @@ public class LlmResponseExtensionsTests
     {
         LlmResponse response = new LlmTimeoutResponse();
 
-        response.IsSuccess().ShouldBeFalse();
+        response.IsError().ShouldBeTrue();
     }
 }
 
@@ -180,16 +180,10 @@ public class FullPromptContextTests
     }
 
     [Fact]
-    public void SystemPrompt_HasSystemRole()
-    {
-        FullPromptContext.SystemPrompt.Role.ShouldBe(ChatRole.System);
-    }
+    public void SystemPrompt_HasSystemRole() => FullPromptContext.SystemPrompt.Role.ShouldBe(ChatRole.System);
 
     [Fact]
-    public void SystemPrompt_MentionsBottomly()
-    {
-        FullPromptContext.SystemPrompt.Text.ShouldContain("Bottomly");
-    }
+    public void SystemPrompt_MentionsBottomly() => FullPromptContext.SystemPrompt.Text.ShouldContain("Bottomly");
 }
 
 public class MemberNoteTests

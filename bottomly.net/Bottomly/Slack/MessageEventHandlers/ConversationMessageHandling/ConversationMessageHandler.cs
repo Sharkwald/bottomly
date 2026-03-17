@@ -6,7 +6,7 @@ using SlackNet.Events;
 namespace Bottomly.Slack.MessageEventHandlers.ConversationMessageHandling;
 
 public class ConversationMessageHandler(
-    LlmMessageBroker llmMessageBroker,
+    ILlmMessageBroker llmMessageBroker,
     ISlackMessageBroker slackBroker,
     ISlackApiClient apiClient,
     IMemberRepository memberRepository
@@ -35,7 +35,9 @@ public class ConversationMessageHandler(
 
         var response = await llmMessageBroker.Respond(mainPrompt, context);
 
-        await slackBroker.SendMessageAsync(response.ToSlackResponse(), message.Channel);
+        var replyToTs = response.IsError() ? message.TsForReply() : null;
+
+        await slackBroker.SendMessageAsync(response.ToSlackResponse(), message.Channel, replyToTs);
     }
 
     public string BuildHelpMessage() => string.Empty;

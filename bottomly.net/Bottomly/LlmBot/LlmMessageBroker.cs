@@ -3,7 +3,12 @@ using Microsoft.Extensions.Logging;
 
 namespace Bottomly.LlmBot;
 
-public class LlmMessageBroker(IChatClient chatClient, ILogger<LlmMessageBroker> logger)
+public interface ILlmMessageBroker
+{
+    Task<LlmResponse> Respond(BottomlyInputMessage userPrompt, MessageHistoryContext historyContext);
+}
+
+public class LlmMessageBroker(IChatClient chatClient, ILogger<LlmMessageBroker> logger) : ILlmMessageBroker
 {
     public async Task<LlmResponse> Respond(BottomlyInputMessage userPrompt, MessageHistoryContext historyContext)
     {
@@ -38,6 +43,7 @@ public record LlmMessageResponse : LlmResponse
     private LlmMessageResponse(string message) => Message = message;
     public string Message { get; }
 
+    public static LlmResponse Create(string message) => new LlmMessageResponse(message);
     public static LlmResponse Create(ChatResponse chatResponse) => new LlmMessageResponse(chatResponse.Text);
 }
 
@@ -60,5 +66,5 @@ public static class LlmResponseExtensions
             _ => new LlmUnknownErrorResponse()
         };
 
-    public static bool IsSuccess(this LlmResponse response) => response is LlmMessageResponse;
+    public static bool IsError(this LlmResponse response) => response is not LlmMessageResponse;
 }

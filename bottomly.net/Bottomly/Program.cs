@@ -110,7 +110,7 @@ builder.Services.AddHttpClient("bottomlymodel_httpClient")
         options.CircuitBreaker.SamplingDuration = TimeSpan.FromMinutes(8);
     });
 
-builder.Services.AddTransient<LlmMessageBroker>();
+builder.Services.AddTransient<ILlmMessageBroker, LlmMessageBroker>();
 
 // Seeding
 builder.Services.AddSingleton<MemberlistPopulator>();

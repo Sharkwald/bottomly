@@ -68,16 +68,7 @@ public abstract class AbstractMessageEventHandler(
 
     protected async Task SendMessageResponseAsync(string text, MessageEvent message, bool asReply = false)
     {
-        string? replyTs = null;
-        if (asReply)
-        {
-            replyTs = message.Ts;
-        }
-
-        if (message.ThreadTs is not null)
-        {
-            replyTs = message.ThreadTs;
-        }
+        var replyTs = asReply ? message.TsForReply() : null;
 
         await Broker.SendMessageAsync(text, message.Channel, replyTs);
     }
@@ -87,4 +78,10 @@ public abstract class AbstractMessageEventHandler(
 
     protected Task SendDmResponseAsync(string text, MessageEvent message) =>
         Broker.SendDmAsync(text, message.User);
+}
+
+public static class MessageEventExtensions
+{
+    public static string TsForReply(this MessageEvent message) =>
+        message.ThreadTs ?? message.Ts;
 }
