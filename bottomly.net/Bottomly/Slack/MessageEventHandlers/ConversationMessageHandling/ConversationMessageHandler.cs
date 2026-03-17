@@ -6,7 +6,7 @@ using SlackNet.Events;
 namespace Bottomly.Slack.MessageEventHandlers.ConversationMessageHandling;
 
 public class ConversationMessageHandler(
-    ILlmMessageBroker llmMessageBroker,
+    ILlmClient llmMessageBroker,
     ISlackMessageBroker slackBroker,
     ISlackApiClient apiClient,
     IMemberRepository memberRepository

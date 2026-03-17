@@ -3,12 +3,12 @@ using Microsoft.Extensions.Logging;
 
 namespace Bottomly.LlmBot;
 
-public interface ILlmMessageBroker
+public interface ILlmClient
 {
     Task<LlmResponse> Respond(BottomlyInputMessage userPrompt, MessageHistoryContext historyContext);
 }
 
-public class LlmMessageBroker(IChatClient chatClient, ILogger<LlmMessageBroker> logger) : ILlmMessageBroker
+public class LlmClient(IChatClient chatClient, ILogger<LlmClient> logger) : ILlmClient
 {
     public async Task<LlmResponse> Respond(BottomlyInputMessage userPrompt, MessageHistoryContext historyContext)
     {

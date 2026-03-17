@@ -13,7 +13,7 @@ namespace Bottomly.Tests.Slack.MessageEventHandlers.ConversationMessageHandling;
 
 public class ConversationMessageHandlerTests
 {
-    private readonly Mock<ILlmMessageBroker> _mockLlmBroker = new();
+    private readonly Mock<ILlmClient> _mockLlmBroker = new();
     private readonly Mock<ISlackMessageBroker> _mockSlackBroker = new();
     private readonly Mock<ISlackApiClient> _mockApiClient = new();
     private readonly Mock<IConversationsApi> _mockConversations = new();

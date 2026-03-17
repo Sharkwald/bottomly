@@ -6,14 +6,14 @@ using Shouldly;
 
 namespace Bottomly.Tests.LlmBot;
 
-public class LlmMessageBrokerTests
+public class LlmClientTests
 {
     private readonly Mock<IChatClient> _mockChatClient = new();
-    private readonly LlmMessageBroker _broker;
+    private readonly LlmClient _broker;
 
-    public LlmMessageBrokerTests()
+    public LlmClientTests()
     {
-        _broker = new LlmMessageBroker(_mockChatClient.Object, NullLogger<LlmMessageBroker>.Instance);
+        _broker = new LlmClient(_mockChatClient.Object, NullLogger<LlmClient>.Instance);
     }
 
     [Fact]
