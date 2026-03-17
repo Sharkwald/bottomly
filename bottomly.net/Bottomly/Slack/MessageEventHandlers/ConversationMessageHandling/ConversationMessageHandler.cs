@@ -1,5 +1,6 @@
 ﻿using Bottomly.LlmBot;
 using Bottomly.Repositories;
+using Microsoft.Extensions.Logging;
 using SlackNet;
 using SlackNet.Events;
 
@@ -9,13 +10,16 @@ public class ConversationMessageHandler(
     ILlmClient llmMessageBroker,
     ISlackMessageBroker slackBroker,
     ISlackApiClient apiClient,
-    IMemberRepository memberRepository
+    IMemberRepository memberRepository,
+    ILogger<ConversationMessageHandler> logger
 ) : IMessageEventHandler
 {
     public bool CanHandle(MessageEvent message) => message.Text.Contains("bottomly");
 
     public async Task HandleAsync(MessageEvent message)
     {
+        logger.LogInformation("Handling conversation message from {User} in {Channel}", message.User, message.Channel);
+
         var history = await apiClient.Conversations.History(message.Channel, limit: 11);
 
         var contextUsersSlackIds = history.Messages.Select(m => m.User).Distinct();

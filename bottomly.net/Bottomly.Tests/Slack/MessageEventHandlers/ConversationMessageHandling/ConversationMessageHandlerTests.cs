@@ -3,6 +3,7 @@ using Bottomly.Models;
 using Bottomly.Repositories;
 using Bottomly.Slack;
 using Bottomly.Slack.MessageEventHandlers.ConversationMessageHandling;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Shouldly;
 using SlackNet;
@@ -28,7 +29,8 @@ public class ConversationMessageHandlerTests
             _mockLlmBroker.Object,
             _mockSlackBroker.Object,
             _mockApiClient.Object,
-            _mockMemberRepo.Object);
+            _mockMemberRepo.Object,
+            NullLogger<ConversationMessageHandler>.Instance);
     }
 
     private static MessageEvent CreateMessage(string text, string user = "U1", string channel = "C1", string? threadTs = null) =>
