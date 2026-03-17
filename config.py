@@ -8,6 +8,7 @@ class ConfigKeys(Enum):
     google_cse_id = "bottomly_google_cse_id"
     mongo_conn_st = "bottomly_mongo_conn_str"
     slack_bot_token = "bottomly_slack_bot_token"
+    slack_app_token = "bottomly_slack_app_token"
     prefix = "bottomly_prefix"
     giphy_api_key = "bottomly_giphy_api_key"
     env_key = "bottomly_env"
@@ -23,6 +24,7 @@ class Config(object):
         ConfigKeys.google_cse_id: 'Google custom search engine ID is not configured',
         ConfigKeys.mongo_conn_st: 'MongoDB connection string is not configured',
         ConfigKeys.slack_bot_token: 'Slack bot auth token is not configured',
+        ConfigKeys.slack_app_token: 'Slack app auth token is not configured',
         ConfigKeys.prefix: "Standard command prefix is not configured",
         ConfigKeys.giphy_api_key: "Giphy API key is not configured",
         ConfigKeys.env_key: "Environment mode is not configured",
