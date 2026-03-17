@@ -7,7 +7,7 @@
     <Folder Name="/RepoConfig/">
         <File Path=".editorconfig" />
         <File Path=".gitignore" />
-        <File Path=".nuget/NuGet.config" />
+        <File Path="NuGet.config" />
         <File Path="README.md" />
     </Folder>
     <Project Path="Bottomly.AppHost/Bottomly.AppHost.csproj" />
