@@ -11,7 +11,6 @@ A .NET Slack bot
 The project uses [.NET Aspire](https://learn.microsoft.com/en-us/dotnet/aspire/get-started/aspire-overview) for local orchestration. Running the `Bottomly.AppHost` project will spin up MongoDB, Ollama (LLM), and the bot itself:
 
 ```bash
-cd bottomly.net
 dotnet run --project Bottomly.AppHost
 ```
 
@@ -20,7 +19,6 @@ dotnet run --project Bottomly.AppHost
 Run the `Bottomly` project directly, ensuring MongoDB and Ollama are available and all required environment variables are set:
 
 ```bash
-cd bottomly.net
 dotnet run --project Bottomly
 ```
 
