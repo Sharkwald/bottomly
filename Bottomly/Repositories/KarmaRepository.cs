@@ -82,7 +82,7 @@ public class KarmaRepository(IMongoDatabase database) : IKarmaRepository
                     "net_karma", new BsonDocument("$cond", new BsonArray
                     {
                         new BsonDocument("$eq", new BsonArray { "$karma_type", nameof(KarmaType.PozzyPoz) }),
-                        1, -1
+                        -1, 1
                     })
                 },
                 { "awarded", "$awarded" }
