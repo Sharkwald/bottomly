@@ -56,12 +56,14 @@ public class GetCurrentNetKarmaHandlerTests
         _mockKarmaRepo.Verify(r => r.GetCurrentNetKarmaAsync("alice"), Times.Once());
     }
 
-    [Fact]
-    public async Task HandleAsync_NoRecipient_CallsCommandWithMessageUser()
+    [Theory]
+    [InlineData("_karma")]
+    [InlineData("_karma ")]
+    public async Task HandleAsync_NoRecipient_CallsCommandWithMessageUser(string message)
     {
         _mockKarmaRepo.Setup(r => r.GetCurrentNetKarmaAsync("U_sender")).ReturnsAsync(0);
 
-        await _handler.HandleAsync(CreateMessage("_karma"));
+        await _handler.HandleAsync(CreateMessage(message));
 
         _mockKarmaRepo.Verify(r => r.GetCurrentNetKarmaAsync("U_sender"), Times.Once());
     }
