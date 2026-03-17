@@ -19,7 +19,7 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: Install Aspire workload
-        run: dotnet workload install aspire
+        run: dotnet workload install aspire --include-previews
 
       - name: Restore dependencies
         run: dotnet restore bottomly.net.slnx
