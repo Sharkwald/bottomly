@@ -29,6 +29,23 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Set lowercase image name
         run: echo "IMAGE_NAME=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+      - name: Ensure Application Insights exists
+        id: appinsights
+        run: |
+          CONN_STR=$(az monitor app-insights component show \
+            --app bottomly-live \
+            --resource-group ${{ secrets.RESOURCE_GROUP }} \
+            --query connectionString \
+            --output tsv 2>/dev/null || \
+          az monitor app-insights component create \
+            --app bottomly-live \
+            --resource-group ${{ secrets.RESOURCE_GROUP }} \
+            --location "uk south" \
+            --kind web \
+            --application-type other \
+            --query connectionString \
+            --output tsv)
+          echo "connection_string=$CONN_STR" >> $GITHUB_OUTPUT
       - name: Deploy to Azure Container Instances
         uses: azure/aci-deploy@v1
         with:
@@ -49,3 +66,4 @@ jobs:
             bottomly_env=${{ secrets.ENV }}
             ConnectionStrings__mongodb=${{ secrets.MONGO_CONN_STR }}
             bottomly_github_token=${{ secrets.RELEASE_HISTORY_TOKEN }}
+            APPLICATIONINSIGHTS_CONNECTION_STRING=${{ steps.appinsights.outputs.connection_string }}
