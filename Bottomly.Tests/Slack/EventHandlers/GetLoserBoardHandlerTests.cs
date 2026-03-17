@@ -36,12 +36,14 @@ public class GetLoserBoardHandlerTests
     [Fact]
     public void CanHandle_InvalidEvent_ReturnsFalse() => _handler.CanHandle(CreateMessage("hello")).ShouldBeFalse();
 
-    [Fact]
-    public async Task HandleAsync_NoSize_CallsCommandWithDefaultSize3()
+    [Theory]
+    [InlineData("_leaderboard")]
+    [InlineData("_leaderboard ")]
+    public async Task HandleAsync_NoSize_CallsCommandWithDefaultSize3(string message)
     {
         _mockKarmaRepo.Setup(r => r.GetLoserBoardAsync(3)).ReturnsAsync(new List<KarmaScore>().AsReadOnly());
 
-        await _handler.HandleAsync(CreateMessage("_loserboard "));
+        await _handler.HandleAsync(CreateMessage(message));
 
         _mockKarmaRepo.Verify(r => r.GetLoserBoardAsync(3), Times.Once());
     }

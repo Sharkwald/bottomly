@@ -21,7 +21,7 @@ public class GetLeaderBoardHandler(
 
     protected override async Task InvokeHandlerLogicAsync(MessageEvent message)
     {
-        var sizeArg = message.Text![CommandTrigger.Length..];
+        var sizeArg = message.Text![CommandTrigger.Trim().Length..];
         var size = int.TryParse(sizeArg, out var parsed) && parsed > 0 ? parsed : 3;
 
         var result = await repository.GetLeaderBoardAsync(size);
