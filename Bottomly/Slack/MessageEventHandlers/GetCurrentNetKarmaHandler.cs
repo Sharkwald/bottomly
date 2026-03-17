@@ -28,7 +28,7 @@ public class GetCurrentNetKarmaHandler(
     protected override async Task InvokeHandlerLogicAsync(MessageEvent message)
     {
         var text = await parser.ReplaceSlackIdTokensWithUsernamesAsync(message.Text!);
-        var recipient = text[CommandTrigger.Length..].Split(' ')[0];
+        var recipient = text[CommandTrigger.Trim().Length..].Split(' ').FirstOrDefault(string.Empty);
         if (string.IsNullOrEmpty(recipient))
         {
             recipient = message.User;

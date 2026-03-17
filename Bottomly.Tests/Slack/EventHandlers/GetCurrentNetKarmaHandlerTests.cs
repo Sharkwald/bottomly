@@ -61,7 +61,7 @@ public class GetCurrentNetKarmaHandlerTests
     {
         _mockKarmaRepo.Setup(r => r.GetCurrentNetKarmaAsync("U_sender")).ReturnsAsync(0);
 
-        await _handler.HandleAsync(CreateMessage("_karma "));
+        await _handler.HandleAsync(CreateMessage("_karma"));
 
         _mockKarmaRepo.Verify(r => r.GetCurrentNetKarmaAsync("U_sender"), Times.Once());
     }
