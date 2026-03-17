@@ -11,6 +11,8 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     environment:
       name: live
+    permissions:
+      packages: read
     steps:
         # checkout the repo
       - name: Checkout GitHub Action
@@ -19,24 +21,21 @@ jobs:
         uses: azure/login@v1.4.5
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-      - name: Build and push image
-        uses: azure/docker-login@v1
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
         with:
-          login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
-          username: ${{ secrets.REGISTRY_USERNAME }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
-      - run: |
-          docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/bottomly:${{ github.sha }}
-          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/bottomly:${{ github.sha }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Deploy to Azure Container Instances
         uses: azure/aci-deploy@v1
         with:
           resource-group: ${{ secrets.RESOURCE_GROUP }}
           dns-name-label: ${{ secrets.RESOURCE_GROUP }}live${{ github.run_number }}
-          image: ${{ secrets.REGISTRY_LOGIN_SERVER }}/bottomly:${{ github.sha }}
-          registry-login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
-          registry-username: ${{ secrets.REGISTRY_USERNAME }}
-          registry-password: ${{ secrets.REGISTRY_PASSWORD }}
+          image: ghcr.io/${{ github.repository }}:${{ github.sha }}
+          registry-login-server: ghcr.io
+          registry-username: ${{ github.actor }}
+          registry-password: ${{ secrets.GITHUB_TOKEN }}
           name: bottomly-live
           location: uk south
           environment-variables: bottomly_giphy_api_key=${{ secrets.GIPHY_API_KEY }}
