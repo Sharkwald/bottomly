@@ -3,10 +3,11 @@ using Bottomly.Slack;
 using Bottomly.Slack.MessageEventHandlers;
 using Bottomly.Slack.ReactionHandlers;
 using Bottomly.Tests.Helpers;
-using Microsoft.Extensions.Logging.Abstractions;
+using Meziantou.Extensions.Logging.Xunit;
 using Moq;
 using Shouldly;
 using SlackNet.Events;
+using Xunit.Abstractions;
 
 namespace Bottomly.Tests.Slack.EventHandlers;
 
@@ -17,7 +18,7 @@ public class GetCurrentNetKarmaHandlerTests
     private readonly Mock<IKarmaRepository> _mockKarmaRepo = new();
     private readonly Mock<IMemberRepository> _mockMemberRepo = new();
 
-    public GetCurrentNetKarmaHandlerTests()
+    public GetCurrentNetKarmaHandlerTests(ITestOutputHelper outputHelper)
     {
         var options = TestHelpers.CreateOptions();
         var parser = new SlackParser(_mockMemberRepo.Object);
@@ -25,7 +26,7 @@ public class GetCurrentNetKarmaHandlerTests
             _mockKarmaRepo.Object,
             new KarmaReactionMap(), parser,
             _mockBroker.Object, options,
-            NullLogger<GetCurrentNetKarmaHandler>.Instance);
+            XUnitLogger.CreateLogger<GetCurrentNetKarmaHandler>(outputHelper));
     }
 
     private static MessageEvent CreateMessage(string text, string user = "U_sender") =>
@@ -54,6 +55,7 @@ public class GetCurrentNetKarmaHandlerTests
         await _handler.HandleAsync(CreateMessage("_karma alice"));
 
         _mockKarmaRepo.Verify(r => r.GetCurrentNetKarmaAsync("alice"), Times.Once());
+        _mockBroker.Verify(b => b.SendMessageAsync("alice: 3", "C1", null), Times.Once());
     }
 
     [Theory]

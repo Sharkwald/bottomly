@@ -28,7 +28,7 @@ public class GetCurrentNetKarmaHandler(
     protected override async Task InvokeHandlerLogicAsync(MessageEvent message)
     {
         var text = await parser.ReplaceSlackIdTokensWithUsernamesAsync(message.Text!);
-        var recipient = text[CommandTrigger.Trim().Length..].Split(' ').FirstOrDefault(string.Empty);
+        var recipient = ParseRecipient(text);
         if (string.IsNullOrEmpty(recipient))
         {
             recipient = message.User;
@@ -37,4 +37,10 @@ public class GetCurrentNetKarmaHandler(
         var result = await repository.GetCurrentNetKarmaAsync(recipient);
         await SendMessageResponseAsync($"{recipient}: {result}", message);
     }
+
+    private string ParseRecipient(string text) =>
+        text[CommandTrigger.Trim().Length..] // Remove the command trigger
+            .Trim() // Remove any leading/trailing whitespace
+            .Split(' ') // Split on whitespace
+            .FirstOrDefault(string.Empty); // Return the first non-whitespace token
 }
