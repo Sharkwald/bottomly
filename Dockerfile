@@ -14,7 +14,7 @@ COPY Bottomly.ServiceDefaults/ Bottomly.ServiceDefaults/
 
 RUN dotnet publish Bottomly/Bottomly.csproj -c Release -o /app/publish --no-restore
 
-FROM mcr.microsoft.com/dotnet/runtime:10.0
+FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /app
 COPY --from=build /app/publish .
 
