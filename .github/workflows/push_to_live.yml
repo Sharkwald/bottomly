@@ -23,7 +23,7 @@ jobs:
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
       - run: |
-          docker build . -f run.dockerfile -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/bottomly:${{ github.sha }}
+          docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/bottomly:${{ github.sha }}
           docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/bottomly:${{ github.sha }}
       - name: Deploy to Azure Container Instances
         uses: azure/aci-deploy@v1
@@ -43,5 +43,5 @@ jobs:
             bottomly_slack_app_token=${{ secrets.SLACK_APP_TOKEN }}
             bottomly_prefix=${{ secrets.PREFIX }}
             bottomly_env=${{ secrets.ENV }}
-            bottomly_mongo_conn_str=${{ secrets.MONGO_CONN_STR }}
+            ConnectionStrings__mongodb=${{ secrets.MONGO_CONN_STR }}
             bottomly_github_token=${{ secrets.RELEASE_HISTORY_TOKEN }}
