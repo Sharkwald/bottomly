@@ -2,7 +2,6 @@
     <Folder Name="/GitHubWorkflows/">
         <File Path=".github/workflows/dotnet.yml" />
         <File Path=".github/workflows/push_to_live.yml" />
-        <File Path=".github/workflows/push_to_test.yml" />
     </Folder>
     <Folder Name="/RepoConfig/">
         <File Path=".editorconfig" />
