@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/nightly/sdk:10.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 RUN dotnet workload install aspire
@@ -14,7 +14,7 @@ COPY Bottomly.ServiceDefaults/ Bottomly.ServiceDefaults/
 
 RUN dotnet publish Bottomly/Bottomly.csproj -c Release -o /app/publish --no-restore
 
-FROM mcr.microsoft.com/dotnet/nightly/runtime:10.0
+FROM mcr.microsoft.com/dotnet/runtime:10.0
 WORKDIR /app
 COPY --from=build /app/publish .
 
