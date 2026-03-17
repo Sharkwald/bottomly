@@ -27,12 +27,14 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set lowercase image name
+        run: echo "IMAGE_NAME=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
       - name: Deploy to Azure Container Instances
         uses: azure/aci-deploy@v1
         with:
           resource-group: ${{ secrets.RESOURCE_GROUP }}
           dns-name-label: ${{ secrets.RESOURCE_GROUP }}live${{ github.run_number }}
-          image: ghcr.io/${{ github.repository }}:${{ github.sha }}
+          image: ghcr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
           registry-login-server: ghcr.io
           registry-username: ${{ github.actor }}
           registry-password: ${{ secrets.GITHUB_TOKEN }}

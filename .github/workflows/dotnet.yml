@@ -41,8 +41,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set lowercase image name
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: echo "IMAGE_NAME=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+
       - name: Push image to GitHub Container Registry
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
-          docker tag bottomly ghcr.io/${{ github.repository }}:${{ github.sha }}
-          docker push ghcr.io/${{ github.repository }}:${{ github.sha }}
+          docker tag bottomly ghcr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          docker push ghcr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
