@@ -10,6 +10,7 @@ public class BottomlyOptions
     public string GiphyApiKey { get; set; } = string.Empty;
     public string Environment { get; set; } = "live";
     public string GitHubToken { get; set; } = string.Empty;
+    public bool EnableLlm { get; set; } = false;
 
     public bool IsDebug => Environment != "live";
 }
