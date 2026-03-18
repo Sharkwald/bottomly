@@ -18,7 +18,8 @@ public class GoogleHandlerTests
     public GoogleHandlerTests()
     {
         var options = TestHelpers.CreateOptions();
-        _mockCommand = new Mock<GoogleSearchCommand>(options, NullLogger<GoogleSearchCommand>.Instance);
+        _mockCommand = new Mock<GoogleSearchCommand>(options, NullLogger<GoogleSearchCommand>.Instance,
+            new Mock<IHttpClientFactory>().Object);
         _handler = new GoogleHandler(_mockCommand.Object, _mockBroker.Object, options,
             NullLogger<GoogleHandler>.Instance);
     }

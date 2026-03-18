@@ -18,7 +18,7 @@ public class GoogleImageHandlerTests
     public GoogleImageHandlerTests()
     {
         var options = TestHelpers.CreateOptions();
-        _mockCommand = new Mock<GoogleImageSearchCommand>(options);
+        _mockCommand = new Mock<GoogleImageSearchCommand>(options, new Mock<IHttpClientFactory>().Object);
         _handler = new GoogleImageHandler(_mockCommand.Object, _mockBroker.Object, options,
             NullLogger<GoogleImageHandler>.Instance);
     }

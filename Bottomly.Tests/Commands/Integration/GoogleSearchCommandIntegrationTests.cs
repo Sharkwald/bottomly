@@ -44,11 +44,17 @@ public class GoogleSearchCommandIntegrationTests
 
     private GoogleSearchCommand CreateCommand()
     {
+        var factory = new DefaultHttpClientFactory();
         return new GoogleSearchCommand(Options.Create(new BottomlyOptions
         {
             GoogleApiKey = ApiKey!,
             GoogleCseId = CseId!
-        }), _logger);
+        }), _logger, factory);
+    }
+
+    private sealed class DefaultHttpClientFactory : IHttpClientFactory
+    {
+        public HttpClient CreateClient(string name) => new();
     }
 
     [Fact]

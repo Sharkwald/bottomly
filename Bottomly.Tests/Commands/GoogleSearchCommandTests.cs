@@ -20,12 +20,13 @@ public class GoogleSearchCommandTests
     private static GoogleSearchCommand CreateCommand(string responseJson,
         HttpStatusCode statusCode = HttpStatusCode.OK) =>
         new(Options, NullLogger<GoogleSearchCommand>.Instance,
-            TestHelpers.CreateGoogleHttpClientFactory(responseJson, statusCode));
+            TestHelpers.CreateHttpClientFactory(responseJson, statusCode));
 
     [Fact]
     public async Task ExecuteAsync_EmptyInput_ReturnsEmptySearchTermErrorResult()
     {
-        var command = new GoogleSearchCommand(Options, NullLogger<GoogleSearchCommand>.Instance);
+        var command = new GoogleSearchCommand(Options, NullLogger<GoogleSearchCommand>.Instance,
+            TestHelpers.CreateHttpClientFactory(string.Empty));
 
         var result = await command.ExecuteAsync("");
 
@@ -35,7 +36,8 @@ public class GoogleSearchCommandTests
     [Fact]
     public async Task ExecuteAsync_WhitespaceInput_ReturnsEmptySearchTermErrorResult()
     {
-        var command = new GoogleSearchCommand(Options, NullLogger<GoogleSearchCommand>.Instance);
+        var command = new GoogleSearchCommand(Options, NullLogger<GoogleSearchCommand>.Instance,
+            TestHelpers.CreateHttpClientFactory(string.Empty));
 
         var result = await command.ExecuteAsync("   ");
 
@@ -95,7 +97,7 @@ public class GoogleSearchCommandTests
         var result = await CreateCommand(errorJson, HttpStatusCode.Forbidden).ExecuteAsync("anything");
 
         var errorResult = result.ShouldBeOfType<GoogleApiErrorResult>();
-        errorResult.Error.ShouldNotBeNullOrEmpty();
+        errorResult.Error.ShouldBe("API key expired");
     }
 
     [Fact]
