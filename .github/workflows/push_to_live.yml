@@ -28,7 +28,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Set lowercase image name
-        run: echo "IMAGE_NAME=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+        id: image_name
+        shell: bash
+        run: echo "value=${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
       - name: Ensure Application Insights exists
         id: appinsights
         run: |
@@ -51,7 +53,7 @@ jobs:
         with:
           resource-group: ${{ secrets.RESOURCE_GROUP }}
           dns-name-label: ${{ secrets.RESOURCE_GROUP }}live${{ github.run_number }}
-          image: ghcr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          image: ghcr.io/${{ steps.image_name.outputs.value }}:${{ github.sha }}
           registry-login-server: ghcr.io
           registry-username: ${{ github.actor }}
           registry-password: ${{ secrets.GITHUB_TOKEN }}
