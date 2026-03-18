@@ -49,18 +49,24 @@ jobs:
             --output tsv)
           echo "connection_string=$CONN_STR" >> $GITHUB_OUTPUT
       - name: Deploy to Azure Container Instances
-        uses: azure/aci-deploy@v1
-        with:
-          resource-group: ${{ secrets.RESOURCE_GROUP }}
-          dns-name-label: ${{ secrets.RESOURCE_GROUP }}live${{ github.run_number }}
-          image: ghcr.io/${{ steps.image_name.outputs.value }}:${{ github.sha }}
-          registry-login-server: ghcr.io
-          registry-username: ${{ github.actor }}
-          registry-password: ${{ secrets.GITHUB_TOKEN }}
-          name: bottomly-live
-          location: uk south
-          environment-variables: bottomly_giphy_api_key=${{ secrets.GIPHY_API_KEY }}
-            bottomly_brave_api_key=${{ secrets.BRAVE_API_KEY }} bottomly_slack_bot_token=${{ secrets.SLACK_TOKEN }}
-            bottomly_slack_app_token=${{ secrets.SLACK_APP_TOKEN }} bottomly_prefix=${{ secrets.PREFIX }}
-            bottomly_env=${{ secrets.ENV }} ConnectionStrings__mongodb=${{ secrets.MONGO_CONN_STR }}
-            bottomly_github_token=${{ secrets.RELEASE_HISTORY_TOKEN }} APPLICATIONINSIGHTS_CONNECTION_STRING=${{ steps.appinsights.outputs.connection_string }}
+        env:
+          IMAGE: ghcr.io/${{ steps.image_name.outputs.value }}:${{ github.sha }}
+          DNS_NAME_LABEL: ${{ secrets.RESOURCE_GROUP }}live${{ github.run_number }}
+          GIPHY_API_KEY: ${{ secrets.GIPHY_API_KEY }}
+          BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
+          SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
+          SLACK_APP_TOKEN: ${{ secrets.SLACK_APP_TOKEN }}
+          PREFIX: ${{ secrets.PREFIX }}
+          ENV: ${{ secrets.ENV }}
+          MONGO_CONN_STR: ${{ secrets.MONGO_CONN_STR }}
+          RELEASE_HISTORY_TOKEN: ${{ secrets.RELEASE_HISTORY_TOKEN }}
+          APPINSIGHTS_CONN_STR: ${{ steps.appinsights.outputs.connection_string }}
+          OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
+          REGISTRY_USERNAME: ${{ github.actor }}
+          REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          envsubst < .azure/container-group.yml > /tmp/resolved-container-group.yml
+          az container create \
+            --resource-group ${{ secrets.RESOURCE_GROUP }} \
+            --file /tmp/resolved-container-group.yml
