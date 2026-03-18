@@ -1,10 +1,11 @@
+using System.Net;
 using Bottomly.Commands.Google;
 using Bottomly.Configuration;
 using Bottomly.Tests.Helpers;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
 using Shouldly;
-using System.Net;
 
 namespace Bottomly.Tests.Commands;
 
@@ -14,13 +15,17 @@ public class GoogleImageSearchCommandTests
         Microsoft.Extensions.Options.Options.Create(new BottomlyOptions { GoogleApiKey = "key", GoogleCseId = "cse" });
 
     private static GoogleImageSearchCommand CreateCommand(string responseJson,
-        HttpStatusCode statusCode = HttpStatusCode.OK) =>
-        new(Options, TestHelpers.CreateHttpClientFactory(responseJson, statusCode));
+        HttpStatusCode statusCode = HttpStatusCode.OK)
+    {
+        return new GoogleImageSearchCommand(Options, TestHelpers.CreateHttpClientFactory(responseJson, statusCode),
+            NullLogger<GoogleImageSearchCommand>.Instance);
+    }
 
     [Fact]
     public async Task ExecuteAsync_EmptyInput_ReturnsEmptySearchTermErrorResult()
     {
-        var command = new GoogleImageSearchCommand(Options, new Mock<IHttpClientFactory>().Object);
+        var command = new GoogleImageSearchCommand(Options, new Mock<IHttpClientFactory>().Object,
+            NullLogger<GoogleImageSearchCommand>.Instance);
 
         var result = await command.ExecuteAsync("");
 
@@ -31,11 +36,11 @@ public class GoogleImageSearchCommandTests
     public async Task ExecuteAsync_ApiReturnsResults_ReturnsGoogleSearchResult()
     {
         const string json = """
-            {
-              "searchInformation": { "totalResults": "1" },
-              "items": [{ "title": "A cat", "link": "https://example.com/cat.jpg" }]
-            }
-            """;
+                            {
+                              "searchInformation": { "totalResults": "1" },
+                              "items": [{ "title": "A cat", "link": "https://example.com/cat.jpg" }]
+                            }
+                            """;
 
         var result = await CreateCommand(json).ExecuteAsync("cat");
 
@@ -58,13 +63,13 @@ public class GoogleImageSearchCommandTests
     public async Task ExecuteAsync_ApiReturnsError_ReturnsGoogleApiErrorResult()
     {
         const string errorJson = """
-            {
-              "error": {
-                "code": 403,
-                "message": "API key expired"
-              }
-            }
-            """;
+                                 {
+                                   "error": {
+                                     "code": 403,
+                                     "message": "API key expired"
+                                   }
+                                 }
+                                 """;
 
         var result = await CreateCommand(errorJson, HttpStatusCode.Forbidden).ExecuteAsync("something");
 

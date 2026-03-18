@@ -18,20 +18,28 @@ public class GoogleImageHandlerTests
     public GoogleImageHandlerTests()
     {
         var options = TestHelpers.CreateOptions();
-        _mockCommand = new Mock<GoogleImageSearchCommand>(options, new Mock<IHttpClientFactory>().Object);
+        _mockCommand = new Mock<GoogleImageSearchCommand>(options, new Mock<IHttpClientFactory>().Object,
+            NullLogger<GoogleImageSearchCommand>.Instance);
         _handler = new GoogleImageHandler(_mockCommand.Object, _mockBroker.Object, options,
             NullLogger<GoogleImageHandler>.Instance);
     }
 
-    private static MessageEvent CreateMessage(string text) =>
-        new() { Text = text, User = "U1", Channel = "C1", Ts = "ts1" };
+    private static MessageEvent CreateMessage(string text)
+    {
+        return new MessageEvent { Text = text, User = "U1", Channel = "C1", Ts = "ts1" };
+    }
 
     [Fact]
-    public void CanHandle_ValidEvent_ReturnsTrue() => _handler.CanHandle(CreateMessage("_gi cats")).ShouldBeTrue();
+    public void CanHandle_ValidEvent_ReturnsTrue()
+    {
+        _handler.CanHandle(CreateMessage("_gi cats")).ShouldBeTrue();
+    }
 
     [Fact]
-    public void CanHandle_InvalidEvent_ReturnsFalse() =>
+    public void CanHandle_InvalidEvent_ReturnsFalse()
+    {
         _handler.CanHandle(CreateMessage("no prefix here")).ShouldBeFalse();
+    }
 
     [Fact]
     public async Task HandleAsync_ValidEvent_CallsCommandWithQuery()

@@ -5,26 +5,19 @@ using Microsoft.Extensions.Options;
 
 namespace Bottomly.Commands.Google;
 
-public abstract class GoogleCommandBase : ICommand
+public abstract class GoogleCommandBase(
+    IOptions<BottomlyOptions> options,
+    IHttpClientFactory httpClientFactory,
+    ILogger logger)
+    : ICommand
 {
     private const string BaseUrl = "https://customsearch.googleapis.com/customsearch/v1";
-    private readonly string _apiKey;
-    private readonly string _cseId;
-    private readonly IHttpClientFactory _httpClientFactory;
-    private readonly ILogger? _logger;
-
-    protected GoogleCommandBase(IOptions<BottomlyOptions> options, IHttpClientFactory httpClientFactory,
-        ILogger? logger = null)
-    {
-        _apiKey = options.Value.GoogleApiKey;
-        _cseId = options.Value.GoogleCseId;
-        _httpClientFactory = httpClientFactory;
-        _logger = logger;
-    }
-
-    public abstract string GetPurpose();
+    private readonly string _apiKey = options.Value.GoogleApiKey;
+    private readonly string _cseId = options.Value.GoogleCseId;
 
     protected virtual string ExtraQueryParams => string.Empty;
+
+    public abstract string GetPurpose();
 
     public virtual async Task<GoogleCommandResult> ExecuteAsync(string searchTerm)
     {
@@ -32,28 +25,22 @@ public abstract class GoogleCommandBase : ICommand
 
         try
         {
-            var client = _httpClientFactory.CreateClient();
-            var url = $"{BaseUrl}?key={_apiKey}&cx={_cseId}&q={Uri.EscapeDataString(searchTerm)}&num=1{ExtraQueryParams}";
+            var client = httpClientFactory.CreateClient();
+            var url =
+                $"{BaseUrl}?key={_apiKey}&cx={_cseId}&q={Uri.EscapeDataString(searchTerm)}&num=1{ExtraQueryParams}";
             var response = await client.GetAsync(url);
-            var body = await response.Content.ReadAsStringAsync();
-
             if (!response.IsSuccessStatusCode)
             {
-                var errorMessage = ExtractErrorMessage(body) ?? $"HTTP {(int)response.StatusCode}: {response.ReasonPhrase}";
-                _logger?.LogError("Google search API error {StatusCode}: {Message}", response.StatusCode, errorMessage);
+                var errorMessage = ExtractErrorMessage(response);
+                logger?.LogError("Google search API error {StatusCode}: {Message}", response.StatusCode, errorMessage);
                 return new GoogleApiErrorResult(errorMessage);
             }
 
+            var body = await response.Content.ReadAsStringAsync();
             using var doc = JsonDocument.Parse(body);
             var root = doc.RootElement;
 
-            if (root.TryGetProperty("searchInformation", out var info) &&
-                info.TryGetProperty("totalResults", out var total) &&
-                total.GetString() == "0")
-                return new NoResultsFoundResult();
-
-            if (!root.TryGetProperty("items", out var items) || items.GetArrayLength() == 0)
-                return new NoResultsFoundResult();
+            if (!TryGetSearchResults(root, out var items)) return new NoResultsFoundResult();
 
             var first = items[0];
             var title = first.GetProperty("title").GetString() ?? string.Empty;
@@ -62,21 +49,34 @@ public abstract class GoogleCommandBase : ICommand
         }
         catch (Exception e)
         {
-            _logger?.LogError(e, "Error executing Google search");
+            logger?.LogError(e, "Error executing Google search");
             return new GoogleApiErrorResult(e.Message);
         }
     }
 
-    private static string? ExtractErrorMessage(string body)
+    private static bool TryGetSearchResults(JsonElement root, out JsonElement results)
+    {
+        results = default;
+        return !(root.TryGetProperty("searchInformation", out var info) &&
+                 info.TryGetProperty("totalResults", out var total) &&
+                 total.GetString() == "0") && root.TryGetProperty("items", out results) &&
+               results.GetArrayLength() > 0;
+    }
+
+    private static string ExtractErrorMessage(HttpResponseMessage response)
     {
         try
         {
-            using var doc = JsonDocument.Parse(body);
+            using var doc = JsonDocument.Parse(response.Content.ReadAsStringAsync().Result);
             if (doc.RootElement.TryGetProperty("error", out var error) &&
                 error.TryGetProperty("message", out var msg))
-                return msg.GetString();
+                return msg.GetString()!;
         }
-        catch (JsonException) { }
-        return null;
+        catch (JsonException)
+        {
+            // swallow.
+        }
+
+        return response.ReasonPhrase ?? "Unknown error";
     }
 }

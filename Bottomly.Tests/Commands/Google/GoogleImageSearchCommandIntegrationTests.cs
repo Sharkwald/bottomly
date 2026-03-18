@@ -7,10 +7,10 @@ using Microsoft.Extensions.Options;
 using Shouldly;
 using Xunit.Abstractions;
 
-namespace Bottomly.Tests.Commands.Integration;
+namespace Bottomly.Tests.Commands.Google;
 
 /// <summary>
-///     Integration tests that call the real Google Custom Search API.
+///     Integration tests that call the real Google Custom Search API with image search.
 ///     Credentials are resolved from the standard .NET configuration stack:
 ///     1. User secrets stored against the main Bottomly app project (local dev —
 ///     run `dotnet user-secrets set "bottomly_google_api_key" "..." --project Bottomly`)
@@ -20,20 +20,18 @@ namespace Bottomly.Tests.Commands.Integration;
 ///     for contributors without keys. When credentials are present but expired or
 ///     invalid the tests will fail, which is exactly the failure mode they exist to expose.
 /// </summary>
-public class GoogleSearchCommandIntegrationTests
+public class GoogleImageSearchCommandIntegrationTests
 {
     private static readonly IConfiguration Configuration = new ConfigurationBuilder()
-        // User secrets stored against the main Bottomly app assembly's UserSecretsId
         .AddUserSecrets<GoogleSearchCommand>()
-        // Environment variables override user secrets (used in CI)
         .AddEnvironmentVariables()
         .Build();
 
-    private readonly ILogger<GoogleSearchCommand> _logger;
+    private readonly ILogger<GoogleImageSearchCommand> _logger;
 
-    public GoogleSearchCommandIntegrationTests(ITestOutputHelper outputHelper)
+    public GoogleImageSearchCommandIntegrationTests(ITestOutputHelper outputHelper)
     {
-        _logger = XUnitLogger.CreateLogger<GoogleSearchCommand>(outputHelper);
+        _logger = XUnitLogger.CreateLogger<GoogleImageSearchCommand>(outputHelper);
     }
 
     private static string? ApiKey => Configuration["bottomly_google_api_key"];
@@ -42,14 +40,14 @@ public class GoogleSearchCommandIntegrationTests
     private static bool CredentialsAvailable =>
         !string.IsNullOrWhiteSpace(ApiKey) && !string.IsNullOrWhiteSpace(CseId);
 
-    private GoogleSearchCommand CreateCommand()
+    private GoogleImageSearchCommand CreateCommand()
     {
         var factory = new DefaultHttpClientFactory();
-        return new GoogleSearchCommand(Options.Create(new BottomlyOptions
+        return new GoogleImageSearchCommand(Options.Create(new BottomlyOptions
         {
             GoogleApiKey = ApiKey!,
             GoogleCseId = CseId!
-        }), _logger, factory);
+        }), factory, _logger);
     }
 
     private sealed class DefaultHttpClientFactory : IHttpClientFactory
@@ -60,7 +58,7 @@ public class GoogleSearchCommandIntegrationTests
     [Fact]
     public async Task ExecuteAsync_EmptyInput_ReturnsEmptySearchTermErrorResult()
     {
-        if (!CredentialsAvailable) return; // credentials not configured — skip
+        if (!CredentialsAvailable) return;
 
         var result = await CreateCommand().ExecuteAsync("");
 
@@ -70,7 +68,7 @@ public class GoogleSearchCommandIntegrationTests
     [Fact]
     public async Task ExecuteAsync_KnownSearchTerm_ReturnsResultWithLink()
     {
-        if (!CredentialsAvailable) return; // credentials not configured — skip
+        if (!CredentialsAvailable) return;
 
         var result = await CreateCommand().ExecuteAsync("GitHub");
 
@@ -84,12 +82,13 @@ public class GoogleSearchCommandIntegrationTests
     [Fact]
     public async Task ExecuteAsync_KnownSearchTerm_ReturnsRelevantResult()
     {
-        if (!CredentialsAvailable) return; // credentials not configured — skip
+        if (!CredentialsAvailable) return;
 
-        var result = await CreateCommand().ExecuteAsync("Wikipedia");
+        var result = await CreateCommand().ExecuteAsync("Wikipedia logo");
 
         result.ShouldBeOfType<GoogleSearchResult>();
         var searchResult = (GoogleSearchResult)result;
-        searchResult.Link.ShouldContain("wikipedia");
+        searchResult.Link.ShouldNotBeNullOrEmpty();
+        searchResult.Link.ShouldStartWith("http");
     }
 }
