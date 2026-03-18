@@ -1,5 +1,5 @@
 using System.Net;
-using Bottomly.Commands.Google;
+using Bottomly.Commands.Search;
 using Bottomly.Configuration;
 using Bottomly.Tests.Helpers;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -9,23 +9,23 @@ using Shouldly;
 
 namespace Bottomly.Tests.Commands;
 
-public class GoogleImageSearchCommandTests
+public class ImageSearchCommandTests
 {
     private static readonly IOptions<BottomlyOptions> Options =
         Microsoft.Extensions.Options.Options.Create(new BottomlyOptions { GoogleApiKey = "key", GoogleCseId = "cse" });
 
-    private static GoogleImageSearchCommand CreateCommand(string responseJson,
+    private static ImageSearchCommand CreateCommand(string responseJson,
         HttpStatusCode statusCode = HttpStatusCode.OK)
     {
-        return new GoogleImageSearchCommand(Options, TestHelpers.CreateHttpClientFactory(responseJson, statusCode),
-            NullLogger<GoogleImageSearchCommand>.Instance);
+        return new ImageSearchCommand(Options, TestHelpers.CreateHttpClientFactory(responseJson, statusCode),
+            NullLogger<ImageSearchCommand>.Instance);
     }
 
     [Fact]
     public async Task ExecuteAsync_EmptyInput_ReturnsEmptySearchTermErrorResult()
     {
-        var command = new GoogleImageSearchCommand(Options, new Mock<IHttpClientFactory>().Object,
-            NullLogger<GoogleImageSearchCommand>.Instance);
+        var command = new ImageSearchCommand(Options, new Mock<IHttpClientFactory>().Object,
+            NullLogger<ImageSearchCommand>.Instance);
 
         var result = await command.ExecuteAsync("");
 
@@ -33,7 +33,7 @@ public class GoogleImageSearchCommandTests
     }
 
     [Fact]
-    public async Task ExecuteAsync_ApiReturnsResults_ReturnsGoogleSearchResult()
+    public async Task ExecuteAsync_ApiReturnsResults_ReturnsSearchResult()
     {
         const string json = """
                             {
@@ -44,7 +44,7 @@ public class GoogleImageSearchCommandTests
 
         var result = await CreateCommand(json).ExecuteAsync("cat");
 
-        var searchResult = result.ShouldBeOfType<GoogleSearchResult>();
+        var searchResult = result.ShouldBeOfType<SearchResult>();
         searchResult.Title.ShouldBe("A cat");
         searchResult.Link.ShouldBe("https://example.com/cat.jpg");
     }
@@ -60,7 +60,7 @@ public class GoogleImageSearchCommandTests
     }
 
     [Fact]
-    public async Task ExecuteAsync_ApiReturnsError_ReturnsGoogleApiErrorResult()
+    public async Task ExecuteAsync_ApiReturnsError_ReturnsSearchApiErrorResult()
     {
         const string errorJson = """
                                  {
@@ -73,7 +73,7 @@ public class GoogleImageSearchCommandTests
 
         var result = await CreateCommand(errorJson, HttpStatusCode.Forbidden).ExecuteAsync("something");
 
-        var errorResult = result.ShouldBeOfType<GoogleApiErrorResult>();
+        var errorResult = result.ShouldBeOfType<SearchApiErrorResult>();
         errorResult.Error.ShouldBe("API key expired");
     }
 }

@@ -1,4 +1,4 @@
-using Bottomly.Commands.Google;
+using Bottomly.Commands.Search;
 using Bottomly.Configuration;
 using Meziantou.Extensions.Logging.Xunit;
 using Microsoft.Extensions.Configuration;
@@ -20,18 +20,18 @@ namespace Bottomly.Tests.Commands.Integration;
 ///     for contributors without keys. When credentials are present but expired or
 ///     invalid the tests will fail, which is exactly the failure mode they exist to expose.
 /// </summary>
-public class GoogleImageSearchCommandIntegrationTests
+public class ImageSearchCommandIntegrationTests
 {
     private static readonly IConfiguration Configuration = new ConfigurationBuilder()
-        .AddUserSecrets<GoogleSearchCommand>()
+        .AddUserSecrets<SearchCommand>()
         .AddEnvironmentVariables()
         .Build();
 
-    private readonly ILogger<GoogleImageSearchCommand> _logger;
+    private readonly ILogger<ImageSearchCommand> _logger;
 
-    public GoogleImageSearchCommandIntegrationTests(ITestOutputHelper outputHelper)
+    public ImageSearchCommandIntegrationTests(ITestOutputHelper outputHelper)
     {
-        _logger = XUnitLogger.CreateLogger<GoogleImageSearchCommand>(outputHelper);
+        _logger = XUnitLogger.CreateLogger<ImageSearchCommand>(outputHelper);
     }
 
     private static string? ApiKey => Configuration["bottomly_google_api_key"];
@@ -40,10 +40,10 @@ public class GoogleImageSearchCommandIntegrationTests
     private static bool CredentialsAvailable =>
         !string.IsNullOrWhiteSpace(ApiKey) && !string.IsNullOrWhiteSpace(CseId);
 
-    private GoogleImageSearchCommand CreateCommand()
+    private ImageSearchCommand CreateCommand()
     {
         var factory = new DefaultHttpClientFactory();
-        return new GoogleImageSearchCommand(Options.Create(new BottomlyOptions
+        return new ImageSearchCommand(Options.Create(new BottomlyOptions
         {
             GoogleApiKey = ApiKey!,
             GoogleCseId = CseId!
@@ -72,8 +72,8 @@ public class GoogleImageSearchCommandIntegrationTests
 
         var result = await CreateCommand().ExecuteAsync("GitHub");
 
-        result.ShouldBeOfType<GoogleSearchResult>();
-        var searchResult = (GoogleSearchResult)result;
+        result.ShouldBeOfType<SearchResult>();
+        var searchResult = (SearchResult)result;
         searchResult.Title.ShouldNotBeNullOrEmpty();
         searchResult.Link.ShouldNotBeNullOrEmpty();
         searchResult.Link.ShouldStartWith("http");
@@ -86,8 +86,8 @@ public class GoogleImageSearchCommandIntegrationTests
 
         var result = await CreateCommand().ExecuteAsync("Wikipedia logo");
 
-        result.ShouldBeOfType<GoogleSearchResult>();
-        var searchResult = (GoogleSearchResult)result;
+        result.ShouldBeOfType<SearchResult>();
+        var searchResult = (SearchResult)result;
         searchResult.Link.ShouldNotBeNullOrEmpty();
         searchResult.Link.ShouldStartWith("http");
     }

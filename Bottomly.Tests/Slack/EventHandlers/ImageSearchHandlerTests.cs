@@ -1,4 +1,4 @@
-using Bottomly.Commands.Google;
+using Bottomly.Commands.Search;
 using Bottomly.Slack;
 using Bottomly.Slack.MessageEventHandlers;
 using Bottomly.Tests.Helpers;
@@ -9,19 +9,19 @@ using SlackNet.Events;
 
 namespace Bottomly.Tests.Slack.EventHandlers;
 
-public class GoogleImageHandlerTests
+public class ImageSearchHandlerTests
 {
-    private readonly GoogleImageHandler _handler;
+    private readonly ImageSearchHandler _handler;
     private readonly Mock<ISlackMessageBroker> _mockBroker = new();
-    private readonly Mock<GoogleImageSearchCommand> _mockCommand;
+    private readonly Mock<ImageSearchCommand> _mockCommand;
 
-    public GoogleImageHandlerTests()
+    public ImageSearchHandlerTests()
     {
         var options = TestHelpers.CreateOptions();
-        _mockCommand = new Mock<GoogleImageSearchCommand>(options, new Mock<IHttpClientFactory>().Object,
-            NullLogger<GoogleImageSearchCommand>.Instance);
-        _handler = new GoogleImageHandler(_mockCommand.Object, _mockBroker.Object, options,
-            NullLogger<GoogleImageHandler>.Instance);
+        _mockCommand = new Mock<ImageSearchCommand>(options, new Mock<IHttpClientFactory>().Object,
+            NullLogger<ImageSearchCommand>.Instance);
+        _handler = new ImageSearchHandler(_mockCommand.Object, _mockBroker.Object, options,
+            NullLogger<ImageSearchHandler>.Instance);
     }
 
     private static MessageEvent CreateMessage(string text)
@@ -55,7 +55,7 @@ public class GoogleImageHandlerTests
     public async Task HandleAsync_ValidEvent_WithResult_SendsFormattedResponse()
     {
         _mockCommand.Setup(c => c.ExecuteAsync("cats"))
-            .ReturnsAsync(new GoogleSearchResult("Cute Cat", "https://example.com/cat.jpg"));
+            .ReturnsAsync(new SearchResult("Cute Cat", "https://example.com/cat.jpg"));
 
         await _handler.HandleAsync(CreateMessage("_gi cats"));
 
@@ -77,7 +77,7 @@ public class GoogleImageHandlerTests
     {
         await _handler.HandleAsync(CreateMessage("_gi -?"));
 
-        _mockBroker.Verify(b => b.SendMessageAsync(It.Is<string>(s => s.Contains("Google Image")), "C1", null),
+        _mockBroker.Verify(b => b.SendMessageAsync(It.Is<string>(s => s.Contains("Image Search")), "C1", null),
             Times.Once());
     }
 }

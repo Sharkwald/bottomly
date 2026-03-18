@@ -1,4 +1,4 @@
-using Bottomly.Commands.Google;
+using Bottomly.Commands.Search;
 using Bottomly.Configuration;
 using Bottomly.Tests.Helpers;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -8,7 +8,7 @@ using System.Net;
 
 namespace Bottomly.Tests.Commands;
 
-public class GoogleSearchCommandTests
+public class SearchCommandTests
 {
     private static readonly IOptions<BottomlyOptions> Options =
         Microsoft.Extensions.Options.Options.Create(new BottomlyOptions
@@ -17,15 +17,15 @@ public class GoogleSearchCommandTests
             GoogleCseId = "fake-cse"
         });
 
-    private static GoogleSearchCommand CreateCommand(string responseJson,
+    private static SearchCommand CreateCommand(string responseJson,
         HttpStatusCode statusCode = HttpStatusCode.OK) =>
-        new(Options, NullLogger<GoogleSearchCommand>.Instance,
+        new(Options, NullLogger<SearchCommand>.Instance,
             TestHelpers.CreateHttpClientFactory(responseJson, statusCode));
 
     [Fact]
     public async Task ExecuteAsync_EmptyInput_ReturnsEmptySearchTermErrorResult()
     {
-        var command = new GoogleSearchCommand(Options, NullLogger<GoogleSearchCommand>.Instance,
+        var command = new SearchCommand(Options, NullLogger<SearchCommand>.Instance,
             TestHelpers.CreateHttpClientFactory(string.Empty));
 
         var result = await command.ExecuteAsync("");
@@ -36,7 +36,7 @@ public class GoogleSearchCommandTests
     [Fact]
     public async Task ExecuteAsync_WhitespaceInput_ReturnsEmptySearchTermErrorResult()
     {
-        var command = new GoogleSearchCommand(Options, NullLogger<GoogleSearchCommand>.Instance,
+        var command = new SearchCommand(Options, NullLogger<SearchCommand>.Instance,
             TestHelpers.CreateHttpClientFactory(string.Empty));
 
         var result = await command.ExecuteAsync("   ");
@@ -45,7 +45,7 @@ public class GoogleSearchCommandTests
     }
 
     [Fact]
-    public async Task ExecuteAsync_ApiReturnsResults_ReturnsGoogleSearchResultWithTitleAndLink()
+    public async Task ExecuteAsync_ApiReturnsResults_ReturnsSearchResultWithTitleAndLink()
     {
         const string json = """
             {
@@ -56,7 +56,7 @@ public class GoogleSearchCommandTests
 
         var result = await CreateCommand(json).ExecuteAsync("dotnet");
 
-        var searchResult = result.ShouldBeOfType<GoogleSearchResult>();
+        var searchResult = result.ShouldBeOfType<SearchResult>();
         searchResult.Title.ShouldBe("DotNet");
         searchResult.Link.ShouldBe("https://dotnet.microsoft.com");
     }
@@ -82,7 +82,7 @@ public class GoogleSearchCommandTests
     }
 
     [Fact]
-    public async Task ExecuteAsync_ApiReturnsError_ReturnsGoogleApiErrorResult()
+    public async Task ExecuteAsync_ApiReturnsError_ReturnsSearchApiErrorResult()
     {
         const string errorJson = """
             {
@@ -96,15 +96,15 @@ public class GoogleSearchCommandTests
 
         var result = await CreateCommand(errorJson, HttpStatusCode.Forbidden).ExecuteAsync("anything");
 
-        var errorResult = result.ShouldBeOfType<GoogleApiErrorResult>();
+        var errorResult = result.ShouldBeOfType<SearchApiErrorResult>();
         errorResult.Error.ShouldBe("API key expired");
     }
 
     [Fact]
-    public async Task ExecuteAsync_ApiReturnsServerError_ReturnsGoogleApiErrorResult()
+    public async Task ExecuteAsync_ApiReturnsServerError_ReturnsSearchApiErrorResult()
     {
         var result = await CreateCommand("{}", HttpStatusCode.InternalServerError).ExecuteAsync("anything");
 
-        result.ShouldBeOfType<GoogleApiErrorResult>();
+        result.ShouldBeOfType<SearchApiErrorResult>();
     }
 }

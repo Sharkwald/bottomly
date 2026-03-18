@@ -2,12 +2,12 @@ using Bottomly.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Bottomly.Commands.Google;
+namespace Bottomly.Commands.Search;
 
-public class GoogleImageSearchCommand(
+public class ImageSearchCommand(
     IOptions<BottomlyOptions> options,
     IHttpClientFactory httpClientFactory,
-    ILogger<GoogleImageSearchCommand> logger) : GoogleCommandBase(options, httpClientFactory, logger)
+    ILogger<ImageSearchCommand> logger) : SearchCommandBase(options, httpClientFactory, logger)
 {
     protected override string ExtraQueryParams => "&searchType=image";
 

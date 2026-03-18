@@ -1,5 +1,5 @@
 using Bottomly.Commands;
-using Bottomly.Commands.Google;
+using Bottomly.Commands.Search;
 using Bottomly.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -7,16 +7,16 @@ using SlackNet.Events;
 
 namespace Bottomly.Slack.MessageEventHandlers;
 
-public class GoogleHandler(
-    GoogleSearchCommand command,
+public class ImageSearchHandler(
+    ImageSearchCommand command,
     ISlackMessageBroker broker,
     IOptions<BottomlyOptions> options,
-    ILogger<GoogleHandler> logger)
+    ILogger<ImageSearchHandler> logger)
     : AbstractMessageEventHandler(broker, options, logger)
 {
-    public override string Name => "Google";
+    public override string Name => "Image Search";
     protected override ICommand Command => command;
-    protected override string CommandSymbol => "g";
+    protected override string CommandSymbol => "gi";
 
     protected override string GetUsage()
     {
@@ -27,14 +27,11 @@ public class GoogleHandler(
     {
         var query = message.Text![CommandTrigger.Length..];
         var result = await command.ExecuteAsync(query);
-
         var response = result switch
         {
-            GoogleSearchResult success => $"{success.Title} {success.Link}",
-            EmptySearchTermErrorResult => $"No results found for \"{query}\"",
-            _ => "Left as an exercise for the reader."
+            SearchResult success => $"{success.Title} {success.Link}",
+            _ => $"No image results found for \"{query}\""
         };
-
         await SendMessageResponseAsync(response, message);
     }
 }

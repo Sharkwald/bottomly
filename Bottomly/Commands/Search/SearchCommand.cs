@@ -2,12 +2,12 @@ using Bottomly.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Bottomly.Commands.Google;
+namespace Bottomly.Commands.Search;
 
-public class GoogleSearchCommand(
+public class SearchCommand(
     IOptions<BottomlyOptions> options,
-    ILogger<GoogleSearchCommand> logger,
-    IHttpClientFactory httpClientFactory) : GoogleCommandBase(options, httpClientFactory, logger)
+    ILogger<SearchCommand> logger,
+    IHttpClientFactory httpClientFactory) : SearchCommandBase(options, httpClientFactory, logger)
 {
     public override string GetPurpose() => "Performs a google search and returns the top hit.";
 }

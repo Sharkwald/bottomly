@@ -3,9 +3,9 @@ using Bottomly.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Bottomly.Commands.Google;
+namespace Bottomly.Commands.Search;
 
-public abstract class GoogleCommandBase(
+public abstract class SearchCommandBase(
     IOptions<BottomlyOptions> options,
     IHttpClientFactory httpClientFactory,
     ILogger logger)
@@ -19,7 +19,7 @@ public abstract class GoogleCommandBase(
 
     public abstract string GetPurpose();
 
-    public virtual async Task<GoogleCommandResult> ExecuteAsync(string searchTerm)
+    public virtual async Task<SearchCommandResult> ExecuteAsync(string searchTerm)
     {
         if (string.IsNullOrWhiteSpace(searchTerm)) return new EmptySearchTermErrorResult();
 
@@ -27,15 +27,13 @@ public abstract class GoogleCommandBase(
         {
             var client = httpClientFactory.CreateClient();
             var url =
-                $"{BaseUrl}?key={_apiKey}" +
-                $"&cx={_cseId}" +
-                $"&q={Uri.EscapeDataString(searchTerm)}&num=1{ExtraQueryParams}";
+                $"{BaseUrl}?key={_apiKey}&cx={_cseId}&q={Uri.EscapeDataString(searchTerm)}&num=1{ExtraQueryParams}";
             var response = await client.GetAsync(url);
             if (!response.IsSuccessStatusCode)
             {
                 var errorMessage = ExtractErrorMessage(response);
                 logger?.LogError("Google search API error {StatusCode}: {Message}", response.StatusCode, errorMessage);
-                return new GoogleApiErrorResult(errorMessage);
+                return new SearchApiErrorResult(errorMessage);
             }
 
             var body = await response.Content.ReadAsStringAsync();
@@ -47,12 +45,12 @@ public abstract class GoogleCommandBase(
             var first = items[0];
             var title = first.GetProperty("title").GetString() ?? string.Empty;
             var link = first.GetProperty("link").GetString() ?? string.Empty;
-            return new GoogleSearchResult(title, link);
+            return new SearchResult(title, link);
         }
         catch (Exception e)
         {
             logger?.LogError(e, "Error executing Google search");
-            return new GoogleApiErrorResult(e.Message);
+            return new SearchApiErrorResult(e.Message);
         }
     }
 

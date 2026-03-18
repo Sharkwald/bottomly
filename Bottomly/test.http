@@ -7,3 +7,7 @@ Accept: application/json
 ### 
 
 GET https://www.google.com/search?q=einstein
+
+###
+
+GET https://duckduckgo.com/html/?q=einstein

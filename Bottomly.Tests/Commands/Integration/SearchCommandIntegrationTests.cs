@@ -1,4 +1,4 @@
-using Bottomly.Commands.Google;
+using Bottomly.Commands.Search;
 using Bottomly.Configuration;
 using Meziantou.Extensions.Logging.Xunit;
 using Microsoft.Extensions.Configuration;
@@ -20,20 +20,20 @@ namespace Bottomly.Tests.Commands.Integration;
 ///     for contributors without keys. When credentials are present but expired or
 ///     invalid the tests will fail, which is exactly the failure mode they exist to expose.
 /// </summary>
-public class GoogleSearchCommandIntegrationTests
+public class SearchCommandIntegrationTests
 {
     private static readonly IConfiguration Configuration = new ConfigurationBuilder()
         // User secrets stored against the main Bottomly app assembly's UserSecretsId
-        .AddUserSecrets<GoogleSearchCommand>()
+        .AddUserSecrets<SearchCommand>()
         // Environment variables override user secrets (used in CI)
         .AddEnvironmentVariables()
         .Build();
 
-    private readonly ILogger<GoogleSearchCommand> _logger;
+    private readonly ILogger<SearchCommand> _logger;
 
-    public GoogleSearchCommandIntegrationTests(ITestOutputHelper outputHelper)
+    public SearchCommandIntegrationTests(ITestOutputHelper outputHelper)
     {
-        _logger = XUnitLogger.CreateLogger<GoogleSearchCommand>(outputHelper);
+        _logger = XUnitLogger.CreateLogger<SearchCommand>(outputHelper);
     }
 
     private static string? ApiKey => Configuration["bottomly_google_api_key"];
@@ -42,10 +42,10 @@ public class GoogleSearchCommandIntegrationTests
     private static bool CredentialsAvailable =>
         !string.IsNullOrWhiteSpace(ApiKey) && !string.IsNullOrWhiteSpace(CseId);
 
-    private GoogleSearchCommand CreateCommand()
+    private SearchCommand CreateCommand()
     {
         var factory = new DefaultHttpClientFactory();
-        return new GoogleSearchCommand(Options.Create(new BottomlyOptions
+        return new SearchCommand(Options.Create(new BottomlyOptions
         {
             GoogleApiKey = ApiKey!,
             GoogleCseId = CseId!
@@ -74,8 +74,8 @@ public class GoogleSearchCommandIntegrationTests
 
         var result = await CreateCommand().ExecuteAsync("GitHub");
 
-        result.ShouldBeOfType<GoogleSearchResult>();
-        var searchResult = (GoogleSearchResult)result;
+        result.ShouldBeOfType<SearchResult>();
+        var searchResult = (SearchResult)result;
         searchResult.Title.ShouldNotBeNullOrEmpty();
         searchResult.Link.ShouldNotBeNullOrEmpty();
         searchResult.Link.ShouldStartWith("http");
@@ -88,8 +88,8 @@ public class GoogleSearchCommandIntegrationTests
 
         var result = await CreateCommand().ExecuteAsync("Wikipedia");
 
-        result.ShouldBeOfType<GoogleSearchResult>();
-        var searchResult = (GoogleSearchResult)result;
+        result.ShouldBeOfType<SearchResult>();
+        var searchResult = (SearchResult)result;
         searchResult.Link.ShouldContain("wikipedia");
     }
 }
