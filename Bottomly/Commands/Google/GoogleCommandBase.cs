@@ -27,7 +27,9 @@ public abstract class GoogleCommandBase(
         {
             var client = httpClientFactory.CreateClient();
             var url =
-                $"{BaseUrl}?key={_apiKey}&cx={_cseId}&q={Uri.EscapeDataString(searchTerm)}&num=1{ExtraQueryParams}";
+                $"{BaseUrl}?key={_apiKey}" +
+                $"&cx={_cseId}" +
+                $"&q={Uri.EscapeDataString(searchTerm)}&num=1{ExtraQueryParams}";
             var response = await client.GetAsync(url);
             if (!response.IsSuccessStatusCode)
             {

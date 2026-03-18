@@ -1,0 +1,9 @@
+﻿GET https://customsearch.googleapis.com/customsearch/v1
+    ?key=AIzaSyAG5Cqko4Dpk2wA1ROEZq4_aTCcmlzzw0c
+    &cx=001134813595381089514:0-9_th43q-0
+    &q=einstein HTTP/1.1
+Accept: application/json
+
+### 
+
+GET https://www.google.com/search?q=einstein
