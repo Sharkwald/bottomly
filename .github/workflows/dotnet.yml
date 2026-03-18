@@ -2,9 +2,9 @@ name: .NET Build and Test
 
 on:
   push:
-    branches: ["main"]
+    branches: [ "main" ]
   pull_request:
-    branches: ["main"]
+    branches: [ "main" ]
 
 permissions:
   packages: write
@@ -29,6 +29,8 @@ jobs:
 
       - name: Test
         run: dotnet test bottomly.net.slnx --no-build --configuration Release --verbosity normal
+        env:
+          BOTTOMLY_BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
 
       - name: Build Docker image
         run: docker build -t bottomly .

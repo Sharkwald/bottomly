@@ -8,18 +8,19 @@ public class WikipediaSearchCommand(IHttpClientFactory httpClientFactory) : ICom
 {
     private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
 
-    public string GetPurpose() => "Performs a wikipedia search and returns the top hit.";
+    public string GetPurpose()
+    {
+        return "Performs a wikipedia search and returns the top hit.";
+    }
 
     public virtual async Task<WikipediaResult?> ExecuteAsync(string searchTerm)
     {
-        if (string.IsNullOrWhiteSpace(searchTerm))
-        {
-            return null;
-        }
+        if (string.IsNullOrWhiteSpace(searchTerm)) return null;
 
         var url =
             $"https://en.wikipedia.org/w/api.php?action=opensearch&format=json&search={Uri.EscapeDataString(searchTerm)}";
         var httpClient = _httpClientFactory.CreateClient();
+        httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Bottomly/1.0");
         var response = await httpClient.GetAsync(url);
         response.EnsureSuccessStatusCode();
 
@@ -30,10 +31,7 @@ public class WikipediaSearchCommand(IHttpClientFactory httpClientFactory) : ICom
         var titles = root[1];
         var links = root[3];
 
-        if (titles.GetArrayLength() == 0)
-        {
-            return null;
-        }
+        if (titles.GetArrayLength() == 0) return null;
 
         return new WikipediaResult(titles[0].GetString()!, links[0].GetString()!);
     }

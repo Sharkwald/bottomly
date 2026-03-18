@@ -13,4 +13,5 @@ public class BottomlyOptions
     public bool EnableLlm { get; set; } = false;
 
     public bool IsDebug => Environment != "live";
+    public string BraveApiKey { get; set; } = string.Empty;
 }
