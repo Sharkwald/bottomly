@@ -30,7 +30,9 @@ public class MemberSeedDataImporter(
         logger.LogInformation("Importing seed data from {Count} YAML files in {Path}", files.Length, seedDir);
 
         foreach (var file in files)
+        {
             await ImportFileAsync(file);
+        }
 
         logger.LogInformation("Seed data import complete.");
     }
@@ -42,7 +44,10 @@ public class MemberSeedDataImporter(
         {
             var candidate = Path.Combine(dir.FullName, "MemberSeedData");
             if (Directory.Exists(candidate))
+            {
                 return candidate;
+            }
+
             dir = dir.Parent;
         }
         return Path.Combine(env.ContentRootPath, "MemberSeedData");

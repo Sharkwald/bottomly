@@ -20,7 +20,7 @@ public class Karma
     [BsonElement("awarded")] public DateTime Awarded { get; set; }
 
     [BsonElement("karma_type")] public string KarmaTypeValue { get; set; } = string.Empty;
-    
+
     /// <summary>
     /// Legacy element to enable support from pymongo persisted data
     /// </summary>

@@ -1,4 +1,4 @@
-﻿using Bottomly.LlmBot;
+using Bottomly.LlmBot;
 using Bottomly.Repositories;
 using Microsoft.Extensions.Logging;
 using SlackNet;

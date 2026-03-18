@@ -1,4 +1,4 @@
-﻿using Bottomly.LlmBot;
+using Bottomly.LlmBot;
 
 namespace Bottomly.Slack.MessageEventHandlers.ConversationMessageHandling;
 

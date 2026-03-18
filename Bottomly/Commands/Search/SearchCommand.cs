@@ -19,9 +19,20 @@ public class SearchCommand(
 
     protected override SearchCommandResult ExtractFirstResult(JsonElement root)
     {
-        if (!root.TryGetProperty("web", out var web)) return new NoResultsFoundResult();
-        if (!web.TryGetProperty("results", out var results)) return new NoResultsFoundResult();
-        if (results.GetArrayLength() == 0) return new NoResultsFoundResult();
+        if (!root.TryGetProperty("web", out var web))
+        {
+            return new NoResultsFoundResult();
+        }
+
+        if (!web.TryGetProperty("results", out var results))
+        {
+            return new NoResultsFoundResult();
+        }
+
+        if (results.GetArrayLength() == 0)
+        {
+            return new NoResultsFoundResult();
+        }
 
         var first = results[0];
         var title = first.TryGetProperty("title", out var t) ? t.GetString() ?? string.Empty : string.Empty;
