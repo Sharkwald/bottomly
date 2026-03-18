@@ -1,4 +1,5 @@
 using Bottomly.Commands;
+using Bottomly.Commands.Google;
 using Bottomly.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

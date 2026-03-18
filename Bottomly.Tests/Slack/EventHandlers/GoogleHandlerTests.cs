@@ -1,4 +1,4 @@
-using Bottomly.Commands;
+using Bottomly.Commands.Google;
 using Bottomly.Slack;
 using Bottomly.Slack.MessageEventHandlers;
 using Bottomly.Tests.Helpers;

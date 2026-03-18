@@ -1,4 +1,4 @@
-using Bottomly.Commands;
+using Bottomly.Commands.Google;
 using Bottomly.Configuration;
 using Meziantou.Extensions.Logging.Xunit;
 using Microsoft.Extensions.Configuration;

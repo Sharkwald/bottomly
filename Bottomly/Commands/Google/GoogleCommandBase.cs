@@ -3,28 +3,28 @@ using Bottomly.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Bottomly.Commands;
+namespace Bottomly.Commands.Google;
 
-public abstract record GoogleCommandResult;
-
-public record GoogleSearchResult(string Title, string Link) : GoogleCommandResult;
-
-public record GoogleApiErrorResult(string Error) : GoogleCommandResult;
-
-public record NoResultsFoundResult : GoogleCommandResult;
-
-public record EmptySearchTermErrorResult : GoogleCommandResult;
-
-public class GoogleSearchCommand(
-    IOptions<BottomlyOptions> options,
-    ILogger<GoogleSearchCommand> logger,
-    IHttpClientFactory httpClientFactory) : ICommand
+public abstract class GoogleCommandBase : ICommand
 {
     private const string BaseUrl = "https://customsearch.googleapis.com/customsearch/v1";
-    private readonly string _apiKey = options.Value.GoogleApiKey;
-    private readonly string _cseId = options.Value.GoogleCseId;
+    private readonly string _apiKey;
+    private readonly string _cseId;
+    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly ILogger? _logger;
 
-    public string GetPurpose() => "Performs a google search and returns the top hit.";
+    protected GoogleCommandBase(IOptions<BottomlyOptions> options, IHttpClientFactory httpClientFactory,
+        ILogger? logger = null)
+    {
+        _apiKey = options.Value.GoogleApiKey;
+        _cseId = options.Value.GoogleCseId;
+        _httpClientFactory = httpClientFactory;
+        _logger = logger;
+    }
+
+    public abstract string GetPurpose();
+
+    protected abstract string? ExtraQueryParams { get; }
 
     public virtual async Task<GoogleCommandResult> ExecuteAsync(string searchTerm)
     {
@@ -32,15 +32,15 @@ public class GoogleSearchCommand(
 
         try
         {
-            var client = httpClientFactory.CreateClient();
-            var url = $"{BaseUrl}?key={_apiKey}&cx={_cseId}&q={Uri.EscapeDataString(searchTerm)}&num=1";
+            var client = _httpClientFactory.CreateClient();
+            var url = $"{BaseUrl}?key={_apiKey}&cx={_cseId}&q={Uri.EscapeDataString(searchTerm)}&num=1{ExtraQueryParams}";
             var response = await client.GetAsync(url);
             var body = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
             {
                 var errorMessage = ExtractErrorMessage(body) ?? $"HTTP {(int)response.StatusCode}: {response.ReasonPhrase}";
-                logger.LogError("Google search API error {StatusCode}: {Message}", response.StatusCode, errorMessage);
+                _logger?.LogError("Google search API error {StatusCode}: {Message}", response.StatusCode, errorMessage);
                 return new GoogleApiErrorResult(errorMessage);
             }
 
@@ -62,7 +62,7 @@ public class GoogleSearchCommand(
         }
         catch (Exception e)
         {
-            logger.LogError(e, "Error executing Google search");
+            _logger?.LogError(e, "Error executing Google search");
             return new GoogleApiErrorResult(e.Message);
         }
     }

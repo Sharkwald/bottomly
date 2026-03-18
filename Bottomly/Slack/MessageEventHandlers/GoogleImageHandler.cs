@@ -1,4 +1,5 @@
 using Bottomly.Commands;
+using Bottomly.Commands.Google;
 using Bottomly.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -25,7 +26,6 @@ public class GoogleImageHandler(
         var response = result switch
         {
             GoogleSearchResult success => $"{success.Title} {success.Link}",
-            EmptySearchTermErrorResult => $"No image results found for \"{query}\"",
             _ => $"No image results found for \"{query}\""
         };
         await SendMessageResponseAsync(response, message);

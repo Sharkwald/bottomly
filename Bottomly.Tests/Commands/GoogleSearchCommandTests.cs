@@ -1,4 +1,4 @@
-using Bottomly.Commands;
+using Bottomly.Commands.Google;
 using Bottomly.Configuration;
 using Bottomly.Tests.Helpers;
 using Microsoft.Extensions.Logging.Abstractions;
