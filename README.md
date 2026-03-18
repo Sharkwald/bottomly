@@ -61,6 +61,11 @@ Wraps [OllamaSharp](https://github.com/awaescher/OllamaSharp) to provide convers
 
 Has an internal structure matching the rest of the app. Each app file should have a corresponding test file.
 
+The test suite is split into two categories:
+
+* **Unit tests** — fast, in-process tests using [Moq](https://github.com/devlooped/moq) for mocking and [Shouldly](https://github.com/shouldly/shouldly) for assertions. Cover commands, event handlers, and other logic that can be exercised without external dependencies.
+* **Integration tests** (`Repositories/Integration/`) — use [Testcontainers](https://dotnet.testcontainers.org/) to spin up a real MongoDB container and exercise the repository layer end-to-end, including aggregation pipelines. These require Docker to be running locally; they run automatically in CI on `ubuntu-latest`.
+
 ## Configuration
 
 The following secrets/environment variables _must_ be configured for the app to run:
