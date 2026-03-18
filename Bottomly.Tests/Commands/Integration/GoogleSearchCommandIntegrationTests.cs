@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 using Shouldly;
 using Xunit.Abstractions;
 
-namespace Bottomly.Tests.Commands.Google;
+namespace Bottomly.Tests.Commands.Integration;
 
 /// <summary>
 ///     Integration tests that call the real Google Custom Search API.
