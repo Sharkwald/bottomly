@@ -34,11 +34,10 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Push image to GitHub Container Registry
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         shell: bash
-        run: |
+        run: |-
           IMAGE_NAME="${GITHUB_REPOSITORY,,}"
           docker tag bottomly ghcr.io/$IMAGE_NAME:${{ github.sha }}
           docker push ghcr.io/$IMAGE_NAME:${{ github.sha }}
