@@ -22,9 +22,12 @@ public class GoogleImageHandler(
     {
         var query = message.Text![CommandTrigger.Length..];
         var result = await command.ExecuteAsync(query);
-        var response = result is null
-            ? $"No image results found for \"{query}\""
-            : $"{result.Title} {result.Link}";
+        var response = result switch
+        {
+            GoogleSearchResult success => $"{success.Title} {success.Link}",
+            EmptySearchTermErrorResult => $"No image results found for \"{query}\"",
+            _ => $"No image results found for \"{query}\""
+        };
         await SendMessageResponseAsync(response, message);
     }
 }

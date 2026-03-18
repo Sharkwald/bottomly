@@ -36,7 +36,7 @@ public class GoogleImageHandlerTests
     [Fact]
     public async Task HandleAsync_ValidEvent_CallsCommandWithQuery()
     {
-        _mockCommand.Setup(c => c.ExecuteAsync("cats")).ReturnsAsync((GoogleSearchResult?)null);
+        _mockCommand.Setup(c => c.ExecuteAsync("cats")).ReturnsAsync(new NoResultsFoundResult());
 
         await _handler.HandleAsync(CreateMessage("_gi cats"));
 
@@ -55,9 +55,9 @@ public class GoogleImageHandlerTests
     }
 
     [Fact]
-    public async Task HandleAsync_ValidEvent_NullResult_SendsNoResultMessage()
+    public async Task HandleAsync_ValidEvent_NoResultsFound_SendsNoResultMessage()
     {
-        _mockCommand.Setup(c => c.ExecuteAsync("xyz")).ReturnsAsync((GoogleSearchResult?)null);
+        _mockCommand.Setup(c => c.ExecuteAsync("xyz")).ReturnsAsync(new NoResultsFoundResult());
 
         await _handler.HandleAsync(CreateMessage("_gi xyz"));
 
