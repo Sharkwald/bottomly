@@ -1,9 +1,9 @@
 ---
 on:
   workflow_run:
-    workflows: [ ".NET Build and Test" ]
-    types: [ completed ]
-    branches: [ main ]
+    workflows: [.NET Build and Test]
+    types: [completed]
+    branches: [main]
 name: Push to Live
 jobs:
   build-and-deploy:
@@ -58,11 +58,7 @@ jobs:
           name: bottomly-live
           location: uk south
           environment-variables: bottomly_giphy_api_key=${{ secrets.GIPHY_API_KEY }}
-            bottomly_brave_api_key=${{ secrets.BRAVE_API_KEY }}
-            bottomly_slack_bot_token=${{ secrets.SLACK_TOKEN }}
-            bottomly_slack_app_token=${{ secrets.SLACK_APP_TOKEN }}
-            bottomly_prefix=${{ secrets.PREFIX }}
-            bottomly_env=${{ secrets.ENV }}
-            ConnectionStrings__mongodb=${{ secrets.MONGO_CONN_STR }}
-            bottomly_github_token=${{ secrets.RELEASE_HISTORY_TOKEN }}
-            APPLICATIONINSIGHTS_CONNECTION_STRING=${{ steps.appinsights.outputs.connection_string }}
+            bottomly_brave_api_key=${{ secrets.BRAVE_API_KEY }} bottomly_slack_bot_token=${{ secrets.SLACK_TOKEN }}
+            bottomly_slack_app_token=${{ secrets.SLACK_APP_TOKEN }} bottomly_prefix=${{ secrets.PREFIX }}
+            bottomly_env=${{ secrets.ENV }} ConnectionStrings__mongodb=${{ secrets.MONGO_CONN_STR }}
+            bottomly_github_token=${{ secrets.RELEASE_HISTORY_TOKEN }} APPLICATIONINSIGHTS_CONNECTION_STRING=${{ steps.appinsights.outputs.connection_string }}
