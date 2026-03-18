@@ -24,7 +24,7 @@ public abstract class GoogleCommandBase : ICommand
 
     public abstract string GetPurpose();
 
-    protected abstract string? ExtraQueryParams { get; }
+    protected virtual string ExtraQueryParams => string.Empty;
 
     public virtual async Task<GoogleCommandResult> ExecuteAsync(string searchTerm)
     {

@@ -9,7 +9,5 @@ public class GoogleSearchCommand(
     ILogger<GoogleSearchCommand> logger,
     IHttpClientFactory httpClientFactory) : GoogleCommandBase(options, httpClientFactory, logger)
 {
-    protected override string? ExtraQueryParams => null;
-
     public override string GetPurpose() => "Performs a google search and returns the top hit.";
 }
