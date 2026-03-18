@@ -30,8 +30,7 @@ jobs:
       - name: Test
         run: dotnet test bottomly.net.slnx --no-build --configuration Release --verbosity normal
         env:
-          BOTTOMLY_GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-          BOTTOMLY_GOOGLE_CSE_ID: ${{ secrets.GOOGLE_CSE_ID }}
+          BOTTOMLY_BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
 
       - name: Build Docker image
         run: docker build -t bottomly .
