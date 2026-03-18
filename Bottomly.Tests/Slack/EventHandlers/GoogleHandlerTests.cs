@@ -18,7 +18,7 @@ public class GoogleHandlerTests
     public GoogleHandlerTests()
     {
         var options = TestHelpers.CreateOptions();
-        _mockCommand = new Mock<GoogleSearchCommand>(options);
+        _mockCommand = new Mock<GoogleSearchCommand>(options, NullLogger<GoogleSearchCommand>.Instance);
         _handler = new GoogleHandler(_mockCommand.Object, _mockBroker.Object, options,
             NullLogger<GoogleHandler>.Instance);
     }
@@ -37,7 +37,7 @@ public class GoogleHandlerTests
     [Fact]
     public async Task HandleAsync_ValidEvent_CallsCommandWithQuery()
     {
-        _mockCommand.Setup(c => c.ExecuteAsync("some query")).ReturnsAsync((GoogleSearchResult?)null);
+        _mockCommand.Setup(c => c.ExecuteAsync("some query")).ReturnsAsync(new NoResultsFoundResult());
 
         await _handler.HandleAsync(CreateMessage("_g some query"));
 
@@ -56,9 +56,9 @@ public class GoogleHandlerTests
     }
 
     [Fact]
-    public async Task HandleAsync_ValidEvent_NullResult_SendsNoResultMessage()
+    public async Task HandleAsync_ValidEvent_EmptySearchTermResult_SendsNoResultMessage()
     {
-        _mockCommand.Setup(c => c.ExecuteAsync("xyz")).ReturnsAsync((GoogleSearchResult?)null);
+        _mockCommand.Setup(c => c.ExecuteAsync("xyz")).ReturnsAsync(new EmptySearchTermErrorResult());
 
         await _handler.HandleAsync(CreateMessage("_g xyz"));
 

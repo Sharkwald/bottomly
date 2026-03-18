@@ -16,15 +16,24 @@ public class GoogleHandler(
     public override string Name => "Google";
     protected override ICommand Command => command;
     protected override string CommandSymbol => "g";
-    protected override string GetUsage() => CommandTrigger + "<query>";
+
+    protected override string GetUsage()
+    {
+        return CommandTrigger + "<query>";
+    }
 
     protected override async Task InvokeHandlerLogicAsync(MessageEvent message)
     {
         var query = message.Text![CommandTrigger.Length..];
         var result = await command.ExecuteAsync(query);
-        var response = result is null
-            ? $"No results found for \"{query}\""
-            : $"{result.Title} {result.Link}";
+
+        var response = result switch
+        {
+            GoogleSearchResult success => $"{success.Title} {success.Link}",
+            EmptySearchTermErrorResult => $"No results found for \"{query}\"",
+            _ => "Left as an exercise for the reader."
+        };
+
         await SendMessageResponseAsync(response, message);
     }
 }
