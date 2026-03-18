@@ -1,9 +1,9 @@
-using Bottomly.Seed;
 using System.Reflection;
 using Bottomly.Commands;
 using Bottomly.Configuration;
 using Bottomly.LlmBot;
 using Bottomly.Repositories;
+using Bottomly.Seed;
 using Bottomly.Slack;
 using Bottomly.Slack.MembershipEventHandlers;
 using Bottomly.Slack.MessageEventHandlers;
@@ -45,6 +45,7 @@ builder.Services.Configure<BottomlyOptions>(opts =>
     opts.GiphyApiKey = builder.Configuration["bottomly_giphy_api_key"] ?? string.Empty;
     opts.Environment = builder.Configuration["bottomly_env"] ?? "live";
     opts.GitHubToken = builder.Configuration["bottomly_github_token"] ?? string.Empty;
+    opts.BraveApiKey = builder.Configuration["bottomly_brave_api_key"] ?? string.Empty;
     opts.EnableLlm = builder.Configuration.GetValue<bool>("EnableLlm");
 });
 
@@ -144,7 +145,8 @@ public static class HostBuilderExtensions
 {
     extension(HostApplicationBuilder builder)
     {
-        public void RegisterEventHandlers(Assembly assembly, Type[] exclude) =>
+        public void RegisterEventHandlers(Assembly assembly, Type[] exclude)
+        {
             assembly.GetTypes()
                 .Where(t => typeof(IMessageEventHandler).IsAssignableFrom(t) &&
                             t is { IsInterface: false, IsAbstract: false })
@@ -152,11 +154,14 @@ public static class HostBuilderExtensions
                 .Where(t => !exclude.Contains(t))
                 .ToList()
                 .ForEach(t => builder.Services.AddSingleton(typeof(IMessageEventHandler), t));
+        }
 
-        public void RegisterCommands(Assembly assembly) =>
+        public void RegisterCommands(Assembly assembly)
+        {
             assembly.GetTypes()
                 .Where(t => typeof(ICommand).IsAssignableFrom(t) && t is { IsInterface: false, IsAbstract: false })
                 .ToList()
                 .ForEach(t => builder.Services.AddSingleton(t));
+        }
     }
 }

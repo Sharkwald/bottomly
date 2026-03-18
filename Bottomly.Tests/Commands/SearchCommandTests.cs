@@ -13,8 +13,7 @@ public class SearchCommandTests
     private static readonly IOptions<BottomlyOptions> Options =
         Microsoft.Extensions.Options.Options.Create(new BottomlyOptions
         {
-            GoogleApiKey = "fake-key",
-            GoogleCseId = "fake-cse"
+            BraveApiKey = "fake-key"
         });
 
     private static SearchCommand CreateCommand(string responseJson,
@@ -49,8 +48,10 @@ public class SearchCommandTests
     {
         const string json = """
             {
-              "searchInformation": { "totalResults": "1" },
-              "items": [{ "title": "DotNet", "link": "https://dotnet.microsoft.com" }]
+              "type": "search",
+              "web": {
+                "results": [{ "title": "DotNet", "url": "https://dotnet.microsoft.com" }]
+              }
             }
             """;
 
@@ -62,9 +63,9 @@ public class SearchCommandTests
     }
 
     [Fact]
-    public async Task ExecuteAsync_ApiReturnsZeroTotalResults_ReturnsNoResultsFoundResult()
+    public async Task ExecuteAsync_ApiReturnsEmptyResults_ReturnsNoResultsFoundResult()
     {
-        const string json = """{ "searchInformation": { "totalResults": "0" } }""";
+        const string json = """{ "type": "search", "web": { "results": [] } }""";
 
         var result = await CreateCommand(json).ExecuteAsync("anything");
 
@@ -72,9 +73,9 @@ public class SearchCommandTests
     }
 
     [Fact]
-    public async Task ExecuteAsync_ApiReturnsNullItems_ReturnsNoResultsFoundResult()
+    public async Task ExecuteAsync_ApiReturnsNoWebProperty_ReturnsNoResultsFoundResult()
     {
-        const string json = """{ "searchInformation": { "totalResults": "1" } }""";
+        const string json = """{ "type": "search" }""";
 
         var result = await CreateCommand(json).ExecuteAsync("anything");
 
@@ -84,20 +85,12 @@ public class SearchCommandTests
     [Fact]
     public async Task ExecuteAsync_ApiReturnsError_ReturnsSearchApiErrorResult()
     {
-        const string errorJson = """
-            {
-              "error": {
-                "code": 403,
-                "message": "API key expired",
-                "errors": [{ "domain": "global", "reason": "forbidden", "message": "API key expired" }]
-              }
-            }
-            """;
+        const string errorJson = """{ "message": "Invalid subscription token" }""";
 
-        var result = await CreateCommand(errorJson, HttpStatusCode.Forbidden).ExecuteAsync("anything");
+        var result = await CreateCommand(errorJson, HttpStatusCode.Unauthorized).ExecuteAsync("anything");
 
         var errorResult = result.ShouldBeOfType<SearchApiErrorResult>();
-        errorResult.Error.ShouldBe("API key expired");
+        errorResult.Error.ShouldBe("Invalid subscription token");
     }
 
     [Fact]

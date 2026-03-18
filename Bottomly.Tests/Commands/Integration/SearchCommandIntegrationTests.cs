@@ -10,11 +10,11 @@ using Xunit.Abstractions;
 namespace Bottomly.Tests.Commands.Integration;
 
 /// <summary>
-///     Integration tests that call the real Google Custom Search API.
+///     Integration tests that call the real Brave Search API.
 ///     Credentials are resolved from the standard .NET configuration stack:
 ///     1. User secrets stored against the main Bottomly app project (local dev —
-///     run `dotnet user-secrets set "bottomly_google_api_key" "..." --project Bottomly`)
-///     2. Environment variables BOTTOMLY_GOOGLE_API_KEY / BOTTOMLY_GOOGLE_CSE_ID
+///     run `dotnet user-secrets set "bottomly_brave_api_key" "..." --project Bottomly`)
+///     2. Environment variable BOTTOMLY_BRAVE_API_KEY
 ///     (CI — injected from GitHub repository secrets via the workflow env block)
 ///     Tests no-op silently when credentials are absent, so the suite stays green
 ///     for contributors without keys. When credentials are present but expired or
@@ -23,9 +23,7 @@ namespace Bottomly.Tests.Commands.Integration;
 public class SearchCommandIntegrationTests
 {
     private static readonly IConfiguration Configuration = new ConfigurationBuilder()
-        // User secrets stored against the main Bottomly app assembly's UserSecretsId
         .AddUserSecrets<SearchCommand>()
-        // Environment variables override user secrets (used in CI)
         .AddEnvironmentVariables()
         .Build();
 
@@ -36,19 +34,16 @@ public class SearchCommandIntegrationTests
         _logger = XUnitLogger.CreateLogger<SearchCommand>(outputHelper);
     }
 
-    private static string? ApiKey => Configuration["bottomly_google_api_key"];
-    private static string? CseId => Configuration["bottomly_google_cse_id"];
+    private static string? ApiKey => Configuration["bottomly_brave_api_key"];
 
-    private static bool CredentialsAvailable =>
-        !string.IsNullOrWhiteSpace(ApiKey) && !string.IsNullOrWhiteSpace(CseId);
+    private static bool CredentialsAvailable => !string.IsNullOrWhiteSpace(ApiKey);
 
     private SearchCommand CreateCommand()
     {
         var factory = new DefaultHttpClientFactory();
         return new SearchCommand(Options.Create(new BottomlyOptions
         {
-            GoogleApiKey = ApiKey!,
-            GoogleCseId = CseId!
+            BraveApiKey = ApiKey!
         }), _logger, factory);
     }
 

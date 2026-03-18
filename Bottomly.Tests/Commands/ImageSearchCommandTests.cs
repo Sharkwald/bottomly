@@ -12,7 +12,7 @@ namespace Bottomly.Tests.Commands;
 public class ImageSearchCommandTests
 {
     private static readonly IOptions<BottomlyOptions> Options =
-        Microsoft.Extensions.Options.Options.Create(new BottomlyOptions { GoogleApiKey = "key", GoogleCseId = "cse" });
+        Microsoft.Extensions.Options.Options.Create(new BottomlyOptions { BraveApiKey = "fake-key" });
 
     private static ImageSearchCommand CreateCommand(string responseJson,
         HttpStatusCode statusCode = HttpStatusCode.OK)
@@ -37,8 +37,10 @@ public class ImageSearchCommandTests
     {
         const string json = """
                             {
-                              "searchInformation": { "totalResults": "1" },
-                              "items": [{ "title": "A cat", "link": "https://example.com/cat.jpg" }]
+                              "type": "images",
+                              "results": [
+                                { "title": "A cat", "properties": { "url": "https://example.com/cat.jpg" } }
+                              ]
                             }
                             """;
 
@@ -50,9 +52,9 @@ public class ImageSearchCommandTests
     }
 
     [Fact]
-    public async Task ExecuteAsync_ApiReturnsZeroTotalResults_ReturnsNoResultsFoundResult()
+    public async Task ExecuteAsync_ApiReturnsEmptyResults_ReturnsNoResultsFoundResult()
     {
-        const string json = """{ "searchInformation": { "totalResults": "0" } }""";
+        const string json = """{ "type": "images", "results": [] }""";
 
         var result = await CreateCommand(json).ExecuteAsync("nothing");
 
@@ -62,18 +64,11 @@ public class ImageSearchCommandTests
     [Fact]
     public async Task ExecuteAsync_ApiReturnsError_ReturnsSearchApiErrorResult()
     {
-        const string errorJson = """
-                                 {
-                                   "error": {
-                                     "code": 403,
-                                     "message": "API key expired"
-                                   }
-                                 }
-                                 """;
+        const string errorJson = """{ "message": "Invalid subscription token" }""";
 
-        var result = await CreateCommand(errorJson, HttpStatusCode.Forbidden).ExecuteAsync("something");
+        var result = await CreateCommand(errorJson, HttpStatusCode.Unauthorized).ExecuteAsync("something");
 
         var errorResult = result.ShouldBeOfType<SearchApiErrorResult>();
-        errorResult.Error.ShouldBe("API key expired");
+        errorResult.Error.ShouldBe("Invalid subscription token");
     }
 }
