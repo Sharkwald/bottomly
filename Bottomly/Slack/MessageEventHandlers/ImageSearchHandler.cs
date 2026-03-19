@@ -3,6 +3,7 @@ using Bottomly.Commands.Search;
 using Bottomly.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using SlackNet.Blocks;
 using SlackNet.Events;
 
 namespace Bottomly.Slack.MessageEventHandlers;
@@ -27,11 +28,23 @@ public class ImageSearchHandler(
     {
         var query = message.Text![CommandTrigger.Length..];
         var result = await command.ExecuteAsync(query);
-        var response = result switch
+
+        if (result is SearchResult success)
         {
-            SearchResult success => $"{success.Title} {success.Link}",
-            _ => $"No image results found for \"{query}\""
-        };
-        await SendMessageResponseAsync(response, message);
+            var blocks = new List<Block>
+            {
+                new ImageBlock
+                {
+                    ImageUrl = success.Link,
+                    AltText = success.Title,
+                    Title = new PlainText { Text = success.Title }
+                }
+            };
+            await SendBlocksResponseAsync(blocks, message, success.Title);
+        }
+        else
+        {
+            await SendMessageResponseAsync($"No image results found for \"{query}\"", message);
+        }
     }
 }

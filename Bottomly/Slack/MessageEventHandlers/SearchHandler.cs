@@ -30,7 +30,7 @@ public class SearchHandler(
 
         var response = result switch
         {
-            SearchResult success => $"{success.Title} {success.Link}",
+            SearchResult success => $"<{success.Link}|{success.Title}>",
             EmptySearchTermErrorResult => $"No results found for \"{query}\"",
             _ => "Left as an exercise for the reader."
         };

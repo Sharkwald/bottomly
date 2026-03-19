@@ -3,6 +3,7 @@ using Bottomly.Repositories;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SlackNet;
+using SlackNet.Blocks;
 using SlackNet.WebApi;
 
 namespace Bottomly.Slack;
@@ -41,6 +42,25 @@ public class SlackMessageBroker(
         catch (Exception ex)
         {
             logger.LogError(ex, "Error sending message to channel {Channel}", channel);
+        }
+    }
+
+    public async Task SendBlocksMessageAsync(IReadOnlyList<Block> blocks, string channel, string? text = null, string? replyToTs = null)
+    {
+        try
+        {
+            var message = new Message
+            {
+                Channel = channel,
+                Text = _options.IsDebug && text is not null ? $"[{_options.Environment}] {text}" : text ?? string.Empty,
+                Blocks = [..blocks],
+                ThreadTs = replyToTs
+            };
+            await slack.Chat.PostMessage(message);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error sending blocks message to channel {Channel}", channel);
         }
     }
 

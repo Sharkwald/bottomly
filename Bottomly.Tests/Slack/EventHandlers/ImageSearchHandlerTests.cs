@@ -5,6 +5,7 @@ using Bottomly.Tests.Helpers;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Shouldly;
+using SlackNet.Blocks;
 using SlackNet.Events;
 
 namespace Bottomly.Tests.Slack.EventHandlers;
@@ -52,14 +53,26 @@ public class ImageSearchHandlerTests
     }
 
     [Fact]
-    public async Task HandleAsync_ValidEvent_WithResult_SendsFormattedResponse()
+    public async Task HandleAsync_ValidEvent_WithResult_SendsImageBlock()
     {
         _mockCommand.Setup(c => c.ExecuteAsync("cats"))
             .ReturnsAsync(new SearchResult("Cute Cat", "https://example.com/cat.jpg"));
 
+        IReadOnlyList<Block>? capturedBlocks = null;
+        _mockBroker
+            .Setup(b => b.SendBlocksMessageAsync(It.IsAny<IReadOnlyList<Block>>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<string?>()))
+            .Callback<IReadOnlyList<Block>, string, string?, string?>((blocks, _, _, _) => capturedBlocks = blocks)
+            .Returns(Task.CompletedTask);
+
         await _handler.HandleAsync(CreateMessage("_gi cats"));
 
-        _mockBroker.Verify(b => b.SendMessageAsync("Cute Cat https://example.com/cat.jpg", "C1", null), Times.Once());
+        _mockBroker.Verify(b => b.SendBlocksMessageAsync(
+            It.IsAny<IReadOnlyList<Block>>(), "C1", "Cute Cat", null), Times.Once());
+        capturedBlocks.ShouldNotBeNull();
+        capturedBlocks.Count.ShouldBe(1);
+        var imageBlock = capturedBlocks[0].ShouldBeOfType<ImageBlock>();
+        imageBlock.ImageUrl.ShouldBe("https://example.com/cat.jpg");
+        imageBlock.AltText.ShouldBe("Cute Cat");
     }
 
     [Fact]

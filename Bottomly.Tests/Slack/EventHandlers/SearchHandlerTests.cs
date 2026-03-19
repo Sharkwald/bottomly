@@ -59,7 +59,7 @@ public class SearchHandlerTests
 
         await _handler.HandleAsync(CreateMessage("_g dotnet"));
 
-        _mockBroker.Verify(b => b.SendMessageAsync("DotNet https://dotnet.microsoft.com", "C1", null), Times.Once());
+        _mockBroker.Verify(b => b.SendMessageAsync("<https://dotnet.microsoft.com|DotNet>", "C1", null), Times.Once());
     }
 
     [Fact]
