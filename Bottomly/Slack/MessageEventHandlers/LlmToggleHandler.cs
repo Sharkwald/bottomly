@@ -26,7 +26,7 @@ public class LlmToggleHandler(
 
     protected override async Task InvokeHandlerLogicAsync(MessageEvent message)
     {
-        var sender = await memberRepository.GetBySlackIdAsync(message.User);
+        var sender = await memberRepository.GetByUsernameAsync(message.User);
         if (sender?.Username != AuthorisedUser)
         {
             await SendMessageResponseAsync("You don't have permission to toggle the LLM.", message, true);
