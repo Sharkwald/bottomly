@@ -11,6 +11,7 @@ public class ConversationMessageHandler(
     ISlackMessageBroker slackBroker,
     ISlackApiClient apiClient,
     IMemberRepository memberRepository,
+    IFeatureFlagRepository featureFlagRepository,
     ILogger<ConversationMessageHandler> logger
 ) : IMessageEventHandler
 {
@@ -19,6 +20,12 @@ public class ConversationMessageHandler(
     public async Task HandleAsync(MessageEvent message)
     {
         logger.LogInformation("Handling conversation message from {User} in {Channel}", message.User, message.Channel);
+
+        if (!await featureFlagRepository.GetAsync("EnableLlm"))
+        {
+            logger.LogInformation("LLM is disabled; skipping conversation handling.");
+            return;
+        }
 
         var history = await apiClient.Conversations.History(message.Channel, limit: 11);
 
