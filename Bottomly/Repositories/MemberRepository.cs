@@ -7,6 +7,9 @@ public class MemberRepository(IMongoDatabase database) : IMemberRepository
 {
     private readonly IMongoCollection<Member> _collection = database.GetCollection<Member>("member");
 
+    public Task<List<Member>> GetAllAsync() =>
+        _collection.Find(_ => true).ToListAsync();
+
     public async Task<Member?> GetByUsernameAsync(string username) =>
         await _collection.Find(m => m.Username == username).FirstOrDefaultAsync();
 

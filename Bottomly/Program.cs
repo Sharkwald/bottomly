@@ -9,6 +9,7 @@ using Bottomly.Slack.MembershipEventHandlers;
 using Bottomly.Slack.MessageEventHandlers;
 using Bottomly.Slack.MessageEventHandlers.ConversationMessageHandling;
 using Bottomly.Slack.ReactionHandlers;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -55,8 +56,12 @@ var opts = builder.Services.BuildServiceProvider().GetRequiredService<IOptions<B
 builder.Services.AddHttpClient();
 
 // Repositories
+builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<IKarmaRepository, KarmaRepository>();
-builder.Services.AddSingleton<IMemberRepository, MemberRepository>();
+builder.Services.AddSingleton<IMemberRepository>(sp =>
+    new CachingMemberRepository(
+        new MemberRepository(sp.GetRequiredService<IMongoDatabase>()),
+        sp.GetRequiredService<IMemoryCache>()));
 builder.Services.AddSingleton<IFeatureFlagRepository, FeatureFlagRepository>();
 
 // Commands
@@ -95,6 +100,7 @@ builder.Services.AddSingleton<SlackWorker>();
 builder.Services.AddSingleton<SlackMessageEventDispatcher>();
 builder.Services.AddSingleton<SlackReactionEventDispatcher>();
 builder.Services.AddSingleton<SlackMemberAddedEventDispatcher>();
+builder.Services.AddHostedService<MemberCachePopulator>();
 builder.Services.AddHostedService(sp => sp.GetRequiredService<SlackWorker>());
 
 // LLM Support

@@ -4,6 +4,7 @@ namespace Bottomly.Repositories;
 
 public interface IMemberRepository
 {
+    Task<List<Member>> GetAllAsync();
     Task<Member?> GetByUsernameAsync(string username);
     Task<Member?> GetBySlackIdAsync(string slackId);
     Task<List<Member>> GetBySlackIdsAsync(IEnumerable<string> slackIds);

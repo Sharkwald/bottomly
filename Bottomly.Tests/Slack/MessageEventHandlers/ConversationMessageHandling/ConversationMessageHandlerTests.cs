@@ -26,6 +26,8 @@ public class ConversationMessageHandlerTests
     {
         _mockApiClient.Setup(a => a.Conversations).Returns(_mockConversations.Object);
         _mockFeatureFlagRepo.Setup(r => r.GetAsync("EnableLlm")).ReturnsAsync(true);
+        _mockMemberRepo.Setup(r => r.GetByUsernameAsync("bottomly"))
+            .ReturnsAsync(new Member { Username = "bottomly", SlackId = "UBOTID" });
 
         _handler = new ConversationMessageHandler(
             _mockLlmBroker.Object,
@@ -43,6 +45,8 @@ public class ConversationMessageHandlerTests
     [InlineData("hey bottomly what do you think?")]
     [InlineData("bottomly, help me")]
     [InlineData("I asked bottomly already")]
+    [InlineData("<@UBOTID> what do you think?")]
+    [InlineData("<@UBOTID>")]
     public void CanHandle_MessageContainsBottomly_ReturnsTrue(string text) =>
         _handler.CanHandle(CreateMessage(text)).ShouldBeTrue();
 
@@ -50,6 +54,7 @@ public class ConversationMessageHandlerTests
     [InlineData("hello there")]
     [InlineData("_karma alice")]
     [InlineData("")]
+    [InlineData("<@UOTHERID> what do you think?")]
     public void CanHandle_MessageWithoutBottomly_ReturnsFalse(string text) =>
         _handler.CanHandle(CreateMessage(text)).ShouldBeFalse();
 

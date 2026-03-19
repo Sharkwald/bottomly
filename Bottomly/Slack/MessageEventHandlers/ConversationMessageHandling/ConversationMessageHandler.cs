@@ -1,4 +1,5 @@
 using Bottomly.LlmBot;
+using Bottomly.Models;
 using Bottomly.Repositories;
 using Microsoft.Extensions.Logging;
 using SlackNet;
@@ -15,7 +16,15 @@ public class ConversationMessageHandler(
     ILogger<ConversationMessageHandler> logger
 ) : IMessageEventHandler
 {
-    public bool CanHandle(MessageEvent message) => message.Text.Contains("bottomly");
+    private readonly Task<Member?> _botMemberTask = memberRepository.GetByUsernameAsync("bottomly");
+
+    public bool CanHandle(MessageEvent message)
+    {
+        if (message.Text.Contains("bottomly")) return true;
+        return _botMemberTask.IsCompletedSuccessfully
+            && _botMemberTask.Result?.SlackId is { } botId
+            && message.Text.Contains($"<@{botId}>");
+    }
 
     public async Task HandleAsync(MessageEvent message)
     {
