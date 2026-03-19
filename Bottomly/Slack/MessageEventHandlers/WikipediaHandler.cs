@@ -24,7 +24,7 @@ public class WikipediaHandler(
         var result = await command.ExecuteAsync(term);
         var response = result is null
             ? $"No results found for \"{term}\""
-            : $"{result.Text} {result.Link}";
+            : $"<{result.Link}|{result.Text}>";
         await SendMessageResponseAsync(response, message);
     }
 }

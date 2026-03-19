@@ -2,6 +2,7 @@ using Bottomly.Commands;
 using Bottomly.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using SlackNet.Blocks;
 using SlackNet.Events;
 
 namespace Bottomly.Slack.MessageEventHandlers;
@@ -71,6 +72,12 @@ public abstract class AbstractMessageEventHandler(
         var replyTs = asReply ? message.TsForReply() : null;
 
         await Broker.SendMessageAsync(text, message.Channel, replyTs);
+    }
+
+    protected async Task SendBlocksResponseAsync(IReadOnlyList<Block> blocks, MessageEvent message, string? text = null, bool asReply = false)
+    {
+        var replyTs = asReply ? message.TsForReply() : null;
+        await Broker.SendBlocksMessageAsync(blocks, message.Channel, text, replyTs);
     }
 
     protected Task SendReactionResponseAsync(MessageEvent message) =>

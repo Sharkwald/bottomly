@@ -51,7 +51,7 @@ public class WikipediaHandlerTests
 
         await _handler.HandleAsync(CreateMessage("_wik octopus"));
 
-        _mockBroker.Verify(b => b.SendMessageAsync("Octopus https://en.wikipedia.org/wiki/Octopus", "C1", null),
+        _mockBroker.Verify(b => b.SendMessageAsync("<https://en.wikipedia.org/wiki/Octopus|Octopus>", "C1", null),
             Times.Once());
     }
 

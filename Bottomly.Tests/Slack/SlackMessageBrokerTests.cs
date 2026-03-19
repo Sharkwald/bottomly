@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
 using SlackNet;
+using SlackNet.Blocks;
 using SlackNet.WebApi;
 
 namespace Bottomly.Tests.Slack;
@@ -71,6 +72,45 @@ public class SlackMessageBrokerTests
         var broker = CreateBroker(environment: "Dev");
 
         await broker.SendMessageAsync("Hello!", "C1");
+
+        _mockChat.Verify(c => c.PostMessage(It.Is<Message>(m =>
+            m.Text!.StartsWith("[Dev]"))), Times.Once());
+    }
+
+    [Fact]
+    public async Task SendBlocksMessageAsync_PostsBlocksToChannel()
+    {
+        var broker = CreateBroker();
+        var blocks = new List<Block> { new ImageBlock { ImageUrl = "https://example.com/img.jpg", AltText = "test" } };
+
+        await broker.SendBlocksMessageAsync(blocks, "C1", "fallback text");
+
+        _mockChat.Verify(c => c.PostMessage(It.Is<Message>(m =>
+            m.Channel == "C1" &&
+            m.Text == "fallback text" &&
+            m.Blocks.Count == 1 &&
+            m.Blocks[0] is ImageBlock)), Times.Once());
+    }
+
+    [Fact]
+    public async Task SendBlocksMessageAsync_WithReplyTs_SetsThreadTs()
+    {
+        var broker = CreateBroker();
+        var blocks = new List<Block> { new ImageBlock { ImageUrl = "https://example.com/img.jpg", AltText = "test" } };
+
+        await broker.SendBlocksMessageAsync(blocks, "C1", replyToTs: "ts123");
+
+        _mockChat.Verify(c => c.PostMessage(It.Is<Message>(m =>
+            m.ThreadTs == "ts123")), Times.Once());
+    }
+
+    [Fact]
+    public async Task SendBlocksMessageAsync_DebugMode_PrependsPrefixToText()
+    {
+        var broker = CreateBroker(environment: "Dev");
+        var blocks = new List<Block> { new ImageBlock { ImageUrl = "https://example.com/img.jpg", AltText = "test" } };
+
+        await broker.SendBlocksMessageAsync(blocks, "C1", "fallback");
 
         _mockChat.Verify(c => c.PostMessage(It.Is<Message>(m =>
             m.Text!.StartsWith("[Dev]"))), Times.Once());
