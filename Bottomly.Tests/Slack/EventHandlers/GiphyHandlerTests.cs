@@ -5,6 +5,7 @@ using Bottomly.Tests.Helpers;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Shouldly;
+using SlackNet.Blocks;
 using SlackNet.Events;
 
 namespace Bottomly.Tests.Slack.EventHandlers;
@@ -19,7 +20,7 @@ public class GiphyHandlerTests
     {
         var options = TestHelpers.CreateOptions();
         var mockFactory = new Mock<IHttpClientFactory>();
-        _mockCommand = new Mock<GiphyCommand>(mockFactory.Object, options);
+        _mockCommand = new Mock<GiphyCommand>(mockFactory.Object, options, NullLogger<GiphyCommand>.Instance);
         _handler = new GiphyHandler(_mockCommand.Object, _mockBroker.Object, options,
             NullLogger<GiphyHandler>.Instance);
     }
@@ -36,7 +37,7 @@ public class GiphyHandlerTests
     [Fact]
     public async Task HandleAsync_ValidEvent_CallsCommandWithTerm()
     {
-        _mockCommand.Setup(c => c.ExecuteAsync("cats")).ReturnsAsync((string?)null);
+        _mockCommand.Setup(c => c.ExecuteAsync("cats")).ReturnsAsync(new GiphyEmptyResult());
 
         await _handler.HandleAsync(CreateMessage("_gif cats"));
 
@@ -44,19 +45,32 @@ public class GiphyHandlerTests
     }
 
     [Fact]
-    public async Task HandleAsync_ValidEvent_WithResult_SendsResult()
+    public async Task HandleAsync_ValidEvent_WithResult_SendsImageBlock()
     {
-        _mockCommand.Setup(c => c.ExecuteAsync("cats")).ReturnsAsync("https://giphy.com/cat.gif");
+        _mockCommand.Setup(c => c.ExecuteAsync("cats"))
+            .ReturnsAsync(new GiphySuccessResult("https://giphy.com/cat.gif"));
+
+        IReadOnlyList<Block>? capturedBlocks = null;
+        _mockBroker
+            .Setup(b => b.SendBlocksMessageAsync(It.IsAny<IReadOnlyList<Block>>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<string?>()))
+            .Callback<IReadOnlyList<Block>, string, string?, string?>((blocks, _, _, _) => capturedBlocks = blocks)
+            .Returns(Task.CompletedTask);
 
         await _handler.HandleAsync(CreateMessage("_gif cats"));
 
-        _mockBroker.Verify(b => b.SendMessageAsync("https://giphy.com/cat.gif", "C1", null), Times.Once());
+        _mockBroker.Verify(b => b.SendBlocksMessageAsync(
+            It.IsAny<IReadOnlyList<Block>>(), "C1", "cats", null), Times.Once());
+        capturedBlocks.ShouldNotBeNull();
+        capturedBlocks.Count.ShouldBe(1);
+        var imageBlock = capturedBlocks[0].ShouldBeOfType<ImageBlock>();
+        imageBlock.ImageUrl.ShouldBe("https://giphy.com/cat.gif");
+        imageBlock.AltText.ShouldBe("cats");
     }
 
     [Fact]
-    public async Task HandleAsync_ValidEvent_NullResult_SendsNoGifsMessage()
+    public async Task HandleAsync_ValidEvent_EmptyResult_SendsNoGifsMessage()
     {
-        _mockCommand.Setup(c => c.ExecuteAsync("xyz")).ReturnsAsync((string?)null);
+        _mockCommand.Setup(c => c.ExecuteAsync("xyz")).ReturnsAsync(new GiphyEmptyResult());
 
         await _handler.HandleAsync(CreateMessage("_gif xyz"));
 
