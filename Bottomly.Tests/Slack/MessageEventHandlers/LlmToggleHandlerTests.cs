@@ -1,4 +1,3 @@
-using Bottomly.Configuration;
 using Bottomly.Models;
 using Bottomly.Repositories;
 using Bottomly.Slack;
@@ -13,27 +12,25 @@ namespace Bottomly.Tests.Slack.MessageEventHandlers;
 
 public class LlmToggleHandlerTests
 {
+    private readonly LlmToggleHandler _handler;
+    private readonly Mock<ISlackMessageBroker> _mockBroker = new();
     private readonly Mock<IFeatureFlagRepository> _mockFlagRepo = new();
     private readonly Mock<IMemberRepository> _mockMemberRepo = new();
-    private readonly Mock<ISlackMessageBroker> _mockBroker = new();
-    private readonly LlmToggleHandler _handler;
 
-    public LlmToggleHandlerTests()
-    {
+    public LlmToggleHandlerTests() =>
         _handler = new LlmToggleHandler(
             _mockFlagRepo.Object,
             _mockMemberRepo.Object,
             _mockBroker.Object,
             TestHelpers.CreateOptions(),
             NullLogger<LlmToggleHandler>.Instance);
-    }
 
-    private static MessageEvent CreateMessage(string text, string user = "U_OWEN") =>
+    private static MessageEvent CreateMessage(string text, string user = "owen") =>
         new() { Text = text, User = user, Channel = "C1", Ts = "ts1" };
 
     private void SetupMemberForSlackId(string slackId, string username) =>
         _mockMemberRepo
-            .Setup(r => r.GetBySlackIdAsync(slackId))
+            .Setup(r => r.GetByUsernameAsync(username))
             .ReturnsAsync(new Member { SlackId = slackId, Username = username });
 
     // ─── CanHandle ─────────────────────────────────────────────────────────────
@@ -61,7 +58,7 @@ public class LlmToggleHandlerTests
     {
         SetupMemberForSlackId("U_OTHER", "alice");
 
-        await _handler.HandleAsync(CreateMessage("_llm on", "U_OTHER"));
+        await _handler.HandleAsync(CreateMessage("_llm on", "alice"));
 
         _mockBroker.Verify(
             b => b.SendMessageAsync(It.Is<string>(s => s.Contains("permission")), "C1", It.IsAny<string?>()),
@@ -89,7 +86,7 @@ public class LlmToggleHandlerTests
     {
         SetupMemberForSlackId("U_OWEN", "owen");
 
-        await _handler.HandleAsync(CreateMessage("_llm on", "U_OWEN"));
+        await _handler.HandleAsync(CreateMessage("_llm on"));
 
         _mockFlagRepo.Verify(r => r.SetAsync("EnableLlm", true), Times.Once());
     }
@@ -99,10 +96,11 @@ public class LlmToggleHandlerTests
     {
         SetupMemberForSlackId("U_OWEN", "owen");
 
-        await _handler.HandleAsync(CreateMessage("_llm on", "U_OWEN"));
+        await _handler.HandleAsync(CreateMessage("_llm on"));
 
         _mockBroker.Verify(
-            b => b.SendMessageAsync(It.Is<string>(s => s.Contains("enabled", StringComparison.OrdinalIgnoreCase)), "C1", It.IsAny<string?>()),
+            b => b.SendMessageAsync(It.Is<string>(s => s.Contains("enabled", StringComparison.OrdinalIgnoreCase)), "C1",
+                It.IsAny<string?>()),
             Times.Once());
     }
 
@@ -113,7 +111,7 @@ public class LlmToggleHandlerTests
     {
         SetupMemberForSlackId("U_OWEN", "owen");
 
-        await _handler.HandleAsync(CreateMessage("_llm off", "U_OWEN"));
+        await _handler.HandleAsync(CreateMessage("_llm off"));
 
         _mockFlagRepo.Verify(r => r.SetAsync("EnableLlm", false), Times.Once());
     }
@@ -123,10 +121,11 @@ public class LlmToggleHandlerTests
     {
         SetupMemberForSlackId("U_OWEN", "owen");
 
-        await _handler.HandleAsync(CreateMessage("_llm off", "U_OWEN"));
+        await _handler.HandleAsync(CreateMessage("_llm off"));
 
         _mockBroker.Verify(
-            b => b.SendMessageAsync(It.Is<string>(s => s.Contains("disabled", StringComparison.OrdinalIgnoreCase)), "C1", It.IsAny<string?>()),
+            b => b.SendMessageAsync(It.Is<string>(s => s.Contains("disabled", StringComparison.OrdinalIgnoreCase)),
+                "C1", It.IsAny<string?>()),
             Times.Once());
     }
 
@@ -137,7 +136,7 @@ public class LlmToggleHandlerTests
     {
         SetupMemberForSlackId("U_OWEN", "owen");
 
-        await _handler.HandleAsync(CreateMessage("_llm blah", "U_OWEN"));
+        await _handler.HandleAsync(CreateMessage("_llm blah"));
 
         _mockBroker.Verify(
             b => b.SendMessageAsync(It.Is<string>(s => s.Contains("blah")), "C1", It.IsAny<string?>()),
