@@ -19,12 +19,23 @@ public class ImageSearchCommand(
 
     protected override SearchCommandResult ExtractFirstResult(JsonElement root)
     {
-        if (!root.TryGetProperty("results", out var results)) return new NoResultsFoundResult();
-        if (results.GetArrayLength() == 0) return new NoResultsFoundResult();
+        if (!root.TryGetProperty("results", out var results))
+        {
+            return new NoResultsFoundResult();
+        }
+
+        if (results.GetArrayLength() == 0)
+        {
+            return new NoResultsFoundResult();
+        }
 
         var first = results[0];
         var title = first.TryGetProperty("title", out var t) ? t.GetString() ?? string.Empty : string.Empty;
-        if (!first.TryGetProperty("properties", out var props)) return new NoResultsFoundResult();
+        if (!first.TryGetProperty("properties", out var props))
+        {
+            return new NoResultsFoundResult();
+        }
+
         var url = props.TryGetProperty("url", out var u) ? u.GetString() ?? string.Empty : string.Empty;
         return new SearchResult(title, url);
     }

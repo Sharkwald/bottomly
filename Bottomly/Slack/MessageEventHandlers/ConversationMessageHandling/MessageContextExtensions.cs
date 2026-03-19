@@ -1,4 +1,4 @@
-﻿using Bottomly.LlmBot;
+using Bottomly.LlmBot;
 using Bottomly.Models;
 using SlackNet.Events;
 

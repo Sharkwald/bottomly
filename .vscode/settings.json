@@ -12,7 +12,13 @@
         "test_*.py"
     ],
     "cSpell.words": [
+        "appinsights",
         "Bottomly",
-        "sass"
+        "CONN",
+        "creds",
+        "GIPHY",
+        "OLLAMA",
+        "sass",
+        "slnx"
     ]
 }

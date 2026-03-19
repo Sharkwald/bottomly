@@ -15,7 +15,10 @@ public class WikipediaSearchCommand(IHttpClientFactory httpClientFactory) : ICom
 
     public virtual async Task<WikipediaResult?> ExecuteAsync(string searchTerm)
     {
-        if (string.IsNullOrWhiteSpace(searchTerm)) return null;
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            return null;
+        }
 
         var url =
             $"https://en.wikipedia.org/w/api.php?action=opensearch&format=json&search={Uri.EscapeDataString(searchTerm)}";
@@ -31,7 +34,10 @@ public class WikipediaSearchCommand(IHttpClientFactory httpClientFactory) : ICom
         var titles = root[1];
         var links = root[3];
 
-        if (titles.GetArrayLength() == 0) return null;
+        if (titles.GetArrayLength() == 0)
+        {
+            return null;
+        }
 
         return new WikipediaResult(titles[0].GetString()!, links[0].GetString()!);
     }

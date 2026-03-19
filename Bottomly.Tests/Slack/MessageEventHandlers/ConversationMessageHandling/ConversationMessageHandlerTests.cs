@@ -133,4 +133,3 @@ public class ConversationMessageHandlerTests
         _mockMemberRepo.Setup(r => r.GetBySlackIdsAsync(It.IsAny<IEnumerable<string>>()))
             .ReturnsAsync(members);
 }
-

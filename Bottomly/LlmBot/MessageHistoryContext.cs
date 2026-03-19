@@ -1,4 +1,4 @@
-﻿namespace Bottomly.LlmBot;
+namespace Bottomly.LlmBot;
 
 public record MessageHistoryContext
 {

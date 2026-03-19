@@ -55,7 +55,10 @@ public class ImageSearchCommandIntegrationTests
     [Fact]
     public async Task ExecuteAsync_EmptyInput_ReturnsEmptySearchTermErrorResult()
     {
-        if (!CredentialsAvailable) return;
+        if (!CredentialsAvailable)
+        {
+            return;
+        }
 
         var result = await CreateCommand().ExecuteAsync("");
 
@@ -65,7 +68,10 @@ public class ImageSearchCommandIntegrationTests
     [Fact]
     public async Task ExecuteAsync_KnownSearchTerm_ReturnsResultWithLink()
     {
-        if (!CredentialsAvailable) return;
+        if (!CredentialsAvailable)
+        {
+            return;
+        }
 
         var result = await CreateCommand().ExecuteAsync("GitHub");
 
@@ -79,7 +85,10 @@ public class ImageSearchCommandIntegrationTests
     [Fact]
     public async Task ExecuteAsync_KnownSearchTerm_ReturnsRelevantResult()
     {
-        if (!CredentialsAvailable) return;
+        if (!CredentialsAvailable)
+        {
+            return;
+        }
 
         var result = await CreateCommand().ExecuteAsync("Wikipedia logo");
 

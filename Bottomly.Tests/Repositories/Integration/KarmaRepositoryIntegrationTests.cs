@@ -187,6 +187,8 @@ public class KarmaRepositoryIntegrationTests(MongoDbFixture fixture) : IAsyncLif
     private async Task AddKarmaMultiple(string recipient, KarmaType type, int count)
     {
         for (var i = 0; i < count; i++)
+        {
             await _sut.AddAsync(MakeKarma(recipient, "giver", type));
+        }
     }
 }

@@ -20,7 +20,10 @@ public abstract class SearchCommandBase(
 
     public virtual async Task<SearchCommandResult> ExecuteAsync(string searchTerm)
     {
-        if (string.IsNullOrWhiteSpace(searchTerm)) return new EmptySearchTermErrorResult();
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            return new EmptySearchTermErrorResult();
+        }
 
         try
         {
@@ -55,7 +58,9 @@ public abstract class SearchCommandBase(
             var body = await response.Content.ReadAsStringAsync();
             using var doc = JsonDocument.Parse(body);
             if (doc.RootElement.TryGetProperty("message", out var msg))
+            {
                 return msg.GetString()!;
+            }
         }
         catch (JsonException)
         {
