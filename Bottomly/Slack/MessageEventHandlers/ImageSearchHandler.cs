@@ -19,10 +19,7 @@ public class ImageSearchHandler(
     protected override ICommand Command => command;
     protected override string CommandSymbol => "gi";
 
-    protected override string GetUsage()
-    {
-        return CommandTrigger + "<query>";
-    }
+    protected override string GetUsage() => CommandTrigger + "<query>";
 
     protected override async Task InvokeHandlerLogicAsync(MessageEvent message)
     {

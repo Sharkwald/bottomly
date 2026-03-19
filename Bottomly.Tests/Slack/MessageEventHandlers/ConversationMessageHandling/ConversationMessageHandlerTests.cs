@@ -19,17 +19,22 @@ public class ConversationMessageHandlerTests
     private readonly Mock<ISlackApiClient> _mockApiClient = new();
     private readonly Mock<IConversationsApi> _mockConversations = new();
     private readonly Mock<IMemberRepository> _mockMemberRepo = new();
+    private readonly Mock<IFeatureFlagRepository> _mockFeatureFlagRepo = new();
     private readonly ConversationMessageHandler _handler;
 
     public ConversationMessageHandlerTests()
     {
         _mockApiClient.Setup(a => a.Conversations).Returns(_mockConversations.Object);
+        _mockFeatureFlagRepo.Setup(r => r.GetAsync("EnableLlm")).ReturnsAsync(true);
+        _mockMemberRepo.Setup(r => r.GetByUsernameAsync("bottomly"))
+            .ReturnsAsync(new Member { Username = "bottomly", SlackId = "UBOTID" });
 
         _handler = new ConversationMessageHandler(
             _mockLlmBroker.Object,
             _mockSlackBroker.Object,
             _mockApiClient.Object,
             _mockMemberRepo.Object,
+            _mockFeatureFlagRepo.Object,
             NullLogger<ConversationMessageHandler>.Instance);
     }
 
@@ -40,6 +45,8 @@ public class ConversationMessageHandlerTests
     [InlineData("hey bottomly what do you think?")]
     [InlineData("bottomly, help me")]
     [InlineData("I asked bottomly already")]
+    [InlineData("<@UBOTID> what do you think?")]
+    [InlineData("<@UBOTID>")]
     public void CanHandle_MessageContainsBottomly_ReturnsTrue(string text) =>
         _handler.CanHandle(CreateMessage(text)).ShouldBeTrue();
 
@@ -47,6 +54,7 @@ public class ConversationMessageHandlerTests
     [InlineData("hello there")]
     [InlineData("_karma alice")]
     [InlineData("")]
+    [InlineData("<@UOTHERID> what do you think?")]
     public void CanHandle_MessageWithoutBottomly_ReturnsFalse(string text) =>
         _handler.CanHandle(CreateMessage(text)).ShouldBeFalse();
 
@@ -121,6 +129,21 @@ public class ConversationMessageHandlerTests
         await _handler.HandleAsync(CreateMessage("bottomly what is 2+2?", "U1", "C1", threadTs: "thread_ts1"));
 
         _mockSlackBroker.Verify(b => b.SendMessageAsync(It.IsAny<string>(), "C1", "thread_ts1"), Times.Once());
+    }
+
+    [Fact]
+    public async Task HandleAsync_LlmFlagDisabled_SkipsLlmAndSendsNothing()
+    {
+        _mockFeatureFlagRepo.Setup(r => r.GetAsync("EnableLlm")).ReturnsAsync(false);
+
+        await _handler.HandleAsync(CreateMessage("bottomly what is 2+2?", "U1", "C1"));
+
+        _mockLlmBroker.Verify(
+            b => b.Respond(It.IsAny<BottomlyInputMessage>(), It.IsAny<MessageHistoryContext>()),
+            Times.Never());
+        _mockSlackBroker.Verify(
+            b => b.SendMessageAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>()),
+            Times.Never());
     }
 
     private void SetupConversationHistory(string channel, List<MessageEvent> messages) =>

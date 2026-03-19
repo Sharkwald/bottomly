@@ -1,5 +1,6 @@
 <Solution>
     <Folder Name="/GitHubWorkflows/">
+        <File Path=".azure/container-group.yml" />
         <File Path=".github/workflows/dotnet.yml" />
         <File Path=".github/workflows/push_to_live.yml" />
     </Folder>

@@ -9,6 +9,7 @@ using Bottomly.Slack.MembershipEventHandlers;
 using Bottomly.Slack.MessageEventHandlers;
 using Bottomly.Slack.MessageEventHandlers.ConversationMessageHandling;
 using Bottomly.Slack.ReactionHandlers;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -55,8 +56,13 @@ var opts = builder.Services.BuildServiceProvider().GetRequiredService<IOptions<B
 builder.Services.AddHttpClient();
 
 // Repositories
+builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<IKarmaRepository, KarmaRepository>();
-builder.Services.AddSingleton<IMemberRepository, MemberRepository>();
+builder.Services.AddSingleton<IMemberRepository>(sp =>
+    new CachingMemberRepository(
+        new MemberRepository(sp.GetRequiredService<IMongoDatabase>()),
+        sp.GetRequiredService<IMemoryCache>()));
+builder.Services.AddSingleton<IFeatureFlagRepository, FeatureFlagRepository>();
 
 // Commands
 builder.RegisterCommands(Assembly.GetExecutingAssembly());
@@ -77,9 +83,7 @@ builder.Services.AddSlackNet(c => c
     .RegisterEventHandler<ReactionAdded, SlackReactionEventDispatcher>());
 
 // Event handlers (registered for IEventHandler collection, excluding Help which is separate)
-builder.RegisterEventHandlers(Assembly.GetExecutingAssembly(), opts.Value.EnableLlm
-    ? []
-    : [typeof(ConversationMessageHandler)]);
+builder.RegisterEventHandlers(Assembly.GetExecutingAssembly(), []);
 
 // Help handler (also registered as singleton for direct injection into SlackWorker)
 builder.Services.AddSingleton<HelpHandler>();
@@ -96,38 +100,36 @@ builder.Services.AddSingleton<SlackWorker>();
 builder.Services.AddSingleton<SlackMessageEventDispatcher>();
 builder.Services.AddSingleton<SlackReactionEventDispatcher>();
 builder.Services.AddSingleton<SlackMemberAddedEventDispatcher>();
+builder.Services.AddHostedService<MemberCachePopulator>();
 builder.Services.AddHostedService(sp => sp.GetRequiredService<SlackWorker>());
 
 // LLM Support
-if (opts.Value.EnableLlm)
-{
-    builder.AddOllamaApiClient("bottomlymodel")
-        .AddChatClient();
+builder.AddOllamaApiClient("bottomlymodel")
+    .AddChatClient();
 
-    // builder.Services.AddChatClient(
-    //     new OllamaApiClient(new Uri("http://localhost:11434"), "qwen3.5:4b"));
-
-    // The built-in resilience settings are super aggressive, with a 10s timeout.
-    // Running locally Qwen3 takes ~2m to respond to simple queries, so we need to override the defaults.
+// The built-in resilience settings are super aggressive, with a 10s timeout.
+// Running locally Qwen3 takes ~2m to respond to simple queries, so we need to override the defaults.
 #pragma warning disable EXTEXP0001
-    builder.Services.AddHttpClient("bottomlymodel_httpClient")
-        .RemoveAllResilienceHandlers()
+builder.Services.AddHttpClient("bottomlymodel_httpClient")
+    .RemoveAllResilienceHandlers()
 #pragma warning restore EXTEXP0001
-        .AddStandardResilienceHandler(options =>
-        {
-            options.TotalRequestTimeout.Timeout = TimeSpan.FromMinutes(10);
-            options.AttemptTimeout.Timeout = TimeSpan.FromMinutes(4);
-            options.CircuitBreaker.SamplingDuration = TimeSpan.FromMinutes(8);
-        });
+    .AddStandardResilienceHandler(options =>
+    {
+        options.TotalRequestTimeout.Timeout = TimeSpan.FromMinutes(10);
+        options.AttemptTimeout.Timeout = TimeSpan.FromMinutes(4);
+        options.CircuitBreaker.SamplingDuration = TimeSpan.FromMinutes(8);
+    });
 
-    builder.Services.AddTransient<ILlmClient, LlmClient>();
-}
+builder.Services.AddTransient<ILlmClient, LlmClient>();
 
 // Seeding
 builder.Services.AddSingleton<MemberlistPopulator>();
 builder.Services.AddSingleton<MemberSeedDataImporter>();
 
 var app = builder.Build();
+
+var featureFlagRepository = app.Services.GetRequiredService<IFeatureFlagRepository>();
+await featureFlagRepository.SeedAsync("EnableLlm", opts.Value.EnableLlm);
 
 var populator = app.Services.GetRequiredService<MemberlistPopulator>();
 await populator.PopulateMembers();
