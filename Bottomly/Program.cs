@@ -7,7 +7,6 @@ using Bottomly.Seed;
 using Bottomly.Slack;
 using Bottomly.Slack.MembershipEventHandlers;
 using Bottomly.Slack.MessageEventHandlers;
-using Bottomly.Slack.MessageEventHandlers.ConversationMessageHandling;
 using Bottomly.Slack.ReactionHandlers;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
@@ -47,7 +46,7 @@ builder.Services.Configure<BottomlyOptions>(opts =>
     opts.Environment = builder.Configuration["bottomly_env"] ?? "live";
     opts.GitHubToken = builder.Configuration["bottomly_github_token"] ?? string.Empty;
     opts.BraveApiKey = builder.Configuration["bottomly_brave_api_key"] ?? string.Empty;
-    opts.EnableLlm = builder.Configuration.GetValue<bool>("EnableLlm");
+    opts.OllamaApiKey = builder.Configuration["bottomly_ollama_api_key"] ?? string.Empty;
 });
 
 var opts = builder.Services.BuildServiceProvider().GetRequiredService<IOptions<BottomlyOptions>>();
@@ -104,13 +103,18 @@ builder.Services.AddHostedService<MemberCachePopulator>();
 builder.Services.AddHostedService(sp => sp.GetRequiredService<SlackWorker>());
 
 // LLM Support
-builder.AddOllamaApiClient("bottomlymodel")
+builder.AddOllamaApiClient("bottomlymodel", x =>
+    {
+        x.Endpoint = new Uri("https://ollama.com");
+        x.SelectedModel = "qwen3.5:cloud";
+    })
     .AddChatClient();
 
 // The built-in resilience settings are super aggressive, with a 10s timeout.
 // Running locally Qwen3 takes ~2m to respond to simple queries, so we need to override the defaults.
 #pragma warning disable EXTEXP0001
 builder.Services.AddHttpClient("bottomlymodel_httpClient")
+    .ConfigureHttpClient(c => c.DefaultRequestHeaders.Add("Authorization", $"Bearer {opts.Value.OllamaApiKey}"))
     .RemoveAllResilienceHandlers()
 #pragma warning restore EXTEXP0001
     .AddStandardResilienceHandler(options =>
@@ -129,7 +133,7 @@ builder.Services.AddSingleton<MemberSeedDataImporter>();
 var app = builder.Build();
 
 var featureFlagRepository = app.Services.GetRequiredService<IFeatureFlagRepository>();
-await featureFlagRepository.SeedAsync("EnableLlm", opts.Value.EnableLlm);
+await featureFlagRepository.SeedAsync("EnableLlm", false);
 
 var populator = app.Services.GetRequiredService<MemberlistPopulator>();
 await populator.PopulateMembers();
@@ -147,8 +151,7 @@ public static class HostBuilderExtensions
 {
     extension(HostApplicationBuilder builder)
     {
-        public void RegisterEventHandlers(Assembly assembly, Type[] exclude)
-        {
+        public void RegisterEventHandlers(Assembly assembly, Type[] exclude) =>
             assembly.GetTypes()
                 .Where(t => typeof(IMessageEventHandler).IsAssignableFrom(t) &&
                             t is { IsInterface: false, IsAbstract: false })
@@ -156,14 +159,11 @@ public static class HostBuilderExtensions
                 .Where(t => !exclude.Contains(t))
                 .ToList()
                 .ForEach(t => builder.Services.AddSingleton(typeof(IMessageEventHandler), t));
-        }
 
-        public void RegisterCommands(Assembly assembly)
-        {
+        public void RegisterCommands(Assembly assembly) =>
             assembly.GetTypes()
                 .Where(t => typeof(ICommand).IsAssignableFrom(t) && t is { IsInterface: false, IsAbstract: false })
                 .ToList()
                 .ForEach(t => builder.Services.AddSingleton(t));
-        }
     }
 }
