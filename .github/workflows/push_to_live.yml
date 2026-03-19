@@ -67,6 +67,10 @@ jobs:
         shell: bash
         run: |
           envsubst < .azure/container-group.yml > /tmp/resolved-container-group.yml
+          az container delete \
+            --resource-group ${{ secrets.RESOURCE_GROUP }} \
+            --name bottomly-live \
+            --yes || true
           az container create \
             --resource-group ${{ secrets.RESOURCE_GROUP }} \
             --file /tmp/resolved-container-group.yml
