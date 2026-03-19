@@ -2,6 +2,7 @@ using Bottomly.Commands;
 using Bottomly.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using SlackNet.Blocks;
 using SlackNet.Events;
 
 namespace Bottomly.Slack.MessageEventHandlers;
@@ -22,7 +23,23 @@ public class GiphyHandler(
     {
         var term = message.Text![CommandTrigger.Length..];
         var result = await command.ExecuteAsync(term);
-        var response = result ?? $"No gifs found for \"{term}\"";
-        await SendMessageResponseAsync(response, message);
+
+        if (result is GiphySuccessResult success)
+        {
+            var blocks = new List<Block>
+            {
+                new ImageBlock
+                {
+                    ImageUrl = success.Url,
+                    AltText = term,
+                    Title = new PlainText { Text = term }
+                }
+            };
+            await SendBlocksResponseAsync(blocks, message, term);
+        }
+        else
+        {
+            await SendMessageResponseAsync($"No gifs found for \"{term}\"", message);
+        }
     }
 }
