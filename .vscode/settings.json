@@ -17,6 +17,7 @@
         "CONN",
         "creds",
         "GIPHY",
+        "OLLAMA",
         "sass",
         "slnx"
     ]
