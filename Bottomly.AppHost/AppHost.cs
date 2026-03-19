@@ -11,19 +11,8 @@ var mongo = builder.AddMongoDB("mongo")
 
 var mongodb = mongo.AddDatabase("mongodb", "bottomly");
 
-// var ollama = builder.AddOllama("ollama")
-//     .WithEnvironment("OLLAMA_API_KEY", builder.Configuration["AppHost:OllamaApiKey"])
-//     .WithDataVolume()
-//     .WithLifetime(ContainerLifetime.Persistent);
-
-var ollama = builder.AddOllamaLocal("ollama");
-
-var bottomlyModel = ollama.AddModel("bottomlymodel", "qwen3.5:cloud");
-
 var bottomly = builder.AddProject<Bottomly>("bottomly")
         .WaitFor(mongodb)
-        .WaitFor(ollama)
-        .WithReference(bottomlyModel)
         .WithReference(mongodb)
     ;
 
