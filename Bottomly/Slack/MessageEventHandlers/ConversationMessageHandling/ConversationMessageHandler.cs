@@ -20,10 +20,14 @@ public class ConversationMessageHandler(
 
     public bool CanHandle(MessageEvent message)
     {
-        if (message.Text.Contains("bottomly")) return true;
+        if (message.Text.Contains("bottomly"))
+        {
+            return true;
+        }
+
         return _botMemberTask.IsCompletedSuccessfully
-            && _botMemberTask.Result?.SlackId is { } botId
-            && message.Text.Contains($"<@{botId}>");
+               && _botMemberTask.Result?.SlackId is { } botId
+               && message.Text.Contains($"<@{botId}>");
     }
 
     public async Task HandleAsync(MessageEvent message)

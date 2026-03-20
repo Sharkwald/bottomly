@@ -22,9 +22,14 @@ public class WikipediaHandler(
     {
         var term = message.Text![CommandTrigger.Length..];
         var result = await command.ExecuteAsync(term);
-        var response = result is null
-            ? $"No results found for \"{term}\""
-            : $"<{result.Link}|{result.Text}>";
+        var response = result switch
+        {
+            WikipediaSuccessResult success => $"<{success.Link}|{success.Text}>",
+            WikipediaNotFoundResult => $"No results found for \"{term}\"",
+            WikipediaEmptyInputResult => $"No results found for \"{term}\"",
+            WikipediaErrorResult => $"No results found for \"{term}\"",
+            _ => $"No results found for \"{term}\""
+        };
         await SendMessageResponseAsync(response, message);
     }
 }

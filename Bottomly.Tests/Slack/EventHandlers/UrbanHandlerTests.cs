@@ -19,7 +19,7 @@ public class UrbanHandlerTests
     {
         var options = TestHelpers.CreateOptions();
         var mockFactory = new Mock<IHttpClientFactory>();
-        _mockCommand = new Mock<UrbanSearchCommand>(mockFactory.Object);
+        _mockCommand = new Mock<UrbanSearchCommand>(mockFactory.Object, NullLogger<UrbanSearchCommand>.Instance);
         _handler = new UrbanHandler(_mockCommand.Object, _mockBroker.Object, options,
             NullLogger<UrbanHandler>.Instance);
     }
@@ -36,7 +36,7 @@ public class UrbanHandlerTests
     [Fact]
     public async Task HandleAsync_ValidEvent_CallsCommandWithTerm()
     {
-        _mockCommand.Setup(c => c.ExecuteAsync("hello")).ReturnsAsync((string?)null);
+        _mockCommand.Setup(c => c.ExecuteAsync("hello")).ReturnsAsync(new UrbanNotFoundResult());
 
         await _handler.HandleAsync(CreateMessage("_ud hello"));
 
@@ -46,7 +46,7 @@ public class UrbanHandlerTests
     [Fact]
     public async Task HandleAsync_ValidEvent_WithResult_SendsReplyResponse()
     {
-        _mockCommand.Setup(c => c.ExecuteAsync("hello")).ReturnsAsync("a greeting");
+        _mockCommand.Setup(c => c.ExecuteAsync("hello")).ReturnsAsync(new UrbanSuccessResult("a greeting"));
         var message = CreateMessage("_ud hello");
 
         await _handler.HandleAsync(message);
@@ -56,9 +56,9 @@ public class UrbanHandlerTests
     }
 
     [Fact]
-    public async Task HandleAsync_ValidEvent_NullResult_SendsExerciseMessage()
+    public async Task HandleAsync_ValidEvent_NotFoundResult_SendsExerciseMessage()
     {
-        _mockCommand.Setup(c => c.ExecuteAsync("xyz")).ReturnsAsync((string?)null);
+        _mockCommand.Setup(c => c.ExecuteAsync("xyz")).ReturnsAsync(new UrbanNotFoundResult());
 
         await _handler.HandleAsync(CreateMessage("_ud xyz"));
 

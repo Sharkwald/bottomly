@@ -1,4 +1,5 @@
 using Bottomly.Commands;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Shouldly;
 
@@ -19,25 +20,25 @@ public class WikipediaSearchCommandIntegrationTests
         var factory = new Mock<IHttpClientFactory>();
         factory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(client);
 
-        _sut = new WikipediaSearchCommand(factory.Object);
+        _sut = new WikipediaSearchCommand(factory.Object, NullLogger<WikipediaSearchCommand>.Instance);
     }
 
     [Fact]
-    public async Task ExecuteAsync_EmptyInput_ReturnsNull()
+    public async Task ExecuteAsync_EmptyInput_ReturnsEmptyInputResult()
     {
         var result = await _sut.ExecuteAsync("");
 
-        result.ShouldBeNull();
+        result.ShouldBeOfType<WikipediaEmptyInputResult>();
     }
 
     [Fact]
-    public async Task ExecuteAsync_KnownSearchTerm_ReturnsResultWithWikipediaLink()
+    public async Task ExecuteAsync_KnownSearchTerm_ReturnsSuccessResultWithWikipediaLink()
     {
         var result = await _sut.ExecuteAsync("Albert Einstein");
 
-        result.ShouldNotBeNull();
-        result!.Text.ShouldNotBeNullOrEmpty();
-        result.Link.ShouldStartWith("https://en.wikipedia.org/wiki/");
+        var success = result.ShouldBeOfType<WikipediaSuccessResult>();
+        success.Text.ShouldNotBeNullOrEmpty();
+        success.Link.ShouldStartWith("https://en.wikipedia.org/wiki/");
     }
 
     [Fact]
@@ -45,15 +46,15 @@ public class WikipediaSearchCommandIntegrationTests
     {
         var result = await _sut.ExecuteAsync("London");
 
-        result.ShouldNotBeNull();
-        result!.Text.ShouldBe("London");
+        var success = result.ShouldBeOfType<WikipediaSuccessResult>();
+        success.Text.ShouldBe("London");
     }
 
     [Fact]
-    public async Task ExecuteAsync_GibberishInput_ReturnsNull()
+    public async Task ExecuteAsync_GibberishInput_ReturnsNotFoundResult()
     {
         var result = await _sut.ExecuteAsync("xyzzy_no_such_article_12345");
 
-        result.ShouldBeNull();
+        result.ShouldBeOfType<WikipediaNotFoundResult>();
     }
 }

@@ -21,7 +21,11 @@ public class ReleaseHandler(
     protected override async Task InvokeHandlerLogicAsync(MessageEvent message)
     {
         var result = await command.ExecuteAsync();
-        var response = result ?? "Unable to retrieve latest release info.";
+        var response = result switch
+        {
+            ReleaseSuccessResult success => success.Description,
+            _ => "Unable to retrieve latest release info."
+        };
         await SendMessageResponseAsync(response, message);
     }
 }

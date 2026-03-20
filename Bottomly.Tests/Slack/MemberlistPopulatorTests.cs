@@ -1,7 +1,6 @@
 using Bottomly.Models;
 using Bottomly.Repositories;
 using Bottomly.Slack;
-using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Shouldly;
 using SlackNet;
@@ -11,9 +10,9 @@ namespace Bottomly.Tests.Slack;
 
 public class MemberlistPopulatorTests
 {
+    private readonly Mock<IMemberRepository> _mockRepo = new();
     private readonly Mock<ISlackApiClient> _mockSlack = new();
     private readonly Mock<IUsersApi> _mockUsers = new();
-    private readonly Mock<IMemberRepository> _mockRepo = new();
     private readonly MemberlistPopulator _populator;
 
     public MemberlistPopulatorTests()

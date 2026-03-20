@@ -22,7 +22,8 @@ public class MemberRepository(IMongoDatabase database) : IMemberRepository
     public async Task AddAsync(Member member) => await _collection.InsertOneAsync(member);
     public async Task AddAsync(IEnumerable<Member> members) => await _collection.InsertManyAsync(members);
 
-    public async Task UpdateInfoAsync(string username, string fullName, Gender gender, SassLevel sassLevel, string miscInfo)
+    public async Task UpdateInfoAsync(string username, string fullName, Gender gender, SassLevel sassLevel,
+        string miscInfo)
     {
         var update = Builders<Member>.Update
             .Set(m => m.FullName, fullName)

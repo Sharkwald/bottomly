@@ -22,7 +22,11 @@ public class UrbanHandler(
     {
         var term = message.Text![CommandTrigger.Length..];
         var result = await command.ExecuteAsync(term);
-        var response = result ?? "Left as an exercise for the reader.";
+        var response = result switch
+        {
+            UrbanSuccessResult success => success.Definition,
+            _ => "Left as an exercise for the reader."
+        };
         await SendMessageResponseAsync(response, message, true);
     }
 }

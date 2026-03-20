@@ -1,17 +1,17 @@
 <Solution>
     <Folder Name="/GitHubWorkflows/">
-        <File Path=".azure/container-group.yml" />
-        <File Path=".github/workflows/dotnet.yml" />
-        <File Path=".github/workflows/push_to_live.yml" />
+        <File Path=".azure/container-group.yml"/>
+        <File Path=".github/workflows/dotnet.yml"/>
+        <File Path=".github/workflows/push_to_live.yml"/>
     </Folder>
     <Folder Name="/RepoConfig/">
-        <File Path=".editorconfig" />
-        <File Path=".gitignore" />
-        <File Path="NuGet.config" />
-        <File Path="README.md" />
+        <File Path=".editorconfig"/>
+        <File Path=".gitignore"/>
+        <File Path="NuGet.config"/>
+        <File Path="README.md"/>
     </Folder>
-    <Project Path="Bottomly.AppHost/Bottomly.AppHost.csproj" />
-    <Project Path="Bottomly.ServiceDefaults/Bottomly.ServiceDefaults.csproj" />
-    <Project Path="Bottomly.Tests/Bottomly.Tests.csproj" />
-    <Project Path="Bottomly/Bottomly.csproj" />
+    <Project Path="Bottomly.AppHost/Bottomly.AppHost.csproj"/>
+    <Project Path="Bottomly.ServiceDefaults/Bottomly.ServiceDefaults.csproj"/>
+    <Project Path="Bottomly.Tests/Bottomly.Tests.csproj"/>
+    <Project Path="Bottomly/Bottomly.csproj"/>
 </Solution>

@@ -21,7 +21,7 @@ public class DecrementMessageKarmaEventHandlerTests
     public DecrementMessageKarmaEventHandlerTests()
     {
         var options = TestHelpers.CreateOptions();
-        var command = new AddKarmaCommand(_mockKarmaRepo.Object);
+        var command = new AddKarmaCommand(_mockKarmaRepo.Object, NullLogger<AddKarmaCommand>.Instance);
         var parser = new SlackParser(_mockMemberRepo.Object);
         _handler = new DecrementMessageKarmaEventHandler(command, parser, _mockMemberRepo.Object, _mockBroker.Object,
             options,

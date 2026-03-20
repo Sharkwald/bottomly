@@ -25,22 +25,15 @@ public class ImageSearchHandlerTests
             NullLogger<ImageSearchHandler>.Instance);
     }
 
-    private static MessageEvent CreateMessage(string text)
-    {
-        return new MessageEvent { Text = text, User = "U1", Channel = "C1", Ts = "ts1" };
-    }
+    private static MessageEvent CreateMessage(string text) =>
+        new() { Text = text, User = "U1", Channel = "C1", Ts = "ts1" };
 
     [Fact]
-    public void CanHandle_ValidEvent_ReturnsTrue()
-    {
-        _handler.CanHandle(CreateMessage("_gi cats")).ShouldBeTrue();
-    }
+    public void CanHandle_ValidEvent_ReturnsTrue() => _handler.CanHandle(CreateMessage("_gi cats")).ShouldBeTrue();
 
     [Fact]
-    public void CanHandle_InvalidEvent_ReturnsFalse()
-    {
+    public void CanHandle_InvalidEvent_ReturnsFalse() =>
         _handler.CanHandle(CreateMessage("no prefix here")).ShouldBeFalse();
-    }
 
     [Fact]
     public async Task HandleAsync_ValidEvent_CallsCommandWithQuery()
@@ -60,7 +53,8 @@ public class ImageSearchHandlerTests
 
         IReadOnlyList<Block>? capturedBlocks = null;
         _mockBroker
-            .Setup(b => b.SendBlocksMessageAsync(It.IsAny<IReadOnlyList<Block>>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<string?>()))
+            .Setup(b => b.SendBlocksMessageAsync(It.IsAny<IReadOnlyList<Block>>(), It.IsAny<string>(),
+                It.IsAny<string?>(), It.IsAny<string?>()))
             .Callback<IReadOnlyList<Block>, string, string?, string?>((blocks, _, _, _) => capturedBlocks = blocks)
             .Returns(Task.CompletedTask);
 

@@ -2,9 +2,9 @@
 name: Push to Live
 on:
   workflow_run:
-    workflows: [.NET Build and Test]
-    types: [completed]
-    branches: [main]
+    workflows: [ .NET Build and Test ]
+    types: [ completed ]
+    branches: [ main ]
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest

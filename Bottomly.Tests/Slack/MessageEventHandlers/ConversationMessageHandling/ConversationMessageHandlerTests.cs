@@ -14,13 +14,13 @@ namespace Bottomly.Tests.Slack.MessageEventHandlers.ConversationMessageHandling;
 
 public class ConversationMessageHandlerTests
 {
-    private readonly Mock<ILlmClient> _mockLlmBroker = new();
-    private readonly Mock<ISlackMessageBroker> _mockSlackBroker = new();
+    private readonly ConversationMessageHandler _handler;
     private readonly Mock<ISlackApiClient> _mockApiClient = new();
     private readonly Mock<IConversationsApi> _mockConversations = new();
-    private readonly Mock<IMemberRepository> _mockMemberRepo = new();
     private readonly Mock<IFeatureFlagRepository> _mockFeatureFlagRepo = new();
-    private readonly ConversationMessageHandler _handler;
+    private readonly Mock<ILlmClient> _mockLlmBroker = new();
+    private readonly Mock<IMemberRepository> _mockMemberRepo = new();
+    private readonly Mock<ISlackMessageBroker> _mockSlackBroker = new();
 
     public ConversationMessageHandlerTests()
     {
@@ -38,7 +38,8 @@ public class ConversationMessageHandlerTests
             NullLogger<ConversationMessageHandler>.Instance);
     }
 
-    private static MessageEvent CreateMessage(string text, string user = "U1", string channel = "C1", string? threadTs = null) =>
+    private static MessageEvent CreateMessage(string text, string user = "U1", string channel = "C1",
+        string? threadTs = null) =>
         new() { Text = text, User = user, Channel = channel, Ts = "ts1", ThreadTs = threadTs };
 
     [Theory]
@@ -70,7 +71,7 @@ public class ConversationMessageHandlerTests
         _mockLlmBroker.Setup(b => b.Respond(It.IsAny<BottomlyInputMessage>(), It.IsAny<MessageHistoryContext>()))
             .ReturnsAsync(LlmMessageResponse.Create("Indeed, sir."));
 
-        await _handler.HandleAsync(CreateMessage("bottomly what is 2+2?", "U1", "C1"));
+        await _handler.HandleAsync(CreateMessage("bottomly what is 2+2?"));
 
         _mockSlackBroker.Verify(b => b.SendMessageAsync("Indeed, sir.", "C1", null), Times.Once());
     }
@@ -91,9 +92,10 @@ public class ConversationMessageHandlerTests
         _mockLlmBroker.Setup(b => b.Respond(It.IsAny<BottomlyInputMessage>(), It.IsAny<MessageHistoryContext>()))
             .ReturnsAsync(LlmMessageResponse.Create("Of course."));
 
-        await _handler.HandleAsync(CreateMessage("bottomly something", "U1", "C1"));
+        await _handler.HandleAsync(CreateMessage("bottomly something"));
 
-        _mockLlmBroker.Verify(b => b.Respond(It.IsAny<BottomlyInputMessage>(), It.IsAny<MessageHistoryContext>()), Times.Once());
+        _mockLlmBroker.Verify(b => b.Respond(It.IsAny<BottomlyInputMessage>(), It.IsAny<MessageHistoryContext>()),
+            Times.Once());
     }
 
     [Theory]
@@ -113,7 +115,7 @@ public class ConversationMessageHandlerTests
         _mockLlmBroker.Setup(b => b.Respond(It.IsAny<BottomlyInputMessage>(), It.IsAny<MessageHistoryContext>()))
             .ReturnsAsync(errorResponse);
 
-        await _handler.HandleAsync(CreateMessage("bottomly what is 2+2?", "U1", "C1"));
+        await _handler.HandleAsync(CreateMessage("bottomly what is 2+2?"));
 
         _mockSlackBroker.Verify(b => b.SendMessageAsync(It.IsAny<string>(), "C1", "ts1"), Times.Once());
     }
@@ -126,7 +128,7 @@ public class ConversationMessageHandlerTests
         _mockLlmBroker.Setup(b => b.Respond(It.IsAny<BottomlyInputMessage>(), It.IsAny<MessageHistoryContext>()))
             .ReturnsAsync(new LlmTimeoutResponse());
 
-        await _handler.HandleAsync(CreateMessage("bottomly what is 2+2?", "U1", "C1", threadTs: "thread_ts1"));
+        await _handler.HandleAsync(CreateMessage("bottomly what is 2+2?", "U1", "C1", "thread_ts1"));
 
         _mockSlackBroker.Verify(b => b.SendMessageAsync(It.IsAny<string>(), "C1", "thread_ts1"), Times.Once());
     }
@@ -136,7 +138,7 @@ public class ConversationMessageHandlerTests
     {
         _mockFeatureFlagRepo.Setup(r => r.GetAsync("EnableLlm")).ReturnsAsync(false);
 
-        await _handler.HandleAsync(CreateMessage("bottomly what is 2+2?", "U1", "C1"));
+        await _handler.HandleAsync(CreateMessage("bottomly what is 2+2?"));
 
         _mockLlmBroker.Verify(
             b => b.Respond(It.IsAny<BottomlyInputMessage>(), It.IsAny<MessageHistoryContext>()),

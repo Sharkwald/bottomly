@@ -8,13 +8,10 @@ namespace Bottomly.Tests.LlmBot;
 
 public class LlmClientTests
 {
-    private readonly Mock<IChatClient> _mockChatClient = new();
     private readonly LlmClient _broker;
+    private readonly Mock<IChatClient> _mockChatClient = new();
 
-    public LlmClientTests()
-    {
-        _broker = new LlmClient(_mockChatClient.Object, NullLogger<LlmClient>.Instance);
-    }
+    public LlmClientTests() => _broker = new LlmClient(_mockChatClient.Object, NullLogger<LlmClient>.Instance);
 
     [Fact]
     public async Task Respond_SuccessfulResponse_ReturnsLlmMessageResponse()

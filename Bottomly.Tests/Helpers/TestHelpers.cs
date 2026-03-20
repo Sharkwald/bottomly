@@ -14,8 +14,8 @@ internal static class TestHelpers
         Options.Create(new BottomlyOptions { Prefix = prefix });
 
     /// <summary>
-    /// Creates a <see cref="System.Net.Http.IHttpClientFactory"/> that returns a fake HTTP response,
-    /// allowing unit tests to exercise HTTP-based commands without hitting real external APIs.
+    ///     Creates a <see cref="System.Net.Http.IHttpClientFactory" /> that returns a fake HTTP response,
+    ///     allowing unit tests to exercise HTTP-based commands without hitting real external APIs.
     /// </summary>
     public static MsHttpClientFactory CreateHttpClientFactory(string responseContent,
         HttpStatusCode statusCode = HttpStatusCode.OK)
@@ -26,7 +26,6 @@ internal static class TestHelpers
         factory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(client);
         return factory.Object;
     }
-
 }
 
 internal class FakeHttpMessageHandler(string content, HttpStatusCode statusCode = HttpStatusCode.OK)

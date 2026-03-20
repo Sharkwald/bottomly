@@ -36,13 +36,13 @@ public class AddKarmaReactionHandler(
                 return;
             }
 
-            await command.ExecuteAsync(
+            var result = await command.ExecuteAsync(
                 reactee.Username,
                 reactor.Username,
                 $"Reacted with {reaction}",
                 reactionMap.GetKarmaType(reaction));
 
-            if (reactionEvent.Item is ReactionMessage messageItem)
+            if (result is AddKarmaSuccessResult && reactionEvent.Item is ReactionMessage messageItem)
             {
                 await broker.SendReactionAsync("robot_face", messageItem.Channel, messageItem.Ts);
             }

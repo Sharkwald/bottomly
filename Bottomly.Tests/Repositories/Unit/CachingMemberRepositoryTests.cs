@@ -9,14 +9,11 @@ namespace Bottomly.Tests.Repositories.Unit;
 
 public class CachingMemberRepositoryTests
 {
-    private readonly Mock<IMemberRepository> _mockInner = new();
     private readonly IMemoryCache _cache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
+    private readonly Mock<IMemberRepository> _mockInner = new();
     private readonly CachingMemberRepository _repo;
 
-    public CachingMemberRepositoryTests()
-    {
-        _repo = new CachingMemberRepository(_mockInner.Object, _cache);
-    }
+    public CachingMemberRepositoryTests() => _repo = new CachingMemberRepository(_mockInner.Object, _cache);
 
     [Fact]
     public async Task GetBySlackIdAsync_CacheMiss_CallsInnerAndCachesResult()
@@ -73,7 +70,7 @@ public class CachingMemberRepositoryTests
         _mockInner.Setup(r => r.GetByUsernameAsync("alice")).ReturnsAsync(member);
 
         await _repo.GetByUsernameAsync("alice"); // Caches by both keys
-        await _repo.GetBySlackIdAsync("U1");     // Should hit cache (cross-key)
+        await _repo.GetBySlackIdAsync("U1"); // Should hit cache (cross-key)
 
         _mockInner.Verify(r => r.GetBySlackIdAsync("U1"), Times.Never);
     }
@@ -148,7 +145,9 @@ public class CachingMemberRepositoryTests
     public async Task UpdateInfoAsync_UpdatesCacheWithFreshData()
     {
         var updated = new Member { SlackId = "U1", Username = "alice", FullName = "Alice Smith" };
-        _mockInner.Setup(r => r.UpdateInfoAsync("alice", "Alice Smith", It.IsAny<Gender>(), It.IsAny<SassLevel>(), It.IsAny<string>()))
+        _mockInner.Setup(r =>
+                r.UpdateInfoAsync("alice", "Alice Smith", It.IsAny<Gender>(), It.IsAny<SassLevel>(),
+                    It.IsAny<string>()))
             .Returns(Task.CompletedTask);
         _mockInner.Setup(r => r.GetByUsernameAsync("alice")).ReturnsAsync(updated);
 

@@ -15,11 +15,9 @@ public class ImageSearchCommandTests
         Microsoft.Extensions.Options.Options.Create(new BottomlyOptions { BraveApiKey = "fake-key" });
 
     private static ImageSearchCommand CreateCommand(string responseJson,
-        HttpStatusCode statusCode = HttpStatusCode.OK)
-    {
-        return new ImageSearchCommand(Options, TestHelpers.CreateHttpClientFactory(responseJson, statusCode),
+        HttpStatusCode statusCode = HttpStatusCode.OK) =>
+        new(Options, TestHelpers.CreateHttpClientFactory(responseJson, statusCode),
             NullLogger<ImageSearchCommand>.Instance);
-    }
 
     [Fact]
     public async Task ExecuteAsync_EmptyInput_ReturnsEmptySearchTermErrorResult()

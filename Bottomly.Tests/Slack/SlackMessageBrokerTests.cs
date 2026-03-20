@@ -13,16 +13,11 @@ namespace Bottomly.Tests.Slack;
 
 public class SlackMessageBrokerTests
 {
+    private readonly Mock<IChatApi> _mockChat = new();
+    private readonly Mock<IConversationsApi> _mockConversations = new();
+    private readonly Mock<IReactionsApi> _mockReactions = new();
     private readonly Mock<IMemberRepository> _mockRepo = new();
     private readonly Mock<ISlackApiClient> _mockSlack = new();
-    private readonly Mock<IChatApi> _mockChat = new();
-    private readonly Mock<IReactionsApi> _mockReactions = new();
-    private readonly Mock<IConversationsApi> _mockConversations = new();
-
-    private SlackMessageBroker CreateBroker(string environment = "live") =>
-        new(_mockRepo.Object, _mockSlack.Object,
-            Options.Create(new BottomlyOptions { Environment = environment }),
-            NullLogger<SlackMessageBroker>.Instance);
 
     public SlackMessageBrokerTests()
     {
@@ -33,6 +28,11 @@ public class SlackMessageBrokerTests
         _mockReactions.Setup(r => r.AddToMessage(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
             .Returns(Task.CompletedTask);
     }
+
+    private SlackMessageBroker CreateBroker(string environment = "live") =>
+        new(_mockRepo.Object, _mockSlack.Object,
+            Options.Create(new BottomlyOptions { Environment = environment }),
+            NullLogger<SlackMessageBroker>.Instance);
 
     [Fact]
     public async Task SendMessageAsync_EmptyText_DoesNotPost()
@@ -69,7 +69,7 @@ public class SlackMessageBrokerTests
     [Fact]
     public async Task SendMessageAsync_DebugMode_PrependsPrefixToText()
     {
-        var broker = CreateBroker(environment: "Dev");
+        var broker = CreateBroker("Dev");
 
         await broker.SendMessageAsync("Hello!", "C1");
 
@@ -107,7 +107,7 @@ public class SlackMessageBrokerTests
     [Fact]
     public async Task SendBlocksMessageAsync_DebugMode_PrependsPrefixToText()
     {
-        var broker = CreateBroker(environment: "Dev");
+        var broker = CreateBroker("Dev");
         var blocks = new List<Block> { new ImageBlock { ImageUrl = "https://example.com/img.jpg", AltText = "test" } };
 
         await broker.SendBlocksMessageAsync(blocks, "C1", "fallback");

@@ -29,10 +29,8 @@ public class ImageSearchCommandIntegrationTests
 
     private readonly ILogger<ImageSearchCommand> _logger;
 
-    public ImageSearchCommandIntegrationTests(ITestOutputHelper outputHelper)
-    {
+    public ImageSearchCommandIntegrationTests(ITestOutputHelper outputHelper) =>
         _logger = XUnitLogger.CreateLogger<ImageSearchCommand>(outputHelper);
-    }
 
     private static string? ApiKey => Configuration["bottomly_brave_api_key"];
 
@@ -45,11 +43,6 @@ public class ImageSearchCommandIntegrationTests
         {
             BraveApiKey = ApiKey!
         }), factory, _logger);
-    }
-
-    private sealed class DefaultHttpClientFactory : IHttpClientFactory
-    {
-        public HttpClient CreateClient(string name) => new();
     }
 
     [Fact]
@@ -96,5 +89,10 @@ public class ImageSearchCommandIntegrationTests
         var searchResult = (SearchResult)result;
         searchResult.Link.ShouldNotBeNullOrEmpty();
         searchResult.Link.ShouldStartWith("http");
+    }
+
+    private sealed class DefaultHttpClientFactory : IHttpClientFactory
+    {
+        public HttpClient CreateClient(string name) => new();
     }
 }

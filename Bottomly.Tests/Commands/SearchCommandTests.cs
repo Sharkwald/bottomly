@@ -1,10 +1,10 @@
+using System.Net;
 using Bottomly.Commands.Search;
 using Bottomly.Configuration;
 using Bottomly.Tests.Helpers;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Shouldly;
-using System.Net;
 
 namespace Bottomly.Tests.Commands;
 
@@ -47,13 +47,13 @@ public class SearchCommandTests
     public async Task ExecuteAsync_ApiReturnsResults_ReturnsSearchResultWithTitleAndLink()
     {
         const string json = """
-            {
-              "type": "search",
-              "web": {
-                "results": [{ "title": "DotNet", "url": "https://dotnet.microsoft.com" }]
-              }
-            }
-            """;
+                            {
+                              "type": "search",
+                              "web": {
+                                "results": [{ "title": "DotNet", "url": "https://dotnet.microsoft.com" }]
+                              }
+                            }
+                            """;
 
         var result = await CreateCommand(json).ExecuteAsync("dotnet");
 
