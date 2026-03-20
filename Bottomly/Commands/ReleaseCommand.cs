@@ -5,6 +5,10 @@ using Octokit;
 
 namespace Bottomly.Commands;
 
+public abstract record ReleaseResult;
+public record ReleaseSuccessResult(string Description) : ReleaseResult;
+public record ReleaseErrorResult : ReleaseResult;
+
 public class ReleaseCommand(IOptions<BottomlyOptions> options, ILogger<ReleaseCommand> logger)
     : ICommand
 {
@@ -12,7 +16,7 @@ public class ReleaseCommand(IOptions<BottomlyOptions> options, ILogger<ReleaseCo
 
     public string GetPurpose() => "Describes the latest release of bottomly";
 
-    public virtual async Task<string?> ExecuteAsync()
+    public virtual async Task<ReleaseResult> ExecuteAsync()
     {
         try
         {
@@ -31,12 +35,12 @@ public class ReleaseCommand(IOptions<BottomlyOptions> options, ILogger<ReleaseCo
                 desc += $"\n{release.Body}";
             }
 
-            return desc;
+            return new ReleaseSuccessResult(desc);
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Error retrieving release info from Github");
-            return null;
+            return new ReleaseErrorResult();
         }
     }
 }

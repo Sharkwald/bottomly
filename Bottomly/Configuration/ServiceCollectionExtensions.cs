@@ -5,7 +5,8 @@ namespace Bottomly.Configuration;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddBottomlyConfiguration(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddBottomlyConfiguration(this IServiceCollection services,
+        IConfiguration configuration)
     {
         services.Configure<BottomlyOptions>(opts =>
         {

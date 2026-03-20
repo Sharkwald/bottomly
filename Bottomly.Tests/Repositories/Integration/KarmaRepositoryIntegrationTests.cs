@@ -91,7 +91,7 @@ public class KarmaRepositoryIntegrationTests(MongoDbFixture fixture) : IAsyncLif
         result.Reasonless.ShouldBe(1);
         result.Reasoned.Count.ShouldBe(2);
         result.Reasoned.Select(k => k.Reason).ShouldBe(
-            ["fixed the build", "great docs"], ignoreOrder: true);
+            ["fixed the build", "great docs"], true);
     }
 
     [Fact]
@@ -122,12 +122,12 @@ public class KarmaRepositoryIntegrationTests(MongoDbFixture fixture) : IAsyncLif
     {
         // net_karma: PozzyPoz → –1, NeggyNeg → +1
         // Leader board is sorted Descending by net_karma
-        await AddKarmaMultiple("leader-a", KarmaType.NeggyNeg, 5);  // net +5
-        await AddKarmaMultiple("leader-b", KarmaType.NeggyNeg, 3);  // net +3
-        await AddKarmaMultiple("leader-c", KarmaType.NeggyNeg, 1);  // net +1
+        await AddKarmaMultiple("leader-a", KarmaType.NeggyNeg, 5); // net +5
+        await AddKarmaMultiple("leader-b", KarmaType.NeggyNeg, 3); // net +3
+        await AddKarmaMultiple("leader-c", KarmaType.NeggyNeg, 1); // net +1
         await AddKarmaMultiple("leader-d", KarmaType.PozzyPoz, 2); // net –2 (should not appear in top 3)
 
-        var board = await _sut.GetLeaderBoardAsync(3);
+        var board = await _sut.GetLeaderBoardAsync();
 
         board.Count.ShouldBe(3);
         board[0].Username.ShouldBe("leader-a");
@@ -142,12 +142,12 @@ public class KarmaRepositoryIntegrationTests(MongoDbFixture fixture) : IAsyncLif
     public async Task GetLoserBoardAsync_ReturnsCorrectOrderAndSize()
     {
         // Loser board is sorted Ascending by net_karma
-        await AddKarmaMultiple("loser-a", KarmaType.PozzyPoz, 5);  // net –5
-        await AddKarmaMultiple("loser-b", KarmaType.PozzyPoz, 3);  // net –3
-        await AddKarmaMultiple("loser-c", KarmaType.PozzyPoz, 1);  // net –1
-        await AddKarmaMultiple("loser-d", KarmaType.NeggyNeg, 2);  // net +2 (should not appear in top 3)
+        await AddKarmaMultiple("loser-a", KarmaType.PozzyPoz, 5); // net –5
+        await AddKarmaMultiple("loser-b", KarmaType.PozzyPoz, 3); // net –3
+        await AddKarmaMultiple("loser-c", KarmaType.PozzyPoz, 1); // net –1
+        await AddKarmaMultiple("loser-d", KarmaType.NeggyNeg, 2); // net +2 (should not appear in top 3)
 
-        var board = await _sut.GetLoserBoardAsync(3);
+        var board = await _sut.GetLoserBoardAsync();
 
         board.Count.ShouldBe(3);
         board[0].Username.ShouldBe("loser-a");

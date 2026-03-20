@@ -18,10 +18,7 @@ public class SearchHandler(
     protected override ICommand Command => command;
     protected override string CommandSymbol => "g";
 
-    protected override string GetUsage()
-    {
-        return CommandTrigger + "<query>";
-    }
+    protected override string GetUsage() => CommandTrigger + "<query>";
 
     protected override async Task InvokeHandlerLogicAsync(MessageEvent message)
     {

@@ -36,12 +36,24 @@ public abstract class AbstractMessageKarmaEventHandler(
     protected override async Task InvokeHandlerLogicAsync(MessageEvent message)
     {
         var args = await ParseCommandTextAsync(message.Text!);
-        await KarmaCommand.ExecuteAsync(
+        var result = await KarmaCommand.ExecuteAsync(
             args.Recipient,
             message.User,
             args.Reason,
             args.KarmaType);
-        await SendReactionResponseAsync(message);
+
+        switch (result)
+        {
+            case AddKarmaSuccessResult:
+                await SendReactionResponseAsync(message);
+                break;
+            case AddKarmaSelfAwardResult:
+                await SendMessageResponseAsync("Can't give yourself positive karma", message);
+                break;
+            case AddKarmaErrorResult error:
+                Logger.LogError("Karma command failed: {Error}", error.Error);
+                break;
+        }
     }
 
     private async Task<KarmaArgs> ParseCommandTextAsync(string commandText)

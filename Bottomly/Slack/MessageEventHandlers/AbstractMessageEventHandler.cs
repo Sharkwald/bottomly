@@ -74,7 +74,8 @@ public abstract class AbstractMessageEventHandler(
         await Broker.SendMessageAsync(text, message.Channel, replyTs);
     }
 
-    protected async Task SendBlocksResponseAsync(IReadOnlyList<Block> blocks, MessageEvent message, string? text = null, bool asReply = false)
+    protected async Task SendBlocksResponseAsync(IReadOnlyList<Block> blocks, MessageEvent message, string? text = null,
+        bool asReply = false)
     {
         var replyTs = asReply ? message.TsForReply() : null;
         await Broker.SendBlocksMessageAsync(blocks, message.Channel, text, replyTs);

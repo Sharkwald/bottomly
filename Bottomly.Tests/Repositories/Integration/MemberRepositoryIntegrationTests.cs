@@ -74,7 +74,7 @@ public class MemberRepositoryIntegrationTests(MongoDbFixture fixture) : IAsyncLi
         var result = await _sut.GetBySlackIdsAsync(["U001", "U003"]);
 
         result.Count.ShouldBe(2);
-        result.Select(m => m.Username).ShouldBe(["alice", "carol"], ignoreOrder: true);
+        result.Select(m => m.Username).ShouldBe(["alice", "carol"], true);
     }
 
     [Fact]
@@ -145,10 +145,8 @@ public class MemberRepositoryIntegrationTests(MongoDbFixture fixture) : IAsyncLi
     }
 
     [Fact]
-    public async Task UpdateInfoAsync_WhenUsernameDoesNotExist_DoesNotThrow()
-    {
+    public async Task UpdateInfoAsync_WhenUsernameDoesNotExist_DoesNotThrow() =>
         // Should silently no-op (UpdateOne with no match)
         await Should.NotThrowAsync(() =>
             _sut.UpdateInfoAsync("ghost", "Ghost", Gender.Unknown, SassLevel.None, ""));
-    }
 }

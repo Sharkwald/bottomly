@@ -12,29 +12,42 @@ public class CachingMemberRepository(IMemberRepository inner, IMemoryCache cache
     {
         var members = await inner.GetAllAsync();
         foreach (var member in members)
+        {
             CacheMember(member);
+        }
+
         return members;
     }
 
     public async Task<Member?> GetByUsernameAsync(string username)
     {
         if (cache.TryGetValue(UsernameKeyPrefix + username, out Member? cached))
+        {
             return cached;
+        }
 
         var member = await inner.GetByUsernameAsync(username);
         if (member is not null)
+        {
             CacheMember(member);
+        }
+
         return member;
     }
 
     public async Task<Member?> GetBySlackIdAsync(string slackId)
     {
         if (cache.TryGetValue(SlackKeyPrefix + slackId, out Member? cached))
+        {
             return cached;
+        }
 
         var member = await inner.GetBySlackIdAsync(slackId);
         if (member is not null)
+        {
             CacheMember(member);
+        }
+
         return member;
     }
 
@@ -47,9 +60,13 @@ public class CachingMemberRepository(IMemberRepository inner, IMemoryCache cache
         foreach (var id in idList)
         {
             if (cache.TryGetValue(SlackKeyPrefix + id, out Member? cached))
+            {
                 result.Add(cached!);
+            }
             else
+            {
                 misses.Add(id);
+            }
         }
 
         if (misses.Count > 0)
@@ -76,17 +93,24 @@ public class CachingMemberRepository(IMemberRepository inner, IMemoryCache cache
         var memberList = members.ToList();
         await inner.AddAsync(memberList);
         foreach (var member in memberList)
+        {
             CacheMember(member);
+        }
     }
 
-    public async Task UpdateInfoAsync(string username, string fullName, Gender gender, SassLevel sassLevel, string miscInfo)
+    public async Task UpdateInfoAsync(string username, string fullName, Gender gender, SassLevel sassLevel,
+        string miscInfo)
     {
         await inner.UpdateInfoAsync(username, fullName, gender, sassLevel, miscInfo);
         var updated = await inner.GetByUsernameAsync(username);
         if (updated is not null)
+        {
             CacheMember(updated);
+        }
         else
+        {
             cache.Remove(UsernameKeyPrefix + username);
+        }
     }
 
     private void CacheMember(Member member)

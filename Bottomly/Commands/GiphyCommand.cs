@@ -39,7 +39,7 @@ public class GiphyCommand(
                 return new GiphyEmptyResult();
             }
 
-            var gifUrl = data.GetProperty("url").GetString();
+            var gifUrl = data.GetProperty("images").GetProperty("original").GetProperty("url").GetString();
             return string.IsNullOrEmpty(gifUrl)
                 ? new GiphyEmptyResult()
                 : new GiphySuccessResult(gifUrl);

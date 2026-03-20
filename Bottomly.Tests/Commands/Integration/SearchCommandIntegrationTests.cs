@@ -29,10 +29,8 @@ public class SearchCommandIntegrationTests
 
     private readonly ILogger<SearchCommand> _logger;
 
-    public SearchCommandIntegrationTests(ITestOutputHelper outputHelper)
-    {
+    public SearchCommandIntegrationTests(ITestOutputHelper outputHelper) =>
         _logger = XUnitLogger.CreateLogger<SearchCommand>(outputHelper);
-    }
 
     private static string? ApiKey => Configuration["bottomly_brave_api_key"];
 
@@ -45,11 +43,6 @@ public class SearchCommandIntegrationTests
         {
             BraveApiKey = ApiKey!
         }), _logger, factory);
-    }
-
-    private sealed class DefaultHttpClientFactory : IHttpClientFactory
-    {
-        public HttpClient CreateClient(string name) => new();
     }
 
     [Fact]
@@ -95,5 +88,10 @@ public class SearchCommandIntegrationTests
         result.ShouldBeOfType<SearchResult>();
         var searchResult = (SearchResult)result;
         searchResult.Link.ShouldContain("wikipedia");
+    }
+
+    private sealed class DefaultHttpClientFactory : IHttpClientFactory
+    {
+        public HttpClient CreateClient(string name) => new();
     }
 }

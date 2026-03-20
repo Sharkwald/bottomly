@@ -52,7 +52,8 @@ public class GiphyHandlerTests
 
         IReadOnlyList<Block>? capturedBlocks = null;
         _mockBroker
-            .Setup(b => b.SendBlocksMessageAsync(It.IsAny<IReadOnlyList<Block>>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<string?>()))
+            .Setup(b => b.SendBlocksMessageAsync(It.IsAny<IReadOnlyList<Block>>(), It.IsAny<string>(),
+                It.IsAny<string?>(), It.IsAny<string?>()))
             .Callback<IReadOnlyList<Block>, string, string?, string?>((blocks, _, _, _) => capturedBlocks = blocks)
             .Returns(Task.CompletedTask);
 

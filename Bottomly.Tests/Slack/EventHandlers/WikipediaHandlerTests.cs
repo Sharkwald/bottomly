@@ -19,7 +19,7 @@ public class WikipediaHandlerTests
     {
         var options = TestHelpers.CreateOptions();
         var mockFactory = new Mock<IHttpClientFactory>();
-        _mockCommand = new Mock<WikipediaSearchCommand>(mockFactory.Object);
+        _mockCommand = new Mock<WikipediaSearchCommand>(mockFactory.Object, NullLogger<WikipediaSearchCommand>.Instance);
         _handler = new WikipediaHandler(_mockCommand.Object, _mockBroker.Object, options,
             NullLogger<WikipediaHandler>.Instance);
     }
@@ -36,7 +36,7 @@ public class WikipediaHandlerTests
     [Fact]
     public async Task HandleAsync_ValidEvent_CallsCommandWithTerm()
     {
-        _mockCommand.Setup(c => c.ExecuteAsync("octopus")).ReturnsAsync((WikipediaResult?)null);
+        _mockCommand.Setup(c => c.ExecuteAsync("octopus")).ReturnsAsync(new WikipediaNotFoundResult());
 
         await _handler.HandleAsync(CreateMessage("_wik octopus"));
 
@@ -47,7 +47,7 @@ public class WikipediaHandlerTests
     public async Task HandleAsync_ValidEvent_WithResult_SendsFormattedResponse()
     {
         _mockCommand.Setup(c => c.ExecuteAsync("octopus"))
-            .ReturnsAsync(new WikipediaResult("Octopus", "https://en.wikipedia.org/wiki/Octopus"));
+            .ReturnsAsync(new WikipediaSuccessResult("Octopus", "https://en.wikipedia.org/wiki/Octopus"));
 
         await _handler.HandleAsync(CreateMessage("_wik octopus"));
 
@@ -56,9 +56,9 @@ public class WikipediaHandlerTests
     }
 
     [Fact]
-    public async Task HandleAsync_ValidEvent_NullResult_SendsNoResultMessage()
+    public async Task HandleAsync_ValidEvent_NotFoundResult_SendsNoResultMessage()
     {
-        _mockCommand.Setup(c => c.ExecuteAsync("xyz")).ReturnsAsync((WikipediaResult?)null);
+        _mockCommand.Setup(c => c.ExecuteAsync("xyz")).ReturnsAsync(new WikipediaNotFoundResult());
 
         await _handler.HandleAsync(CreateMessage("_wik xyz"));
 

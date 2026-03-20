@@ -50,6 +50,7 @@ public class MemberSeedDataImporter(
 
             dir = dir.Parent;
         }
+
         return Path.Combine(env.ContentRootPath, "MemberSeedData");
     }
 
@@ -60,15 +61,17 @@ public class MemberSeedDataImporter(
             var yaml = await File.ReadAllTextAsync(file);
             var dto = _deserializer.Deserialize<MemberSeedDataDto>(yaml);
 
-            if (!Enum.TryParse<Gender>(dto.Gender, ignoreCase: true, out var gender))
+            if (!Enum.TryParse<Gender>(dto.Gender, true, out var gender))
             {
-                logger.LogWarning("Unknown gender value '{Value}' in {File}. Defaulting to Unknown.", dto.Gender, Path.GetFileName(file));
+                logger.LogWarning("Unknown gender value '{Value}' in {File}. Defaulting to Unknown.", dto.Gender,
+                    Path.GetFileName(file));
                 gender = Gender.Unknown;
             }
 
-            if (!Enum.TryParse<SassLevel>(dto.SassLevel, ignoreCase: true, out var sassLevel))
+            if (!Enum.TryParse<SassLevel>(dto.SassLevel, true, out var sassLevel))
             {
-                logger.LogWarning("Unknown sass_level value '{Value}' in {File}. Defaulting to Moderate.", dto.SassLevel, Path.GetFileName(file));
+                logger.LogWarning("Unknown sass_level value '{Value}' in {File}. Defaulting to Moderate.",
+                    dto.SassLevel, Path.GetFileName(file));
                 sassLevel = SassLevel.Moderate;
             }
 

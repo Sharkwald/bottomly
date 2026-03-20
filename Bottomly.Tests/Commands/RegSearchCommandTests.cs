@@ -41,14 +41,14 @@ public class RegSearchCommandTests
     public async Task ExecuteAsync_ValidReg_ParsesHtmlResponse()
     {
         const string html = """
-            <html><body>
-                <input id="VehicleColour" value="Blue" />
-                <input id="RegistrationYear" value="2019" />
-                <input id="VehicleMake" value="FORD" />
-                <input id="VehicleModel" value="FOCUS" />
-                <img id="searchResultCarImage" src="/images/car.jpg" />
-            </body></html>
-            """;
+                            <html><body>
+                                <input id="VehicleColour" value="Blue" />
+                                <input id="RegistrationYear" value="2019" />
+                                <input id="VehicleMake" value="FORD" />
+                                <input id="VehicleModel" value="FOCUS" />
+                                <img id="searchResultCarImage" src="/images/car.jpg" />
+                            </body></html>
+                            """;
 
         var factory = TestHelpers.CreateHttpClientFactory(html);
         var command = new RegSearchCommand(factory);
@@ -81,11 +81,11 @@ public class RegSearchCommandTests
     {
         // An element with an empty value causes make[0] to throw, which triggers the catch block
         const string html = """
-            <html><body>
-                <input id="VehicleMake" value="" />
-                <div class="ErrorMessage"><h3>Vehicle not found</h3></div>
-            </body></html>
-            """;
+                            <html><body>
+                                <input id="VehicleMake" value="" />
+                                <div class="ErrorMessage"><h3>Vehicle not found</h3></div>
+                            </body></html>
+                            """;
 
         var factory = TestHelpers.CreateHttpClientFactory(html);
         var command = new RegSearchCommand(factory);

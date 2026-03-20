@@ -1,4 +1,3 @@
-using Bottomly.LlmBot;
 using Bottomly.Repositories;
 using Bottomly.Slack.MessageEventHandlers;
 using Bottomly.Slack.ReactionHandlers;

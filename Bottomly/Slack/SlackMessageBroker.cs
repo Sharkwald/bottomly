@@ -45,7 +45,8 @@ public class SlackMessageBroker(
         }
     }
 
-    public async Task SendBlocksMessageAsync(IReadOnlyList<Block> blocks, string channel, string? text = null, string? replyToTs = null)
+    public async Task SendBlocksMessageAsync(IReadOnlyList<Block> blocks, string channel, string? text = null,
+        string? replyToTs = null)
     {
         try
         {

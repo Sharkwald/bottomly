@@ -15,9 +15,9 @@ namespace Bottomly.Tests.Slack;
 
 public class SlackWorkerTests
 {
-    private readonly Mock<ISlackSocketModeClient> _mockSocket = new();
     private readonly Mock<ISlackMessageBroker> _mockBroker = new();
     private readonly Mock<IMemberRepository> _mockMemberRepo = new();
+    private readonly Mock<ISlackSocketModeClient> _mockSocket = new();
 
     private SlackWorker CreateWorker(
         IEnumerable<IMessageEventHandler>? handlers = null,
@@ -149,7 +149,7 @@ public class SlackWorkerTests
         mockHandler.Setup(h => h.BuildHelpMessage()).Returns("some help text");
 
         var worker = CreateWorker([mockHandler.Object]);
-        await worker.ProcessMessageAsync(CreateMessage("_help", user: "U1"));
+        await worker.ProcessMessageAsync(CreateMessage("_help", "U1"));
 
         _mockBroker.Verify(b => b.SendDmAsync(It.IsAny<string>(), "U1"), Times.Once());
         mockHandler.Verify(h => h.HandleAsync(It.IsAny<MessageEvent>()), Times.Never());
@@ -170,7 +170,7 @@ public class SlackWorkerTests
             .Returns(Task.CompletedTask);
 
         var worker = CreateWorker([mockHandler.Object]);
-        await worker.ProcessMessageAsync(CreateMessage("_wiki cats", user: "U1"));
+        await worker.ProcessMessageAsync(CreateMessage("_wiki cats", "U1"));
 
         capturedUser.ShouldBe("alice");
     }
@@ -189,7 +189,7 @@ public class SlackWorkerTests
             .Returns(Task.CompletedTask);
 
         var worker = CreateWorker([mockHandler.Object]);
-        await worker.ProcessMessageAsync(CreateMessage("_wiki cats", user: "U_UNKNOWN"));
+        await worker.ProcessMessageAsync(CreateMessage("_wiki cats", "U_UNKNOWN"));
 
         capturedUser.ShouldBe("U_UNKNOWN");
     }

@@ -25,14 +25,16 @@ public class GiphyCommandTests
     [Fact]
     public async Task ExecuteAsync_WithResult_ReturnsSuccessResult()
     {
-        const string json = """{"data":{"url":"https://giphy.com/gifs/funny-cat"}}""";
+        const string json =
+            """{"data":{"images":{"original":{"url":"https://media.giphy.com/media/funny-cat/giphy.gif"}}}}""";
         var options = Options.Create(new BottomlyOptions { GiphyApiKey = "test" });
-        var command = new GiphyCommand(TestHelpers.CreateHttpClientFactory(json), options, NullLogger<GiphyCommand>.Instance);
+        var command = new GiphyCommand(TestHelpers.CreateHttpClientFactory(json), options,
+            NullLogger<GiphyCommand>.Instance);
 
         var result = await command.ExecuteAsync("cat");
 
         var successResult = result.ShouldBeOfType<GiphySuccessResult>();
-        successResult.Url.ShouldBe("https://giphy.com/gifs/funny-cat");
+        successResult.Url.ShouldBe("https://media.giphy.com/media/funny-cat/giphy.gif");
     }
 
     [Fact]
@@ -40,7 +42,8 @@ public class GiphyCommandTests
     {
         const string json = """{"data":[]}""";
         var options = Options.Create(new BottomlyOptions { GiphyApiKey = "test" });
-        var command = new GiphyCommand(TestHelpers.CreateHttpClientFactory(json), options, NullLogger<GiphyCommand>.Instance);
+        var command = new GiphyCommand(TestHelpers.CreateHttpClientFactory(json), options,
+            NullLogger<GiphyCommand>.Instance);
 
         var result = await command.ExecuteAsync("obscuresearch");
 

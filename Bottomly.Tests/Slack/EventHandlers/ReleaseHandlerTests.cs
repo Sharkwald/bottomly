@@ -38,7 +38,7 @@ public class ReleaseHandlerTests
     [Fact]
     public async Task HandleAsync_WithResult_SendsResult()
     {
-        _mockCommand.Setup(c => c.ExecuteAsync()).ReturnsAsync("Latest Release: *v1.0* v1.0");
+        _mockCommand.Setup(c => c.ExecuteAsync()).ReturnsAsync(new ReleaseSuccessResult("Latest Release: *v1.0* v1.0"));
 
         await _handler.HandleAsync(CreateMessage("_release"));
 
@@ -46,9 +46,9 @@ public class ReleaseHandlerTests
     }
 
     [Fact]
-    public async Task HandleAsync_NullResult_SendsUnableMessage()
+    public async Task HandleAsync_ErrorResult_SendsUnableMessage()
     {
-        _mockCommand.Setup(c => c.ExecuteAsync()).ReturnsAsync((string?)null);
+        _mockCommand.Setup(c => c.ExecuteAsync()).ReturnsAsync(new ReleaseErrorResult());
 
         await _handler.HandleAsync(CreateMessage("_release"));
 

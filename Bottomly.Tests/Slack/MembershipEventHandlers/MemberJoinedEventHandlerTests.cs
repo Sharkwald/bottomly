@@ -11,10 +11,10 @@ namespace Bottomly.Tests.Slack.MembershipEventHandlers;
 
 public class MemberJoinedEventHandlerTests
 {
+    private readonly MemberJoinedEventHandler _handler;
     private readonly Mock<IMemberRepository> _mockRepo = new();
     private readonly Mock<ISlackApiClient> _mockSlack = new();
     private readonly Mock<IUsersApi> _mockUsers = new();
-    private readonly MemberJoinedEventHandler _handler;
 
     public MemberJoinedEventHandlerTests()
     {

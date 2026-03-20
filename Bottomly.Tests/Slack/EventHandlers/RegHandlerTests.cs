@@ -1,5 +1,4 @@
 using Bottomly.Commands;
-using Bottomly.Configuration;
 using Bottomly.Slack;
 using Bottomly.Slack.MessageEventHandlers;
 using Bottomly.Tests.Helpers;
