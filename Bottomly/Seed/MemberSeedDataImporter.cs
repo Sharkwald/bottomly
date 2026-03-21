@@ -78,12 +78,22 @@ public class MemberSeedDataImporter(
             var member = await memberRepository.GetByUsernameAsync(dto.Username);
             if (member is null)
             {
-                logger.LogWarning("Member '{Username}' not found in DB. Skipping.", dto.Username);
-                return;
+                await memberRepository.AddAsync(new Member
+                {
+                    Username = dto.Username,
+                    SlackId = dto.SlackId,
+                    FullName = dto.FullName,
+                    Gender = gender,
+                    SassLevel = sassLevel,
+                    MiscInfo = dto.MiscInfo
+                });
+                logger.LogInformation("Created member '{Username}'.", dto.Username);
             }
-
-            await memberRepository.UpdateInfoAsync(dto.Username, dto.FullName, gender, sassLevel, dto.MiscInfo);
-            logger.LogInformation("Updated member '{Username}'.", dto.Username);
+            else
+            {
+                await memberRepository.UpdateInfoAsync(dto.Username, dto.FullName, gender, sassLevel, dto.MiscInfo);
+                logger.LogInformation("Updated member '{Username}'.", dto.Username);
+            }
         }
         catch (Exception ex)
         {
