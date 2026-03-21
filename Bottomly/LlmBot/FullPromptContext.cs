@@ -1,4 +1,5 @@
-using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.Extensions.AI;
 
 namespace Bottomly.LlmBot;
@@ -22,35 +23,46 @@ public record FullPromptContext
 
     public static FullPromptContext Create(BottomlyInputMessage userPrompt, MessageHistoryContext historyContext)
         => new(
-            new ChatMessage(ChatRole.User, historyContext.ToChatContext()),
+            new ChatMessage(ChatRole.System, historyContext.ToChatContext()),
             new ChatMessage(ChatRole.User, userPrompt.ToChatPromptMessage()));
 
     public ChatMessage[] ToArray() => [SystemPrompt, HistoryContext, PromptingMessage];
 }
 
-public static class LlmBrokerExtensions
+public static class LlmClientExtensions
 {
-    public static string ToChatContext(this MessageHistoryContext historyContext) =>
-        new StringBuilder()
-            .AppendLine("**Begin Prompt Context:**")
-            .AppendLine("_Message History:_")
-            .AppendLine(string.Join("\n", historyContext.MessageHistory.Select(m => m.ToChatContextMessage())))
-            .AppendLine("_User Info:_")
-            .AppendLine(string.Join("\n", historyContext.UserNotes.Select(n => $"{n.Username}: {n.Note}")))
-            .AppendLine("**End Prompt Context**")
-            .ToString();
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        WriteIndented = false,
+        PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
+    };
+
+    public static string ToChatContext(this MessageHistoryContext historyContext)
+    {
+        var payload = new PromptContextPayload(
+            historyContext.MessageHistory.Select(m => new MessageHistoryEntry(m.Username, m.Text)).ToList(),
+            historyContext.UserNotes.Select(n => new UserInfoEntry(n.Username, n.Note)).ToList()
+        );
+        return JsonSerializer.Serialize(payload, JsonOptions);
+    }
 
     extension(BottomlyInputMessage message)
     {
-        public string ToChatPromptMessage() =>
-            new StringBuilder()
-                .AppendLine("**Begin Main Prompt:**")
-                .AppendLine($"_User to respond to is {message.Username}_")
-                .AppendLine(message.Text)
-                .AppendLine("**End Main Prompt**")
-                .ToString();
-
-        private string ToChatContextMessage() =>
-            $"{message.Username}: {message.Text}";
+        public string ToChatPromptMessage() => $"{message.Username}: {message.Text}";
     }
+
+    private record PromptContextPayload(
+        [property: JsonPropertyName("message_history")]
+        List<MessageHistoryEntry> MessageHistory,
+        [property: JsonPropertyName("users")] List<UserInfoEntry> Users);
+
+    private record MessageHistoryEntry(
+        [property: JsonPropertyName("username")]
+        string Username,
+        [property: JsonPropertyName("text")] string Text);
+
+    private record UserInfoEntry(
+        [property: JsonPropertyName("username")]
+        string Username,
+        [property: JsonPropertyName("note")] string Note);
 }

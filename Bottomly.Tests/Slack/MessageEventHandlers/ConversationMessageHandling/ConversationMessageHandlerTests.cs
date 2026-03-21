@@ -32,6 +32,7 @@ public class ConversationMessageHandlerTests
         _handler = new ConversationMessageHandler(
             _mockLlmBroker.Object,
             _mockSlackBroker.Object,
+            new SlackParser(new Mock<IMemberRepository>().Object),
             _mockApiClient.Object,
             _mockMemberRepo.Object,
             _mockFeatureFlagRepo.Object,
