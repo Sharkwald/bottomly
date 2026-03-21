@@ -1,6 +1,7 @@
 using System.Reflection;
 using Bottomly.Commands;
 using Bottomly.Slack.MessageEventHandlers;
+using Bottomly.Slack.Telemetry;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -17,7 +18,13 @@ public static class HostBuilderExtensions
                 .Where(t => t.Name != nameof(HelpHandler))
                 .Where(t => !exclude.Contains(t))
                 .ToList()
-                .ForEach(t => builder.Services.AddSingleton(typeof(IMessageEventHandler), t));
+                .ForEach(t =>
+                {
+                    builder.Services.AddSingleton(t);
+                    builder.Services.AddSingleton<IMessageEventHandler>(sp =>
+                        new TracingMessageEventHandlerDecorator(
+                            (IMessageEventHandler)sp.GetRequiredService(t)));
+                });
 
         public void RegisterCommands(Assembly assembly) =>
             assembly.GetTypes()

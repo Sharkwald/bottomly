@@ -19,11 +19,16 @@ builder.Configuration.AddUserSecrets(typeof(Program).Assembly).AddJsonFile("apps
 builder.AddMongoDBClient("mongodb");
 builder.Services.AddSingleton<IMongoDatabase>(sp =>
 {
-    var client = sp.GetRequiredService<IMongoClient>();
     var configuration = sp.GetRequiredService<IConfiguration>();
     var connectionString = configuration.GetConnectionString("mongodb")!;
-    var databaseName = MongoUrl.Create(connectionString).DatabaseName ?? "bottomly";
-    return client.GetDatabase(databaseName);
+    var mongoUrl = MongoUrl.Create(connectionString);
+    var settings = MongoClientSettings.FromUrl(mongoUrl);
+    settings.ClusterConfigurator = cb =>
+        cb.Subscribe(new MongoDB.Driver.Core.Extensions.DiagnosticSources.DiagnosticsActivityEventSubscriber(
+            new MongoDB.Driver.Core.Extensions.DiagnosticSources.InstrumentationOptions { CaptureCommandText = true }));
+    var instrumentedClient = new MongoClient(settings);
+    var databaseName = mongoUrl.DatabaseName ?? "bottomly";
+    return instrumentedClient.GetDatabase(databaseName);
 });
 
 builder.Services.AddBottomlyConfiguration(builder.Configuration);
