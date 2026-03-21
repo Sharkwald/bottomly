@@ -69,14 +69,16 @@ public class CachingMemberRepository(IMemberRepository inner, IMemoryCache cache
             }
         }
 
-        if (misses.Count > 0)
+        if (misses.Count <= 0)
         {
-            var fetched = await inner.GetBySlackIdsAsync(misses);
-            foreach (var member in fetched)
-            {
-                CacheMember(member);
-                result.Add(member);
-            }
+            return result;
+        }
+
+        var fetched = await inner.GetBySlackIdsAsync(misses);
+        foreach (var member in fetched)
+        {
+            CacheMember(member);
+            result.Add(member);
         }
 
         return result;
