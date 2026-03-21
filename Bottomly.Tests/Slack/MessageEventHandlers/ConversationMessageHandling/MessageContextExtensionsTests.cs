@@ -14,7 +14,7 @@ public class MessageContextExtensionsTests
     private readonly SlackParser _parser = new(new Mock<IMemberRepository>().Object);
 
     [Fact]
-    public void CreateFromMember_MapsUsernameAndNote()
+    public void CreateFromMember_MapsAllProperties()
     {
         var member = new Member
         {
@@ -28,7 +28,10 @@ public class MessageContextExtensionsTests
         var note = BottomlyUserNote.CreateFromMember(member);
 
         note.Username.ShouldBe("alice");
-        note.Note.ShouldContain("Alice Smith");
+        note.FullName.ShouldBe("Alice Smith");
+        note.Gender.ShouldBe(Gender.Female);
+        note.SassLevel.ShouldBe(SassLevel.Moderate);
+        note.MiscInfo.ShouldBe("Loves gardening");
     }
 
     [Fact]

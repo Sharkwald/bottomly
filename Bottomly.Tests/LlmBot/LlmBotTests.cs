@@ -20,12 +20,15 @@ public class BottomlyInputMessageTests
 public class BottomlyUserNoteTests
 {
     [Fact]
-    public void Create_SetsUsernameAndNote()
+    public void Create_SetsAllProperties()
     {
-        var note = BottomlyUserNote.Create("bob", "likes cats");
+        var note = BottomlyUserNote.Create("bob", "Bob Jones", Gender.Male, SassLevel.Frequent, "likes cats");
 
         note.Username.ShouldBe("bob");
-        note.Note.ShouldBe("likes cats");
+        note.FullName.ShouldBe("Bob Jones");
+        note.Gender.ShouldBe(Gender.Male);
+        note.SassLevel.ShouldBe(SassLevel.Frequent);
+        note.MiscInfo.ShouldBe("likes cats");
     }
 }
 
@@ -35,7 +38,7 @@ public class MessageHistoryContextTests
     public void Create_SetsMessageHistoryAndUserNotes()
     {
         var messages = new List<BottomlyInputMessage> { BottomlyInputMessage.Create("alice", "hi") };
-        var notes = new List<BottomlyUserNote> { BottomlyUserNote.Create("alice", "some note") };
+        var notes = new List<BottomlyUserNote> { BottomlyUserNote.Create("alice", "Alice Smith", Gender.Female, SassLevel.Moderate, "some note") };
 
         var ctx = MessageHistoryContext.Create(messages, notes);
 
@@ -126,7 +129,7 @@ public class LlmClientExtensionsTests
         };
         var notes = new List<BottomlyUserNote>
         {
-            BottomlyUserNote.Create("alice", "likes tea")
+            BottomlyUserNote.Create("alice", "Alice Smith", Gender.Female, SassLevel.Moderate, "likes tea")
         };
         var ctx = MessageHistoryContext.Create(messages, notes);
 
@@ -138,6 +141,8 @@ public class LlmClientExtensionsTests
         result.ShouldContain("hello");
         result.ShouldContain("bob");
         result.ShouldContain("world");
+        result.ShouldContain("\"full_name\"");
+        result.ShouldContain("Alice Smith");
         result.ShouldContain("likes tea");
     }
 
@@ -186,24 +191,4 @@ public class FullPromptContextTests
 
     [Fact]
     public void SystemPrompt_MentionsBottomly() => FullPromptContext.SystemPrompt.Text.ShouldContain("Bottomly");
-}
-
-public class MemberNoteTests
-{
-    [Fact]
-    public void Note_ContainsAllMemberInfo()
-    {
-        var member = new Member
-        {
-            FullName = "Alice Smith",
-            Gender = Gender.Female,
-            SassLevel = SassLevel.Frequent,
-            MiscInfo = "Drinks tea"
-        };
-
-        member.Note.ShouldContain("Alice Smith");
-        member.Note.ShouldContain("Female");
-        member.Note.ShouldContain("Frequent");
-        member.Note.ShouldContain("Drinks tea");
-    }
 }
