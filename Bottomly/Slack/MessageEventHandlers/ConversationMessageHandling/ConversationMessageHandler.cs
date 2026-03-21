@@ -8,8 +8,9 @@ using SlackNet.Events;
 namespace Bottomly.Slack.MessageEventHandlers.ConversationMessageHandling;
 
 public class ConversationMessageHandler(
-    ILlmClient llmMessageBroker,
+    ILlmClient llmClient,
     ISlackMessageBroker slackBroker,
+    SlackParser parser,
     ISlackApiClient apiClient,
     IMemberRepository memberRepository,
     IFeatureFlagRepository featureFlagRepository,
@@ -25,8 +26,7 @@ public class ConversationMessageHandler(
             return true;
         }
 
-        return _botMemberTask.IsCompletedSuccessfully
-               && _botMemberTask.Result?.SlackId is { } botId
+        return _botMemberTask is { IsCompletedSuccessfully: true, Result.SlackId: { } botId }
                && message.Text.Contains($"<@{botId}>");
     }
 
@@ -46,18 +46,15 @@ public class ConversationMessageHandler(
         var contextMembers = await memberRepository.GetBySlackIdsAsync(contextUsersSlackIds.Union([message.User]));
         var memberLookup = contextMembers.ToDictionary(m => m.SlackId, m => m.Username);
 
-        var contextMessages = history.Messages
-            .OrderBy(h => h.Timestamp)
-            .Select(h => BottomlyInputMessage.CreateFromSlackMessage(h, memberLookup))
-            .ToList();
+        var contextMessages = await history.Messages.ToInputMessagesAsync(memberLookup, parser);
 
         var userNotes = contextMembers.Select(BottomlyUserNote.CreateFromMember).ToList();
 
-        var mainPrompt = BottomlyInputMessage.CreateFromSlackMessage(message, memberLookup);
+        var mainPrompt = await BottomlyInputMessage.CreateFromSlackMessage(message, memberLookup, parser);
 
         var context = MessageHistoryContext.Create(contextMessages, userNotes);
 
-        var response = await llmMessageBroker.Respond(mainPrompt, context);
+        var response = await llmClient.Respond(mainPrompt, context);
 
         var replyToTs = response.IsError() ? message.TsForReply() : null;
 

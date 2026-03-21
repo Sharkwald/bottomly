@@ -114,7 +114,7 @@ public class LlmResponseExtensionsTests
     }
 }
 
-public class LlmBrokerExtensionsTests
+public class LlmClientExtensionsTests
 {
     [Fact]
     public void ToChatContext_IncludesMessageHistoryAndUserInfo()
@@ -132,11 +132,13 @@ public class LlmBrokerExtensionsTests
 
         var result = ctx.ToChatContext();
 
-        result.ShouldContain("alice: hello");
-        result.ShouldContain("bob: world");
-        result.ShouldContain("alice: likes tea");
-        result.ShouldContain("Begin Prompt Context");
-        result.ShouldContain("End Prompt Context");
+        result.ShouldContain("\"message_history\"");
+        result.ShouldContain("\"users\"");
+        result.ShouldContain("alice");
+        result.ShouldContain("hello");
+        result.ShouldContain("bob");
+        result.ShouldContain("world");
+        result.ShouldContain("likes tea");
     }
 
     [Fact]
@@ -148,8 +150,6 @@ public class LlmBrokerExtensionsTests
 
         result.ShouldContain("carol");
         result.ShouldContain("what time is it?");
-        result.ShouldContain("Begin Main Prompt");
-        result.ShouldContain("End Main Prompt");
     }
 }
 
@@ -177,6 +177,8 @@ public class FullPromptContextTests
 
         array.Length.ShouldBe(3);
         array[0].Role.ShouldBe(ChatRole.System);
+        array[1].Role.ShouldBe(ChatRole.System);
+        array[2].Role.ShouldBe(ChatRole.User);
     }
 
     [Fact]

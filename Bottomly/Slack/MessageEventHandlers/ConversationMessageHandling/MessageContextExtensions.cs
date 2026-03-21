@@ -14,11 +14,27 @@ internal static class MessageContextExtensions
 
     extension(BottomlyInputMessage bottomlyInputMessage)
     {
-        public static BottomlyInputMessage CreateFromSlackMessage(MessageEvent message,
-            IDictionary<string, string> memberLookup)
+        public static async Task<BottomlyInputMessage> CreateFromSlackMessage(MessageEvent message,
+            IDictionary<string, string> memberLookup, SlackParser parser)
         {
             var translatedUserName = memberLookup.TryGetValue(message.User, out var username) ? username : message.User;
-            return BottomlyInputMessage.Create(translatedUserName, message.Text);
+            var parsedText = await parser.ReplaceSlackIdTokensWithUsernamesAsync(message.Text);
+            return BottomlyInputMessage.Create(translatedUserName, parsedText);
+        }
+    }
+
+    extension(IEnumerable<MessageEvent> slackMessages)
+    {
+        public async Task<IList<BottomlyInputMessage>> ToInputMessagesAsync(IDictionary<string, string> memberLookup,
+            SlackParser parser)
+        {
+            List<BottomlyInputMessage> contextMessages = [];
+            foreach (var h in slackMessages.OrderBy(h => h.Timestamp))
+            {
+                contextMessages.Add(await BottomlyInputMessage.CreateFromSlackMessage(h, memberLookup, parser));
+            }
+
+            return contextMessages;
         }
     }
 }

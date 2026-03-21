@@ -2,14 +2,14 @@ namespace Bottomly.LlmBot;
 
 public record MessageHistoryContext
 {
-    private MessageHistoryContext(List<BottomlyInputMessage> messageHistory, List<BottomlyUserNote> userNotes) =>
+    private MessageHistoryContext(IList<BottomlyInputMessage> messageHistory, IList<BottomlyUserNote> userNotes) =>
         (MessageHistory, UserNotes) = (messageHistory, userNotes);
 
-    public List<BottomlyInputMessage> MessageHistory { get; private init; } = [];
-    public List<BottomlyUserNote> UserNotes { get; private init; } = [];
+    public IList<BottomlyInputMessage> MessageHistory { get; private init; } = [];
+    public IList<BottomlyUserNote> UserNotes { get; private init; } = [];
 
     public static MessageHistoryContext Create(
-        List<BottomlyInputMessage> messageHistory,
-        List<BottomlyUserNote> userNotes) =>
+        IList<BottomlyInputMessage> messageHistory,
+        IList<BottomlyUserNote> userNotes) =>
         new(messageHistory, userNotes);
 }
