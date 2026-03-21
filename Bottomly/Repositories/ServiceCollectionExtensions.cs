@@ -14,7 +14,10 @@ public static class ServiceCollectionExtensions
             new CachingMemberRepository(
                 new MemberRepository(sp.GetRequiredService<IMongoDatabase>()),
                 sp.GetRequiredService<IMemoryCache>()));
-        services.AddSingleton<IFeatureFlagRepository, FeatureFlagRepository>();
+        services.AddSingleton<IFeatureFlagRepository>(sp =>
+            new CachingFeatureFlagRepository(
+                new FeatureFlagRepository(sp.GetRequiredService<IMongoDatabase>()),
+                sp.GetRequiredService<IMemoryCache>()));
 
         return services;
     }
