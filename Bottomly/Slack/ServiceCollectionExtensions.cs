@@ -2,6 +2,7 @@ using Bottomly.Repositories;
 using Bottomly.Slack.MembershipEventHandlers;
 using Bottomly.Slack.MessageEventHandlers;
 using Bottomly.Slack.ReactionHandlers;
+using Bottomly.Slack.Telemetry;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SlackNet.Events;
@@ -28,12 +29,16 @@ public static class ServiceCollectionExtensions
             .RegisterEventHandler<MessageEvent, SlackMessageEventDispatcher>()
             .RegisterEventHandler<ReactionAdded, SlackReactionEventDispatcher>());
 
-        // Help handler (also registered as singleton for direct injection into SlackWorker)
+        // Help handler — concrete type for its own resolution, decorated version keyed for SlackWorker injection
         services.AddSingleton<HelpHandler>();
+        services.AddKeyedSingleton<IMessageEventHandler>(SlackWorker.HelpHandlerKey,
+            (sp, _) => new TracingMessageEventHandlerDecorator(sp.GetRequiredService<HelpHandler>()));
 
-        // Reaction handlers
+        // Reaction handlers (wrapped in tracing decorator)
         services.AddSingleton<KarmaReactionMap>();
-        services.AddSingleton<IReactionHandler, AddKarmaReactionHandler>();
+        services.AddSingleton<IReactionHandler>(sp =>
+            new TracingReactionHandlerDecorator(
+                ActivatorUtilities.CreateInstance<AddKarmaReactionHandler>(sp)));
 
         // Membership handlers
         services.AddSingleton<MemberJoinedEventHandler>();

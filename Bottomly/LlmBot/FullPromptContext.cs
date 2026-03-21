@@ -41,7 +41,8 @@ public static class LlmClientExtensions
     {
         var payload = new PromptContextPayload(
             historyContext.MessageHistory.Select(m => new MessageHistoryEntry(m.Username, m.Text)).ToList(),
-            historyContext.UserNotes.Select(n => new UserInfoEntry(n.Username, n.Note)).ToList()
+            historyContext.UserNotes.Select(n => new UserInfoEntry(n.Username, n.FullName, n.Gender.ToString(),
+                n.SassLevel.ToString(), n.MiscInfo)).ToList()
         );
         return JsonSerializer.Serialize(payload, JsonOptions);
     }
@@ -64,5 +65,11 @@ public static class LlmClientExtensions
     private record UserInfoEntry(
         [property: JsonPropertyName("username")]
         string Username,
-        [property: JsonPropertyName("note")] string Note);
+        [property: JsonPropertyName("full_name")]
+        string FullName,
+        [property: JsonPropertyName("gender")] string Gender,
+        [property: JsonPropertyName("sass_level")]
+        string SassLevel,
+        [property: JsonPropertyName("misc_info")]
+        string MiscInfo);
 }

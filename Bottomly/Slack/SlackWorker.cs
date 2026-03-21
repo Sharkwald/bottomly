@@ -1,6 +1,7 @@
 using Bottomly.Repositories;
 using Bottomly.Slack.MessageEventHandlers;
 using Bottomly.Slack.ReactionHandlers;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SlackNet;
@@ -12,12 +13,14 @@ namespace Bottomly.Slack;
 public class SlackWorker(
     ISlackSocketModeClient socketClient,
     IEnumerable<IMessageEventHandler> eventHandlers,
-    HelpHandler helpMessageHandler,
+    [FromKeyedServices("help")] IMessageEventHandler helpMessageHandler,
     IEnumerable<IReactionHandler> reactionHandlers,
     IMemberRepository memberRepository,
     ILogger<SlackWorker> logger)
     : BackgroundService
 {
+    internal const string HelpHandlerKey = "help";
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         logger.LogInformation("Starting Slack Socket Mode connection...");

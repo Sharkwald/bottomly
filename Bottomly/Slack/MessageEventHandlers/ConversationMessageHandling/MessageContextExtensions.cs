@@ -9,7 +9,7 @@ internal static class MessageContextExtensions
     extension(BottomlyUserNote bottomlyUserNote)
     {
         public static BottomlyUserNote CreateFromMember(Member member) =>
-            BottomlyUserNote.Create(member.Username, member.Note);
+            BottomlyUserNote.Create(member.Username, member.FullName, member.Gender, member.SassLevel, member.MiscInfo);
     }
 
     extension(BottomlyInputMessage bottomlyInputMessage)

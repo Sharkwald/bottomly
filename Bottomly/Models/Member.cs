@@ -21,11 +21,4 @@ public class Member
     /// </summary>
     [BsonElement("_cls")]
     public string Cls { get; set; } = string.Empty;
-
-    [BsonIgnore]
-    public string Note =>
-        $"FullName: {FullName}\n" +
-        $"Gender: {Gender}\n" +
-        $"SassLevel: {SassLevel}\n" +
-        $"MiscInfo: {MiscInfo}";
 }
