@@ -17,7 +17,9 @@ public static class HostApplicationBuilderExtensions
         var ollamaApiKey = builder.Configuration["bottomly_ollama_api_key"] ?? string.Empty;
 
         // The built-in resilience settings are super aggressive, with a 10s timeout.
-        // Running locally Qwen3 takes ~2m to respond to simple queries, so we need to override the defaults.
+        // The cloud Ollama endpoint cold-starts: the first request typically fails, but retries succeed in <30s.
+        // AttemptTimeout is kept low (60s) so we abandon a stalled attempt quickly and let the retry fire fast,
+        // rather than waiting the full 4 minutes we previously allowed.
 #pragma warning disable EXTEXP0001
         builder.Services.AddHttpClient("bottomlymodel_httpClient")
             .ConfigureHttpClient(c => c.DefaultRequestHeaders.Add("Authorization", $"Bearer {ollamaApiKey}"))
@@ -25,9 +27,11 @@ public static class HostApplicationBuilderExtensions
 #pragma warning restore EXTEXP0001
             .AddStandardResilienceHandler(options =>
             {
-                options.TotalRequestTimeout.Timeout = TimeSpan.FromMinutes(10);
-                options.AttemptTimeout.Timeout = TimeSpan.FromMinutes(4);
-                options.CircuitBreaker.SamplingDuration = TimeSpan.FromMinutes(8);
+                options.TotalRequestTimeout.Timeout = TimeSpan.FromMinutes(4);
+                options.AttemptTimeout.Timeout = TimeSpan.FromSeconds(60);
+                options.CircuitBreaker.SamplingDuration = TimeSpan.FromMinutes(3);
+                options.Retry.UseJitter = false;
+                options.Retry.Delay = TimeSpan.FromSeconds(1);
             });
 
         builder.Services.AddTransient<ILlmClient, LlmClient>();
