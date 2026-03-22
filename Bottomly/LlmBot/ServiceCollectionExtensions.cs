@@ -10,7 +10,7 @@ public static class HostApplicationBuilderExtensions
         builder.AddOllamaApiClient("bottomlymodel", x =>
             {
                 x.Endpoint = new Uri("https://ollama.com");
-                x.SelectedModel = "qwen3.5:cloud";
+                x.SelectedModel = "gpt-oss:120bcloud";
             })
             .AddChatClient();
 
