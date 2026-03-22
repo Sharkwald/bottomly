@@ -40,8 +40,8 @@ public class ConversationMessageHandlerTests
     }
 
     private static MessageEvent CreateMessage(string text, string user = "U1", string channel = "C1",
-        string? threadTs = null) =>
-        new() { Text = text, User = user, Channel = channel, Ts = "ts1", ThreadTs = threadTs };
+        string? threadTs = null, string? channelType = null) =>
+        new() { Text = text, User = user, Channel = channel, Ts = "ts1", ThreadTs = threadTs, ChannelType = channelType };
 
     [Theory]
     [InlineData("hey bottomly what do you think?")]
@@ -59,6 +59,20 @@ public class ConversationMessageHandlerTests
     [InlineData("<@UOTHERID> what do you think?")]
     public void CanHandle_MessageWithoutBottomly_ReturnsFalse(string text) =>
         _handler.CanHandle(CreateMessage(text)).ShouldBeFalse();
+
+    [Theory]
+    [InlineData("hello there")]
+    [InlineData("what is the weather like?")]
+    [InlineData("tell me a joke")]
+    public void CanHandle_DirectMessageWithAnyText_ReturnsTrue(string text) =>
+        _handler.CanHandle(CreateMessage(text, channelType: "im")).ShouldBeTrue();
+
+    [Theory]
+    [InlineData("hello there")]
+    [InlineData("_karma alice")]
+    [InlineData("<@UOTHERID> what do you think?")]
+    public void CanHandle_NonDirectMessageWithoutBottomly_ReturnsFalse(string text) =>
+        _handler.CanHandle(CreateMessage(text, channelType: "channel")).ShouldBeFalse();
 
     [Fact]
     public void BuildHelpMessage_ReturnsEmptyString() =>

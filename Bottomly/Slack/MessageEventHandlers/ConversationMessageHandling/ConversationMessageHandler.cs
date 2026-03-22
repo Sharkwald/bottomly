@@ -21,6 +21,11 @@ public class ConversationMessageHandler(
 
     public bool CanHandle(MessageEvent message)
     {
+        if (message.ChannelType == "im")
+        {
+            return true;
+        }
+
         if (message.Text.Contains("bottomly"))
         {
             return true;
