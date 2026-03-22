@@ -1,5 +1,6 @@
 using Bottomly.Models;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Primitives;
 
 namespace Bottomly.Repositories;
 
@@ -7,6 +8,7 @@ public class CachingMemberRepository(IMemberRepository inner, IMemoryCache cache
 {
     private const string SlackKeyPrefix = "member:slack:";
     private const string UsernameKeyPrefix = "member:username:";
+    private volatile CancellationTokenSource _evictionToken = new();
 
     public async Task<List<Member>> GetAllAsync()
     {
@@ -115,9 +117,19 @@ public class CachingMemberRepository(IMemberRepository inner, IMemoryCache cache
         }
     }
 
+    public Task InvalidateCacheAsync()
+    {
+        var old = Interlocked.Exchange(ref _evictionToken, new CancellationTokenSource());
+        old.Cancel();
+        old.Dispose();
+        return Task.CompletedTask;
+    }
+
     private void CacheMember(Member member)
     {
-        cache.Set(SlackKeyPrefix + member.SlackId, member);
-        cache.Set(UsernameKeyPrefix + member.Username, member);
+        var options = new MemoryCacheEntryOptions()
+            .AddExpirationToken(new CancellationChangeToken(_evictionToken.Token));
+        cache.Set(SlackKeyPrefix + member.SlackId, member, options);
+        cache.Set(UsernameKeyPrefix + member.Username, member, options);
     }
 }

@@ -11,4 +11,5 @@ public interface IMemberRepository
     Task AddAsync(Member member);
     Task AddAsync(IEnumerable<Member> members);
     Task UpdateInfoAsync(string username, string fullName, Gender gender, SassLevel sassLevel, string miscInfo);
+    Task InvalidateCacheAsync() => Task.CompletedTask;
 }

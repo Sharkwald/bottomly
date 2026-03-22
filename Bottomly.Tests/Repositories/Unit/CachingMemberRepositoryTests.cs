@@ -157,4 +157,40 @@ public class CachingMemberRepositoryTests
         result!.FullName.ShouldBe("Alice Smith");
         _mockInner.Verify(r => r.GetByUsernameAsync("alice"), Times.Once); // Called once during UpdateInfoAsync
     }
+
+    [Fact]
+    public async Task InvalidateCacheAsync_ClearsAllCachedEntries()
+    {
+        var member = new Member { SlackId = "U1", Username = "alice" };
+        _mockInner.Setup(r => r.GetBySlackIdAsync("U1")).ReturnsAsync(member);
+        _mockInner.Setup(r => r.GetAllAsync()).ReturnsAsync([]);
+
+        await _repo.GetBySlackIdAsync("U1"); // Populate cache
+
+        await _repo.InvalidateCacheAsync();
+
+        await _repo.GetBySlackIdAsync("U1"); // Should miss cache after invalidation
+
+        _mockInner.Verify(r => r.GetBySlackIdAsync("U1"), Times.Exactly(2));
+    }
+
+    [Fact]
+    public async Task InvalidateCacheAsync_AfterInvalidation_GetAllAsyncRepopulatesCache()
+    {
+        var members = new List<Member>
+        {
+            new() { SlackId = "U1", Username = "alice" },
+            new() { SlackId = "U2", Username = "bob" }
+        };
+        _mockInner.Setup(r => r.GetAllAsync()).ReturnsAsync(members);
+
+        await _repo.InvalidateCacheAsync();
+        await _repo.GetAllAsync(); // Repopulate cache
+
+        await _repo.GetBySlackIdAsync("U1");
+        await _repo.GetByUsernameAsync("bob");
+
+        _mockInner.Verify(r => r.GetBySlackIdAsync(It.IsAny<string>()), Times.Never);
+        _mockInner.Verify(r => r.GetByUsernameAsync(It.IsAny<string>()), Times.Never);
+    }
 }
