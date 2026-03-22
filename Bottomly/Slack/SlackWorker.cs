@@ -1,5 +1,6 @@
 using Bottomly.Repositories;
 using Bottomly.Slack.MessageEventHandlers;
+using Bottomly.Slack.MessageEventHandlers.ConversationMessageHandling;
 using Bottomly.Slack.ReactionHandlers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -10,24 +11,44 @@ using SlackNet.SocketMode;
 
 namespace Bottomly.Slack;
 
-public class SlackWorker(
-    ISlackSocketModeClient socketClient,
-    IEnumerable<IMessageEventHandler> eventHandlers,
-    [FromKeyedServices("help")] IMessageEventHandler helpMessageHandler,
-    IEnumerable<IReactionHandler> reactionHandlers,
-    IMemberRepository memberRepository,
-    ILogger<SlackWorker> logger)
+public class SlackWorker
     : BackgroundService
 {
     internal const string HelpHandlerKey = "help";
 
+    private readonly List<ConversationMessageHandler> _conversationHandlers;
+    private readonly IMessageEventHandler _helpMessageHandler;
+    private readonly ILogger<SlackWorker> _logger;
+    private readonly IMemberRepository _memberRepository;
+    private readonly List<IMessageEventHandler> _nonConversationHandlers;
+    private readonly IEnumerable<IReactionHandler> _reactionHandlers;
+    private readonly ISlackSocketModeClient _socketClient;
+
+    public SlackWorker(
+        ISlackSocketModeClient socketClient,
+        IEnumerable<IMessageEventHandler> eventHandlers,
+        [FromKeyedServices("help")] IMessageEventHandler helpMessageHandler,
+        IEnumerable<IReactionHandler> reactionHandlers,
+        IMemberRepository memberRepository,
+        ILogger<SlackWorker> logger)
+    {
+        _socketClient = socketClient;
+        _helpMessageHandler = helpMessageHandler;
+        _reactionHandlers = reactionHandlers;
+        _memberRepository = memberRepository;
+        _logger = logger;
+        IList<IMessageEventHandler> eventHandlerList = eventHandlers.ToList();
+        _conversationHandlers = eventHandlerList.OfType<ConversationMessageHandler>().ToList();
+        _nonConversationHandlers = eventHandlerList.Except(_conversationHandlers).ToList();
+    }
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        logger.LogInformation("Starting Slack Socket Mode connection...");
+        _logger.LogInformation("Starting Slack Socket Mode connection...");
 
-        await socketClient.Connect(new SocketModeConnectionOptions(), stoppingToken);
+        await _socketClient.Connect(new SocketModeConnectionOptions(), stoppingToken);
 
-        logger.LogInformation("Connected to Slack.");
+        _logger.LogInformation("Connected to Slack.");
 
         // Keep alive until cancellation
         await Task.Delay(Timeout.Infinite, stoppingToken);
@@ -45,26 +66,28 @@ public class SlackWorker(
             await ResolveUsernameAsync(message);
 
             // Help handler takes priority
-            if (helpMessageHandler.CanHandle(message))
+            if (_helpMessageHandler.CanHandle(message))
             {
-                await helpMessageHandler.HandleAsync(message);
+                await _helpMessageHandler.HandleAsync(message);
                 return;
             }
 
-            foreach (var handler in eventHandlers)
-            {
-                if (!handler.CanHandle(message))
-                {
-                    continue;
-                }
 
+            foreach (var handler in _nonConversationHandlers.Where(handler => handler.CanHandle(message)))
+            {
                 await handler.HandleAsync(message);
                 return;
+            }
+
+            var conversationHandler = _conversationHandlers.Single();
+            if (conversationHandler.CanHandle(message))
+            {
+                await conversationHandler.HandleAsync(message);
             }
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error processing Slack message: {Text}", message.Text);
+            _logger.LogError(ex, "Error processing Slack message: {Text}", message.Text);
         }
     }
 
@@ -72,7 +95,7 @@ public class SlackWorker(
     {
         try
         {
-            foreach (var handler in reactionHandlers)
+            foreach (var handler in _reactionHandlers)
             {
                 if (handler.CanHandle(reaction))
                 {
@@ -82,7 +105,7 @@ public class SlackWorker(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error processing reaction: {Reaction}", reaction.Reaction);
+            _logger.LogError(ex, "Error processing reaction: {Reaction}", reaction.Reaction);
         }
     }
 
@@ -93,7 +116,7 @@ public class SlackWorker(
     {
         try
         {
-            var member = await memberRepository.GetBySlackIdAsync(message.User);
+            var member = await _memberRepository.GetBySlackIdAsync(message.User);
             if (member is not null)
             {
                 message.User = member.Username;
@@ -101,7 +124,7 @@ public class SlackWorker(
         }
         catch (Exception ex)
         {
-            logger.LogWarning(ex, "Could not resolve username for Slack ID {UserId}", message.User);
+            _logger.LogWarning(ex, "Could not resolve username for Slack ID {UserId}", message.User);
         }
     }
 }
