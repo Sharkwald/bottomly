@@ -15,7 +15,6 @@ public static class HostBuilderExtensions
             assembly.GetTypes()
                 .Where(t => typeof(IMessageEventHandler).IsAssignableFrom(t) &&
                             t is { IsInterface: false, IsAbstract: false })
-                .Where(t => t.Name != nameof(HelpHandler))
                 .Where(t => !exclude.Contains(t))
                 .ToList()
                 .ForEach(t =>

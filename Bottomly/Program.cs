@@ -9,7 +9,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MongoDB.Driver;
-
 var builder = Host.CreateApplicationBuilder(args);
 
 builder.AddServiceDefaults();
@@ -36,7 +35,7 @@ builder.Services.AddHttpClient();
 builder.Services.AddBottomlyRepositories();
 
 builder.RegisterCommands(Assembly.GetExecutingAssembly());
-builder.RegisterEventHandlers(Assembly.GetExecutingAssembly(), []);
+builder.RegisterEventHandlers(Assembly.GetExecutingAssembly(), Bottomly.Slack.ServiceCollectionExtensions.KeyedHandlerTypes);
 
 builder.Services.AddBottomlySlack(builder.Configuration);
 builder.AddBottomlyLlm();

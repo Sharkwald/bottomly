@@ -21,7 +21,8 @@ public class SlackWorkerTests
 
     private SlackWorker CreateWorker(
         IEnumerable<IMessageEventHandler>? handlers = null,
-        IEnumerable<IReactionHandler>? reactionHandlers = null)
+        IEnumerable<IReactionHandler>? reactionHandlers = null,
+        IMessageEventHandler? conversationHandler = null)
     {
         var options = TestHelpers.CreateOptions();
         var helpHandler = new HelpHandler(
@@ -30,10 +31,13 @@ public class SlackWorkerTests
             options,
             NullLogger<HelpHandler>.Instance);
 
+        var fallbackHandler = conversationHandler ?? Mock.Of<IMessageEventHandler>();
+
         return new SlackWorker(
             _mockSocket.Object,
             handlers ?? [],
             helpHandler,
+            fallbackHandler,
             reactionHandlers ?? [],
             _mockMemberRepo.Object,
             NullLogger<SlackWorker>.Instance);
@@ -210,7 +214,45 @@ public class SlackWorkerTests
         await worker.ProcessMessageAsync(CreateMessage("_wiki cats"));
     }
 
-    // ── ProcessReactionAsync ──────────────────────────────────────────────────
+    [Fact]
+    public async Task ProcessMessageAsync_NoMatchingHandler_FallsBackToConversationHandler()
+    {
+        _mockMemberRepo.Setup(r => r.GetBySlackIdAsync(It.IsAny<string>())).ReturnsAsync((Member?)null);
+
+        var mockRegularHandler = new Mock<IMessageEventHandler>();
+        mockRegularHandler.Setup(h => h.CanHandle(It.IsAny<MessageEvent>())).Returns(false);
+
+        var mockConversationHandler = new Mock<IMessageEventHandler>();
+        mockConversationHandler.Setup(h => h.CanHandle(It.IsAny<MessageEvent>())).Returns(true);
+        mockConversationHandler.Setup(h => h.HandleAsync(It.IsAny<MessageEvent>())).Returns(Task.CompletedTask);
+
+        var worker = CreateWorker([mockRegularHandler.Object], conversationHandler: mockConversationHandler.Object);
+        await worker.ProcessMessageAsync(CreateMessage("hey bottomly"));
+
+        mockRegularHandler.Verify(h => h.HandleAsync(It.IsAny<MessageEvent>()), Times.Never());
+        mockConversationHandler.Verify(h => h.HandleAsync(It.IsAny<MessageEvent>()), Times.Once());
+    }
+
+    [Fact]
+    public async Task ProcessMessageAsync_MatchingRegularHandler_DoesNotFallBackToConversationHandler()
+    {
+        _mockMemberRepo.Setup(r => r.GetBySlackIdAsync(It.IsAny<string>())).ReturnsAsync((Member?)null);
+
+        var mockRegularHandler = new Mock<IMessageEventHandler>();
+        mockRegularHandler.Setup(h => h.CanHandle(It.IsAny<MessageEvent>())).Returns(true);
+        mockRegularHandler.Setup(h => h.HandleAsync(It.IsAny<MessageEvent>())).Returns(Task.CompletedTask);
+
+        var mockConversationHandler = new Mock<IMessageEventHandler>();
+        mockConversationHandler.Setup(h => h.CanHandle(It.IsAny<MessageEvent>())).Returns(true);
+
+        var worker = CreateWorker([mockRegularHandler.Object], conversationHandler: mockConversationHandler.Object);
+        await worker.ProcessMessageAsync(CreateMessage("_wiki cats"));
+
+        mockRegularHandler.Verify(h => h.HandleAsync(It.IsAny<MessageEvent>()), Times.Once());
+        mockConversationHandler.Verify(h => h.HandleAsync(It.IsAny<MessageEvent>()), Times.Never());
+    }
+
+
 
     [Fact]
     public async Task ProcessReactionAsync_MatchingHandler_InvokesHandler()
@@ -280,7 +322,7 @@ public class SlackEventDispatcherTests
         var mockRepo = new Mock<IMemberRepository>();
         var options = TestHelpers.CreateOptions();
         var helpHandler = new HelpHandler([], mockBroker.Object, options, NullLogger<HelpHandler>.Instance);
-        var worker = new SlackWorker(mockSocket.Object, [], helpHandler, [],
+        var worker = new SlackWorker(mockSocket.Object, [], helpHandler, Mock.Of<IMessageEventHandler>(), [],
             mockRepo.Object, NullLogger<SlackWorker>.Instance);
 
         var dispatcher = new SlackMessageEventDispatcher(worker);
@@ -298,7 +340,7 @@ public class SlackEventDispatcherTests
         var mockRepo = new Mock<IMemberRepository>();
         var options = TestHelpers.CreateOptions();
         var helpHandler = new HelpHandler([], mockBroker.Object, options, NullLogger<HelpHandler>.Instance);
-        var worker = new SlackWorker(mockSocket.Object, [], helpHandler, [],
+        var worker = new SlackWorker(mockSocket.Object, [], helpHandler, Mock.Of<IMessageEventHandler>(), [],
             mockRepo.Object, NullLogger<SlackWorker>.Instance);
 
         var dispatcher = new SlackReactionEventDispatcher(worker);

@@ -1,6 +1,5 @@
 using Bottomly.Repositories;
 using Bottomly.Slack.MessageEventHandlers;
-using Bottomly.Slack.MessageEventHandlers.ConversationMessageHandling;
 using Bottomly.Slack.ReactionHandlers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -15,31 +14,32 @@ public class SlackWorker
     : BackgroundService
 {
     internal const string HelpHandlerKey = "help";
+    internal const string ConversationHandlerKey = "conversation";
 
-    private readonly List<ConversationMessageHandler> _conversationHandlers;
+    private readonly IMessageEventHandler _conversationHandler;
+    private readonly IReadOnlyList<IMessageEventHandler> _handlers;
     private readonly IMessageEventHandler _helpMessageHandler;
     private readonly ILogger<SlackWorker> _logger;
     private readonly IMemberRepository _memberRepository;
-    private readonly List<IMessageEventHandler> _nonConversationHandlers;
     private readonly IEnumerable<IReactionHandler> _reactionHandlers;
     private readonly ISlackSocketModeClient _socketClient;
 
     public SlackWorker(
         ISlackSocketModeClient socketClient,
         IEnumerable<IMessageEventHandler> eventHandlers,
-        [FromKeyedServices("help")] IMessageEventHandler helpMessageHandler,
+        [FromKeyedServices(HelpHandlerKey)] IMessageEventHandler helpMessageHandler,
+        [FromKeyedServices(ConversationHandlerKey)] IMessageEventHandler conversationHandler,
         IEnumerable<IReactionHandler> reactionHandlers,
         IMemberRepository memberRepository,
         ILogger<SlackWorker> logger)
     {
         _socketClient = socketClient;
         _helpMessageHandler = helpMessageHandler;
+        _conversationHandler = conversationHandler;
         _reactionHandlers = reactionHandlers;
         _memberRepository = memberRepository;
         _logger = logger;
-        IList<IMessageEventHandler> eventHandlerList = eventHandlers.ToList();
-        _conversationHandlers = eventHandlerList.OfType<ConversationMessageHandler>().ToList();
-        _nonConversationHandlers = eventHandlerList.Except(_conversationHandlers).ToList();
+        _handlers = eventHandlers.ToList();
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -72,17 +72,16 @@ public class SlackWorker
                 return;
             }
 
-
-            foreach (var handler in _nonConversationHandlers.Where(handler => handler.CanHandle(message)))
+            foreach (var handler in _handlers.Where(handler => handler.CanHandle(message)))
             {
                 await handler.HandleAsync(message);
                 return;
             }
 
-            var conversationHandler = _conversationHandlers.Single();
-            if (conversationHandler.CanHandle(message))
+            // Conversation handler is the fallback — only runs if no other handler matched
+            if (_conversationHandler.CanHandle(message))
             {
-                await conversationHandler.HandleAsync(message);
+                await _conversationHandler.HandleAsync(message);
             }
         }
         catch (Exception ex)

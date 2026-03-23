@@ -1,6 +1,7 @@
 using Bottomly.Repositories;
 using Bottomly.Slack.MembershipEventHandlers;
 using Bottomly.Slack.MessageEventHandlers;
+using Bottomly.Slack.MessageEventHandlers.ConversationMessageHandling;
 using Bottomly.Slack.ReactionHandlers;
 using Bottomly.Slack.Telemetry;
 using Microsoft.Extensions.Configuration;
@@ -12,6 +13,16 @@ namespace Bottomly.Slack;
 
 public static class ServiceCollectionExtensions
 {
+    /// <summary>
+    /// Handlers registered with keyed DI (not via auto-discovery). Pass this to
+    /// <c>RegisterEventHandlers</c> as the exclude list to prevent double-registration.
+    /// </summary>
+    public static readonly Type[] KeyedHandlerTypes =
+    [
+        typeof(HelpHandler),
+        typeof(ConversationMessageHandler)
+    ];
+
     public static IServiceCollection AddBottomlySlack(this IServiceCollection services, IConfiguration configuration)
     {
         var slackBotToken = configuration["bottomly_slack_bot_token"] ?? string.Empty;
@@ -33,6 +44,11 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<HelpHandler>();
         services.AddKeyedSingleton<IMessageEventHandler>(SlackWorker.HelpHandlerKey,
             (sp, _) => new TracingMessageEventHandlerDecorator(sp.GetRequiredService<HelpHandler>()));
+
+        // Conversation handler — keyed registration so SlackWorker can inject it separately as a fallback
+        services.AddSingleton<ConversationMessageHandler>();
+        services.AddKeyedSingleton<IMessageEventHandler>(SlackWorker.ConversationHandlerKey,
+            (sp, _) => new TracingMessageEventHandlerDecorator(sp.GetRequiredService<ConversationMessageHandler>()));
 
         // Reaction handlers (wrapped in tracing decorator)
         services.AddSingleton<KarmaReactionMap>();
