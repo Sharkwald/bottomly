@@ -49,6 +49,9 @@ public class ConversationMessageHandlerTests
     [InlineData("I asked bottomly already")]
     [InlineData("<@UBOTID> what do you think?")]
     [InlineData("<@UBOTID>")]
+    [InlineData("hey Bottomly what do you think?")]
+    [InlineData("BOTTOMLY help me")]
+    [InlineData("BoTtOmLy, help")]
     public void CanHandle_MessageContainsBottomly_ReturnsTrue(string text) =>
         _handler.CanHandle(CreateMessage(text)).ShouldBeTrue();
 
@@ -89,6 +92,19 @@ public class ConversationMessageHandlerTests
         await _handler.HandleAsync(CreateMessage("bottomly what is 2+2?"));
 
         _mockSlackBroker.Verify(b => b.SendMessageAsync("Indeed, sir.", "C1", null), Times.Once());
+    }
+
+    [Fact]
+    public async Task HandleAsync_SuccessfulLlmResponseInThread_SendsReplyToThread()
+    {
+        SetupConversationHistory("C1", []);
+        SetupMembers([new Member { SlackId = "U1", Username = "alice" }]);
+        _mockLlmBroker.Setup(b => b.Respond(It.IsAny<BottomlyInputMessage>(), It.IsAny<MessageHistoryContext>()))
+            .ReturnsAsync(LlmMessageResponse.Create("Indeed, sir."));
+
+        await _handler.HandleAsync(CreateMessage("bottomly what is 2+2?", "U1", "C1", "thread_ts1"));
+
+        _mockSlackBroker.Verify(b => b.SendMessageAsync("Indeed, sir.", "C1", "thread_ts1"), Times.Once());
     }
 
     [Fact]
