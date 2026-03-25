@@ -26,7 +26,7 @@ public class ConversationMessageHandler(
             return true;
         }
 
-        if (message.Text.Contains("bottomly"))
+        if (message.Text.Contains("bottomly", StringComparison.OrdinalIgnoreCase))
         {
             return true;
         }
@@ -61,7 +61,7 @@ public class ConversationMessageHandler(
 
         var response = await llmClient.Respond(mainPrompt, context);
 
-        var replyToTs = response.IsError() ? message.TsForReply() : null;
+        var replyToTs = message.ThreadTs != null || response.IsError() ? message.TsForReply() : null;
 
         await slackBroker.SendMessageAsync(response.ToSlackResponse(), message.Channel, replyToTs);
     }
