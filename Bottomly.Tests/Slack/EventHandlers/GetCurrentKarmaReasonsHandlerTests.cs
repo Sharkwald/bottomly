@@ -50,13 +50,15 @@ public class GetCurrentKarmaReasonsHandlerTests
         _mockKarmaRepo.Verify(r => r.GetKarmaReasonsAsync("alice"), Times.Once());
     }
 
-    [Fact]
-    public async Task HandleAsync_NoRecipient_CallsCommandWithMessageUser()
+    [Theory]
+    [InlineData("_reasons")]
+    [InlineData("_reasons ")]
+    public async Task HandleAsync_NoRecipient_CallsCommandWithMessageUser(string message)
     {
         _mockKarmaRepo.Setup(r => r.GetKarmaReasonsAsync("U_sender")).ReturnsAsync(
             new KarmaReasonsResult(0, new List<Karma>().AsReadOnly()));
 
-        await _handler.HandleAsync(CreateMessage("_reasons "));
+        await _handler.HandleAsync(CreateMessage(message));
 
         _mockKarmaRepo.Verify(r => r.GetKarmaReasonsAsync("U_sender"), Times.Once());
     }

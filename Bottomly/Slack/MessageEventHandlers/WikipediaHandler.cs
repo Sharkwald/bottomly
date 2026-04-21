@@ -20,7 +20,13 @@ public class WikipediaHandler(
 
     protected override async Task InvokeHandlerLogicAsync(MessageEvent message)
     {
-        var term = message.Text![CommandTrigger.Length..];
+        var term = message.Text![CommandTrigger.TrimEnd().Length..].Trim();
+        if (string.IsNullOrEmpty(term))
+        {
+            await SendMessageResponseAsync("Please provide a search term.", message);
+            return;
+        }
+
         var result = await command.ExecuteAsync(term);
         var response = result switch
         {

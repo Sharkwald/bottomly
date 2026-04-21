@@ -23,7 +23,13 @@ public class ImageSearchHandler(
 
     protected override async Task InvokeHandlerLogicAsync(MessageEvent message)
     {
-        var query = message.Text![CommandTrigger.Length..];
+        var query = message.Text![CommandTrigger.TrimEnd().Length..].Trim();
+        if (string.IsNullOrEmpty(query))
+        {
+            await SendMessageResponseAsync("Please provide a search query.", message);
+            return;
+        }
+
         var result = await command.ExecuteAsync(query);
 
         if (result is SearchResult success)

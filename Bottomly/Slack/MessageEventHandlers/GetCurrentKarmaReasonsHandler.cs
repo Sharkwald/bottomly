@@ -27,7 +27,7 @@ public class GetCurrentKarmaReasonsHandler(
     protected override async Task InvokeHandlerLogicAsync(MessageEvent message)
     {
         var text = await parser.ReplaceSlackIdTokensWithUsernamesAsync(message.Text!);
-        var recipient = text[CommandTrigger.Length..].Split(' ')[0];
+        var recipient = text[CommandTrigger.TrimEnd().Length..].TrimStart().Split(' ')[0];
         if (string.IsNullOrEmpty(recipient))
         {
             recipient = message.User;

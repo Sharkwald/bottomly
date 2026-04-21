@@ -21,7 +21,13 @@ public class GiphyHandler(
 
     protected override async Task InvokeHandlerLogicAsync(MessageEvent message)
     {
-        var term = message.Text![CommandTrigger.Length..];
+        var term = message.Text![CommandTrigger.TrimEnd().Length..].Trim();
+        if (string.IsNullOrEmpty(term))
+        {
+            await SendMessageResponseAsync("Please provide a search term.", message);
+            return;
+        }
+
         var result = await command.ExecuteAsync(term);
 
         if (result is GiphySuccessResult success)

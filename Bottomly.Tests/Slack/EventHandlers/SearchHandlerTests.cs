@@ -66,6 +66,16 @@ public class SearchHandlerTests
         _mockBroker.Verify(b => b.SendMessageAsync("No results found for \"xyz\"", "C1", null), Times.Once());
     }
 
+    [Theory]
+    [InlineData("_g")]
+    [InlineData("_g ")]
+    public async Task HandleAsync_NoArgument_SendsPleaseProvideMessage(string text)
+    {
+        await _handler.HandleAsync(CreateMessage(text));
+
+        _mockBroker.Verify(b => b.SendMessageAsync("Please provide a search query.", "C1", null), Times.Once());
+    }
+
     [Fact]
     public async Task HandleAsync_HelpEvent_SendsHelpMessage()
     {

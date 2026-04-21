@@ -65,6 +65,16 @@ public class UrbanHandlerTests
         _mockBroker.Verify(b => b.SendMessageAsync("Left as an exercise for the reader.", "C1", "ts1"), Times.Once());
     }
 
+    [Theory]
+    [InlineData("_ud")]
+    [InlineData("_ud ")]
+    public async Task HandleAsync_NoArgument_SendsPleaseProvideMessage(string text)
+    {
+        await _handler.HandleAsync(CreateMessage(text));
+
+        _mockBroker.Verify(b => b.SendMessageAsync("Please provide a search term.", "C1", null), Times.Once());
+    }
+
     [Fact]
     public async Task HandleAsync_HelpEvent_SendsHelpMessage()
     {
