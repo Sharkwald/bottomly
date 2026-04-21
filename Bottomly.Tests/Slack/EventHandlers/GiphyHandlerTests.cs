@@ -78,6 +78,16 @@ public class GiphyHandlerTests
         _mockBroker.Verify(b => b.SendMessageAsync("No gifs found for \"xyz\"", "C1", null), Times.Once());
     }
 
+    [Theory]
+    [InlineData("_gif")]
+    [InlineData("_gif ")]
+    public async Task HandleAsync_NoArgument_SendsPleaseProvideMessage(string text)
+    {
+        await _handler.HandleAsync(CreateMessage(text));
+
+        _mockBroker.Verify(b => b.SendMessageAsync("Please provide a search term.", "C1", null), Times.Once());
+    }
+
     [Fact]
     public async Task HandleAsync_HelpEvent_SendsHelpMessage()
     {
