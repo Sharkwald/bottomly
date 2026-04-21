@@ -37,7 +37,7 @@ public class KarmaRepositoryIntegrationTests(MongoDbFixture fixture) : IAsyncLif
     [Fact]
     public async Task GetCurrentNetKarmaAsync_WithMixedKarma_ReturnsCorrectNetScore()
     {
-        // 2× PozzyPoz = –2, 3× NeggyNeg = +3 → net = +1
+        // 2× PozzyPoz = +2, 3× NeggyNeg = -3 → net = -1
         await _sut.AddAsync(MakeKarma("alice", "x", KarmaType.PozzyPoz));
         await _sut.AddAsync(MakeKarma("alice", "x", KarmaType.PozzyPoz));
         await _sut.AddAsync(MakeKarma("alice", "x", KarmaType.NeggyNeg));
@@ -46,7 +46,7 @@ public class KarmaRepositoryIntegrationTests(MongoDbFixture fixture) : IAsyncLif
 
         var net = await _sut.GetCurrentNetKarmaAsync("alice");
 
-        net.ShouldBe(1);
+        net.ShouldBe(-1);
     }
 
     [Fact]
@@ -56,7 +56,7 @@ public class KarmaRepositoryIntegrationTests(MongoDbFixture fixture) : IAsyncLif
 
         var net = await _sut.GetCurrentNetKarmaAsync("bob");
 
-        net.ShouldBe(1);
+        net.ShouldBe(-1);
     }
 
     [Fact]
@@ -120,12 +120,12 @@ public class KarmaRepositoryIntegrationTests(MongoDbFixture fixture) : IAsyncLif
     [Fact]
     public async Task GetLeaderBoardAsync_ReturnsCorrectOrderAndSize()
     {
-        // net_karma: PozzyPoz → –1, NeggyNeg → +1
+        // net_karma: PozzyPoz → +1, NeggyNeg → -1
         // Leader board is sorted Descending by net_karma
-        await AddKarmaMultiple("leader-a", KarmaType.NeggyNeg, 5); // net +5
-        await AddKarmaMultiple("leader-b", KarmaType.NeggyNeg, 3); // net +3
-        await AddKarmaMultiple("leader-c", KarmaType.NeggyNeg, 1); // net +1
-        await AddKarmaMultiple("leader-d", KarmaType.PozzyPoz, 2); // net –2 (should not appear in top 3)
+        await AddKarmaMultiple("leader-a", KarmaType.PozzyPoz, 5); // net +5
+        await AddKarmaMultiple("leader-b", KarmaType.PozzyPoz, 3); // net +3
+        await AddKarmaMultiple("leader-c", KarmaType.PozzyPoz, 1); // net +1
+        await AddKarmaMultiple("leader-d", KarmaType.NeggyNeg, 2); // net –2 (should not appear in top 3)
 
         var board = await _sut.GetLeaderBoardAsync();
 
@@ -142,10 +142,10 @@ public class KarmaRepositoryIntegrationTests(MongoDbFixture fixture) : IAsyncLif
     public async Task GetLoserBoardAsync_ReturnsCorrectOrderAndSize()
     {
         // Loser board is sorted Ascending by net_karma
-        await AddKarmaMultiple("loser-a", KarmaType.PozzyPoz, 5); // net –5
-        await AddKarmaMultiple("loser-b", KarmaType.PozzyPoz, 3); // net –3
-        await AddKarmaMultiple("loser-c", KarmaType.PozzyPoz, 1); // net –1
-        await AddKarmaMultiple("loser-d", KarmaType.NeggyNeg, 2); // net +2 (should not appear in top 3)
+        await AddKarmaMultiple("loser-a", KarmaType.NeggyNeg, 5); // net –5
+        await AddKarmaMultiple("loser-b", KarmaType.NeggyNeg, 3); // net –3
+        await AddKarmaMultiple("loser-c", KarmaType.NeggyNeg, 1); // net –1
+        await AddKarmaMultiple("loser-d", KarmaType.PozzyPoz, 2); // net +2 (should not appear in top 3)
 
         var board = await _sut.GetLoserBoardAsync();
 
@@ -161,10 +161,10 @@ public class KarmaRepositoryIntegrationTests(MongoDbFixture fixture) : IAsyncLif
     [Fact]
     public async Task GetLeaderBoardAsync_DefaultSizeIsThree()
     {
-        await AddKarmaMultiple("rank-1", KarmaType.NeggyNeg, 4);
-        await AddKarmaMultiple("rank-2", KarmaType.NeggyNeg, 3);
-        await AddKarmaMultiple("rank-3", KarmaType.NeggyNeg, 2);
-        await AddKarmaMultiple("rank-4", KarmaType.NeggyNeg, 1);
+        await AddKarmaMultiple("rank-1", KarmaType.PozzyPoz, 4);
+        await AddKarmaMultiple("rank-2", KarmaType.PozzyPoz, 3);
+        await AddKarmaMultiple("rank-3", KarmaType.PozzyPoz, 2);
+        await AddKarmaMultiple("rank-4", KarmaType.PozzyPoz, 1);
 
         var board = await _sut.GetLeaderBoardAsync();
 
