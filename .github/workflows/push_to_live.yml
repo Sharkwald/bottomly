@@ -1,6 +1,7 @@
 ---
 name: Push to Live
 on:
+  workflow_dispatch:
   workflow_run:
     workflows: [ .NET Build and Test ]
     types: [ completed ]
