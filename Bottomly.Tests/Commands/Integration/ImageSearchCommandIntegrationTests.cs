@@ -66,7 +66,7 @@ public class ImageSearchCommandIntegrationTests
             return;
         }
 
-        var result = await CreateCommand().ExecuteAsync("GitHub");
+        var result = await CreateCommand().ExecuteAsync("GitHub logo");
 
         result.ShouldBeOfType<SearchResult>();
         var searchResult = (SearchResult)result;
