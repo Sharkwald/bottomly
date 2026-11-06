@@ -9,7 +9,7 @@ namespace Bottomly.Tests.Infrastructure;
 /// </summary>
 public sealed class MongoDbFixture : IAsyncLifetime
 {
-    private readonly MongoDbContainer _container = new MongoDbBuilder("mongo:8")
+    private readonly MongoDbContainer _container = new MongoDbBuilder("mongo:7.0")
         .Build();
 
     public IMongoClient Client { get; private set; } = null!;
