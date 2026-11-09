@@ -9,11 +9,9 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     environment:
       name: live
-    permissions:
-      packages: read
     steps:
       # checkout the repo
       - name: Checkout GitHub Action
@@ -22,12 +20,6 @@ jobs:
         uses: azure/login@v1.4.5
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Set lowercase image name
         id: image_name
         shell: bash
@@ -63,8 +55,6 @@ jobs:
           RELEASE_HISTORY_TOKEN: ${{ secrets.RELEASE_HISTORY_TOKEN }}
           APPINSIGHTS_CONN_STR: ${{ steps.appinsights.outputs.connection_string }}
           OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
-          REGISTRY_USERNAME: ${{ github.actor }}
-          REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
           envsubst < .azure/container-group.yml > /tmp/resolved-container-group.yml
